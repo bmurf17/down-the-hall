@@ -3,6 +3,10 @@
 import { Transition, Dialog } from '@headlessui/react';
 import Link from 'next/link';
 import { Fragment, SVGProps, useContext } from 'react';
+import { SearchIcon } from './icons/SearchIcon';
+import { BookmarkIcon } from './icons/BookmarkIcon';
+import { ConnectionIcon } from './icons/ConnectionIconIcon';
+import { ExploreIcon } from './icons/ExploreIcon';
 
 interface Props {
   close: () => void;
@@ -31,30 +35,30 @@ export function DrawerMenu({ close, open }: Props) {
             <div className='py-4 px-6 font-bold text-blue-600'>Down The Hall</div>
             <div className='overflow-y-auto flex-1'>
               <div className='flex flex-col space-y-1 px-4'>
-                  <Link
-                    className='flex items-center gap-3 rounded-md px-3 py-2 text-sm font-medium text-gray-500 transition-colors hover:bg-gray-100 hover:text-gray-900 focus:bg-gray-100 focus:text-gray-900 focus:outline-none dark:text-gray-400 dark:hover:bg-gray-800 dark:hover:text-gray-50 dark:focus:bg-gray-800 dark:focus:text-gray-50'
-                    href='#'>
-                    <HomeIcon className='h-5 w-5' />
-                    Home
-                  </Link>
-                  <Link
-                    className='flex items-center gap-3 rounded-md px-3 py-2 text-sm font-medium text-gray-500 transition-colors hover:bg-gray-100 hover:text-gray-900 focus:bg-gray-100 focus:text-gray-900 focus:outline-none dark:text-gray-400 dark:hover:bg-gray-800 dark:hover:text-gray-50 dark:focus:bg-gray-800 dark:focus:text-gray-50'
-                    href='#'>
-                    <BriefcaseIcon className='h-5 w-5' />
-                    About
-                  </Link>
-                  <Link
-                    className='flex items-center gap-3 rounded-md px-3 py-2 text-sm font-medium text-gray-500 transition-colors hover:bg-gray-100 hover:text-gray-900 focus:bg-gray-100 focus:text-gray-900 focus:outline-none dark:text-gray-400 dark:hover:bg-gray-800 dark:hover:text-gray-50 dark:focus:bg-gray-800 dark:focus:text-gray-50'
-                    href='#'>
-                    <ClipboardIcon className='h-5 w-5' />
-                    Services
-                  </Link>
-                  <Link
-                    className='flex items-center gap-3 rounded-md px-3 py-2 text-sm font-medium text-gray-500 transition-colors hover:bg-gray-100 hover:text-gray-900 focus:bg-gray-100 focus:text-gray-900 focus:outline-none dark:text-gray-400 dark:hover:bg-gray-800 dark:hover:text-gray-50 dark:focus:bg-gray-800 dark:focus:text-gray-50'
-                    href='#'>
-                    <MailIcon className='h-5 w-5' />
-                    Contact
-                  </Link>
+                <Link
+                  className='flex items-center gap-3 rounded-md px-3 py-2 text-sm font-medium text-gray-500 transition-colors hover:bg-gray-100 hover:text-gray-900 focus:bg-gray-100 focus:text-gray-900 focus:outline-none dark:text-gray-400 dark:hover:bg-gray-800 dark:hover:text-gray-50 dark:focus:bg-gray-800 dark:focus:text-gray-50'
+                  href='#'>
+                  <SearchIcon className='h-5 w-5' />
+                  Find
+                </Link>
+                <Link
+                  className='flex items-center gap-3 rounded-md px-3 py-2 text-sm font-medium text-gray-500 transition-colors hover:bg-gray-100 hover:text-gray-900 focus:bg-gray-100 focus:text-gray-900 focus:outline-none dark:text-gray-400 dark:hover:bg-gray-800 dark:hover:text-gray-50 dark:focus:bg-gray-800 dark:focus:text-gray-50'
+                  href='#'>
+                  <BookmarkIcon className='h-5 w-5' />
+                  Track
+                </Link>
+                <Link
+                  className='flex items-center gap-3 rounded-md px-3 py-2 text-sm font-medium text-gray-500 transition-colors hover:bg-gray-100 hover:text-gray-900 focus:bg-gray-100 focus:text-gray-900 focus:outline-none dark:text-gray-400 dark:hover:bg-gray-800 dark:hover:text-gray-50 dark:focus:bg-gray-800 dark:focus:text-gray-50'
+                  href='#'>
+                  <ConnectionIcon className='h-5 w-5' />
+                  Connection
+                </Link>
+                <Link
+                  className='flex items-center gap-3 rounded-md px-3 py-2 text-sm font-medium text-gray-500 transition-colors hover:bg-gray-100 hover:text-gray-900 focus:bg-gray-100 focus:text-gray-900 focus:outline-none dark:text-gray-400 dark:hover:bg-gray-800 dark:hover:text-gray-50 dark:focus:bg-gray-800 dark:focus:text-gray-50'
+                  href='#'>
+                  <ExploreIcon className='h-5 w-5' />
+                  Explore
+                </Link>
               </div>
             </div>
           </div>
