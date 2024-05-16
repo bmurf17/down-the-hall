@@ -10,8 +10,10 @@
   },
   "dependencies": {
     "@headlessui/react": "^1.7.18",
+    "drizzle-orm": "^0.30.10",
     "next": "14.1.4",
     "pg": "^8.11.5",
+    "postgres": "^3.4.4",
     "react": "^18",
     "react-dom": "^18"
   },
@@ -21,6 +23,7 @@
     "@types/react": "^18",
     "@types/react-dom": "^18",
     "autoprefixer": "^10.0.1",
+    "drizzle-kit": "^0.21.2",
     "eslint": "^8",
     "eslint-config-next": "14.1.4",
     "postcss": "^8",
