@@ -1,30 +1,35 @@
+"use server";
+import { eq } from "drizzle-orm";
+import { revalidatePath } from "next/cache";
+
 import db from "../lib/db/db";
-import { user } from "@/lib/db/schema";
-import { asc, eq } from 'drizzle-orm';
+import { user } from "../lib/db/schema";
 
-
-export const addUser = async (id: number, name: string) => {
-  await db.insert(user).values({
-    id: id,
-    name: name,
-  });
+export const getData = async () => {
+    const data = await db.select().from(user);
+    return data;
 };
 
-export const getUsers = async () => {
-    const data = await db.select().from(user).orderBy(asc(user.id));
-    return data;
-  };
+export const addUser = async (name: string) => {
+    await db.insert(user).values({
+        name: name,
+    });
+    revalidatePath("/");
+};
 
-  
+export const deleteUser = async (id: number) => {
+    await db.delete(user).where(eq(user.id, id));
+
+    revalidatePath("/");
+};
+
 export const editUser = async (id: number, name: string) => {
     await db
-      .update(user)
-      .set({
-        name: name,
-      })
-      .where(eq(user.id, id));
-  };
+        .update(user)
+        .set({
+            name: name,
+        })
+        .where(eq(user.id, id));
 
-  export const deleteUser = async (id: number) => {
-    await db.delete(user).where(eq(user.id, id));
-  };
+    revalidatePath("/");
+};
