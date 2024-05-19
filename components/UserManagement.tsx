@@ -1,7 +1,12 @@
+'use client'
 import Link from 'next/link';
 import { JSX, SVGProps } from 'react';
+import Button from './basicUI/Button';
+import Input from './basicUI/Input';
 
 export default function UserManagement() {
+  const save = () => ({});
+
   return (
     <div className='grid min-h-screen w-full lg:grid-cols-[280px_1fr]'>
       <div className='hidden border-r bg-gray-100/40 lg:block dark:bg-gray-800/40'>
@@ -45,18 +50,17 @@ export default function UserManagement() {
             </div>
             <div className='space-y-4'>
               <div className='space-y-2'>
-                <div className='flex items-center'>
-                  <label className='block text-gray-500 font-bold md:text-right mb-1 md:mb-0 pr-4'>
-                    Confirm Password
-                  </label>
-                  <input
-                    className='appearance-none border-2 border-gray-200 rounded w-full py-2 px-4 text-gray-700 leading-tight focus:outline-none focus:bg-white focus:border-purple-500'
-                    type='text'
-                    defaultValue='Jane Doe'
-                  />
-                </div>
+                <Input label={'Name'} type={'test'} defaultValue={'Brendan'} />
               </div>
-              <button className='mt-2'>Save Changes</button>
+              <div className='flex justify-end'>
+
+              <Button
+                text={'Save'}
+                handleClick={save}
+                styles={
+                  ' focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 border rounded-lg active:translate-y-1 transition-all  bg-indigo-600 border-indigo-600 hover:bg-indigo-700 text-white py-3 px-4 text-lg font-medium active:shadow-none gap-2'
+                }></Button>
+                </div>
             </div>
           </div>
         </main>
