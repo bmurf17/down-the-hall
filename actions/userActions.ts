@@ -2,8 +2,8 @@
 import { eq } from "drizzle-orm";
 import { revalidatePath } from "next/cache";
 
-import db from "../lib/db/db";
-import { user } from "../lib/db/schema";
+import db from "../lib/db";
+import { user } from "../lib/schema";
 
 export const getData = async () => {
     const data = await db.select().from(user);
