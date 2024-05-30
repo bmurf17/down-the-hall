@@ -17,7 +17,7 @@ export default function NavBar() {
     <>
       <header className='w-full  z-10'>
         <div className='bg-blue-700 text-white px-16 py-4 mb-4 flex gap-4 justify-between'>
-          <div className='flex gap-4 '>
+          <div className='flex gap-4 hover:cursor-pointer'>
             <div
               onClick={() => {
                 setMenuOpen(true);

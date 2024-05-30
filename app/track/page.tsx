@@ -1,4 +1,4 @@
-import Track from '@/components/Track';
+import Track from '@/components/track/Track';
 
 export default function Home() {
   return (
