@@ -8,6 +8,13 @@
       "when": 1715869615592,
       "tag": "0000_fuzzy_radioactive_man",
       "breakpoints": true
+    },
+    {
+      "idx": 1,
+      "version": "6",
+      "when": 1717364887042,
+      "tag": "0001_curvy_wrecking_crew",
+      "breakpoints": true
     }
   ]
 }

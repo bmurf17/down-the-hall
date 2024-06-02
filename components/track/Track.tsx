@@ -1,24 +1,20 @@
 'use client';
 
-import { Fragment, useState } from 'react';
+import { SelectBook } from '@/lib/schema';
+import { useState } from 'react';
 import IconButton from '../basicUI/IconButton';
 import { CardIcon } from '../icons/CardIcon';
 import { ListIcon } from '../icons/ListIcon';
 import { ShelfIcon } from '../icons/ShelfIcon';
-import {
-  Listbox,
-  ListboxButton,
-  Transition,
-  ListboxOptions,
-  ListboxOption,
-} from '@headlessui/react';
-import { ChevronDownIcon } from '../icons/ChevronDownIcon';
-import { CheckIcon } from '../icons/CheckIcon';
 import FilterTrack from './_FilterTracking';
 
 const options = [{ name: 'Book Length' }, { name: 'Book Title' }, { name: 'Last Read' }];
 
-export default function Track() {
+interface Props {
+  books: SelectBook[];
+}
+
+export default function Track({ books }: Props) {
   const switchView = () => ({});
   const [selected, setSelected] = useState(options[0]);
 
@@ -40,7 +36,9 @@ export default function Track() {
         </div>
       </div>
 
-      <p> actually list books</p>
+      {books.map((book) => {
+        return <div key={book.id}>{book.title}</div>;
+      })}
     </div>
   );
 }

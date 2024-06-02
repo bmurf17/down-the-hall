@@ -1,9 +1,12 @@
+import { getData } from '@/actions/bookActions';
 import Track from '@/components/track/Track';
+import { SelectBook } from '@/lib/schema';
 
-export default function Home() {
+export default async function Home() {
+  const books: SelectBook[] = await getData();
   return (
     <div className='mx-16'>
-      <Track />
+      <Track books={books}/>
     </div>
   );
 }
