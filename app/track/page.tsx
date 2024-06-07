@@ -1,9 +1,9 @@
 import { getData } from '@/actions/bookActions';
 import Track from '@/components/track/Track';
-import { SelectBook } from '@/lib/schema';
+import { Book } from '@/types/book';
 
 export default async function Home() {
-  const books: SelectBook[] = await getData();
+  const books: Book[] = await getData();
   return (
     <div className='mx-16'>
       <Track books={books}/>
