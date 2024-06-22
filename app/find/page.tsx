@@ -1,12 +1,12 @@
 import { getData } from '@/actions/bookActions';
-import Track from '@/components/track/Track';
+import Find from '@/components/find/Find';
 import { Book } from '@/types/book';
 
-export default async function TrackPage() {
+export default async function FindPage() {
   const books: Book[] = await getData();
   return (
     <div className='mx-16'>
-      <Track books={books}/>
+      <Find/>
     </div>
   );
 }
