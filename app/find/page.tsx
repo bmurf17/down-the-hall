@@ -1,12 +1,12 @@
-import { getData } from '@/actions/bookActions';
+import { getGoogleBooks } from '@/actions/googleBookActions';
 import Find from '@/components/find/Find';
-import { Book } from '@/types/book';
+import { GoogleBooksResponse } from '@/types/googlebookresponse';
 
 export default async function FindPage() {
-  const books: Book[] = await getData();
+  const googleBooks: GoogleBooksResponse = await getGoogleBooks('dune');
   return (
     <div className='mx-16'>
-      <Find/>
+      <Find books={googleBooks}/>
     </div>
   );
 }
