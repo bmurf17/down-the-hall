@@ -76,7 +76,7 @@ export default function Find(books: Props) {
                   <div>
                     <img
                       className='relative overflow-hidden group transition-all border border-gray-100/20 ring-accent hover:ring-1 hover:border-accent rounded-l-sm rounded-r-md shadow-md block'
-                      src={volume.volumeInfo.imageLinks.thumbnail || ''}
+                      src={volume.volumeInfo?.imageLinks?.thumbnail || ''}
                       alt={volume.volumeInfo.title}
                       height={100}
                       width={100}
