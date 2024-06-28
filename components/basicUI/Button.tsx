@@ -1,6 +1,6 @@
 interface Prop {
   text: string;
-  handleClick: () => {};
+  handleClick: () => void;
   styles: string;
 }
 
