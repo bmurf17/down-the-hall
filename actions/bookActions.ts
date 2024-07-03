@@ -1,12 +1,12 @@
 "use server";
-import { eq } from "drizzle-orm";
+import { asc, eq } from "drizzle-orm";
 import { revalidatePath } from "next/cache";
 
 import db from "../lib/db";
 import { book, author } from "../lib/schema";
 
 export const getData = async () => {
-    const data = await db.select().from(book);
+    const data = await db.select().from(book).innerJoin(author, eq(book.authorId, author.id)).orderBy(asc(book.id));
     return data;
 };
 
