@@ -15,6 +15,13 @@
       "when": 1717364887042,
       "tag": "0001_curvy_wrecking_crew",
       "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "6",
+      "when": 1720366719918,
+      "tag": "0002_boring_night_nurse",
+      "breakpoints": true
     }
   ]
 }

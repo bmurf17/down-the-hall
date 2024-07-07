@@ -25,7 +25,8 @@ export const book = pgTable("book", {
   id: serial("id").primaryKey().notNull(),
   title: text("title").notNull(),
   authorId: integer("authorId").references(() => author.id),
-  image: text("image")
+  image: text("image"),
+  status: integer("status")
 })
 
 export const bookRelations = relations(book, ({ one }) => ({

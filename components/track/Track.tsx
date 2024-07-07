@@ -1,6 +1,10 @@
 'use client';
 
-import { useState } from 'react';
+<<<<<<< Updated upstream
+import { Fragment, useState } from 'react';
+=======
+import { useCallback, useState } from 'react';
+>>>>>>> Stashed changes
 import IconButton from '../basicUI/IconButton';
 import { CardIcon } from '../icons/CardIcon';
 import { ListIcon } from '../icons/ListIcon';
@@ -12,6 +16,7 @@ import BookShelfView from './_BookShelfView';
 import BookListView from './_BookListView';
 import { Tab, TabGroup, TabList, TabPanel, TabPanels } from '@headlessui/react';
 import TrackBooViewLogic from './_TrackBookViewLogic';
+import { usePathname, useRouter,useSearchParams } from 'next/navigation';
 
 const options = [{ name: 'Book Length' }, { name: 'Book Title' }, { name: 'Last Read' }];
 
@@ -26,34 +31,80 @@ export default function Track({ books }: Props) {
   const viewOptions = ['Card', 'List', 'Shelf'];
   const [selectedView, setSelectedView] = useState<string | undefined>(viewOptions[0]);
 
+  const router = useRouter()
+  const pathname = usePathname()
+  const searchParams = useSearchParams()
+
+  // Get a new searchParams string by merging the current
+  // searchParams with a provided key/value pair
+  const createQueryString = useCallback(
+    (name: string, value: string) => {
+      const params = new URLSearchParams(searchParams.toString())
+      params.set(name, value)
+ 
+      return params.toString()
+    },
+    [searchParams]
+  )
+
   return (
     <div>
+<<<<<<< Updated upstream
+      <div className='flex justify-between'>
+        <div className='top-16 w-72'>
+          <FilterTrack options={options} selected={selected} setSelected={setSelected} />
+        </div>
+        <div className='flex gap-4'>
+          <IconButton icon={<CardIcon />} handleClick={switchView} styles={''} tooltipText='Card' />
+          <IconButton icon={<ListIcon />} handleClick={switchView} styles={''} tooltipText='List' />
+          <IconButton
+            icon={<ShelfIcon />}
+            handleClick={switchView}
+            styles={''}
+            tooltipText='Shelf'
+          />
+        </div>
+=======
       <div>
         <TabGroup>
           <TabList className='flex gap-4'>
             <Tab
-              className='data-[selected]:bg-indigo-600 text-white rounded-xl p-4 data-[hover]:bg-indigo-400 data-[selected]:data-[hover]:bg-indigo-500 data-[focus]:outline-1 data-[focus]:outline-white  bg-slate-400
-            '>
+              className='data-[selected]:bg-indigo-600 text-white rounded-xl p-4 data-[hover]:bg-indigo-400 data-[selected]:data-[hover]:bg-indigo-500 data-[focus]:outline-1 data-[focus]:outline-white  bg-slate-400'
+              onClick={() => {
+                router.push(pathname + '?' + createQueryString('status', ""))
+              }}
+              >
               All
             </Tab>
             <Tab
-              className='data-[selected]:bg-indigo-600 text-white rounded-xl p-4 data-[hover]:bg-indigo-400 data-[selected]:data-[hover]:bg-indigo-500 data-[focus]:outline-1 data-[focus]:outline-white  bg-slate-400
-            '>
-              Want To Read
-            </Tab>
-            <Tab
-              className='data-[selected]:bg-indigo-600 text-white rounded-xl p-4 data-[hover]:bg-indigo-400 data-[selected]:data-[hover]:bg-indigo-500 data-[focus]:outline-1 data-[focus]:outline-white  bg-slate-400
-            '>
+              className='data-[selected]:bg-indigo-600 text-white rounded-xl p-4 data-[hover]:bg-indigo-400 data-[selected]:data-[hover]:bg-indigo-500 data-[focus]:outline-1 data-[focus]:outline-white  bg-slate-400'
+              onClick={() => {
+                router.push(pathname + '?' + createQueryString('status', "0"))
+              }}
+              >
               Currently Reading
             </Tab>
             <Tab
-              className='data-[selected]:bg-indigo-600 text-white rounded-xl p-4 data-[hover]:bg-indigo-400 data-[selected]:data-[hover]:bg-indigo-500 data-[focus]:outline-1 data-[focus]:outline-white  bg-slate-400
-            '>
+              className='data-[selected]:bg-indigo-600 text-white rounded-xl p-4 data-[hover]:bg-indigo-400 data-[selected]:data-[hover]:bg-indigo-500 data-[focus]:outline-1 data-[focus]:outline-white  bg-slate-400'
+              onClick={() => {
+                router.push(pathname + '?' + createQueryString('status', "1"))
+              }}>
               Read
             </Tab>
             <Tab
-              className='data-[selected]:bg-indigo-600 text-white rounded-xl p-4 data-[hover]:bg-indigo-400 data-[selected]:data-[hover]:bg-indigo-500 data-[focus]:outline-1 data-[focus]:outline-white  bg-slate-400
-            '>
+              className='data-[selected]:bg-indigo-600 text-white rounded-xl p-4 data-[hover]:bg-indigo-400 data-[selected]:data-[hover]:bg-indigo-500 data-[focus]:outline-1 data-[focus]:outline-white  bg-slate-400'
+              onClick={() => {
+                router.push(pathname + '?' + createQueryString('status', "2"))
+              }}
+              >
+              Want To Read
+            </Tab>
+            <Tab
+              className='data-[selected]:bg-indigo-600 text-white rounded-xl p-4 data-[hover]:bg-indigo-400 data-[selected]:data-[hover]:bg-indigo-500 data-[focus]:outline-1 data-[focus]:outline-white  bg-slate-400'
+              onClick={() => {
+                router.push(pathname + '?' + createQueryString('status', "3"))
+              }}
+              >
               Did Not Finish
             </Tab>
           </TabList>
@@ -132,6 +183,7 @@ export default function Track({ books }: Props) {
             </TabPanel>
           </TabPanels>
         </TabGroup>
+>>>>>>> Stashed changes
       </div>
     </div>
   );
