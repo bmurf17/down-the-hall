@@ -1,10 +1,6 @@
 'use client';
 
-<<<<<<< Updated upstream
-import { Fragment, useState } from 'react';
-=======
 import { useCallback, useState } from 'react';
->>>>>>> Stashed changes
 import IconButton from '../basicUI/IconButton';
 import { CardIcon } from '../icons/CardIcon';
 import { ListIcon } from '../icons/ListIcon';
@@ -49,22 +45,6 @@ export default function Track({ books }: Props) {
 
   return (
     <div>
-<<<<<<< Updated upstream
-      <div className='flex justify-between'>
-        <div className='top-16 w-72'>
-          <FilterTrack options={options} selected={selected} setSelected={setSelected} />
-        </div>
-        <div className='flex gap-4'>
-          <IconButton icon={<CardIcon />} handleClick={switchView} styles={''} tooltipText='Card' />
-          <IconButton icon={<ListIcon />} handleClick={switchView} styles={''} tooltipText='List' />
-          <IconButton
-            icon={<ShelfIcon />}
-            handleClick={switchView}
-            styles={''}
-            tooltipText='Shelf'
-          />
-        </div>
-=======
       <div>
         <TabGroup>
           <TabList className='flex gap-4'>
@@ -183,7 +163,6 @@ export default function Track({ books }: Props) {
             </TabPanel>
           </TabPanels>
         </TabGroup>
->>>>>>> Stashed changes
       </div>
     </div>
   );
