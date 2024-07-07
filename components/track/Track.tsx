@@ -1,18 +1,15 @@
 'use client';
 
+import { Book } from '@/types/book';
+import { Tab, TabGroup, TabList, TabPanel, TabPanels } from '@headlessui/react';
+import { usePathname, useRouter, useSearchParams } from 'next/navigation';
 import { useCallback, useState } from 'react';
 import IconButton from '../basicUI/IconButton';
 import { CardIcon } from '../icons/CardIcon';
 import { ListIcon } from '../icons/ListIcon';
 import { ShelfIcon } from '../icons/ShelfIcon';
-import BookCardView from './_BookCardView';
 import FilterTrack from './_FilterTracking';
-import { Book } from '@/types/book';
-import BookShelfView from './_BookShelfView';
-import BookListView from './_BookListView';
-import { Tab, TabGroup, TabList, TabPanel, TabPanels } from '@headlessui/react';
 import TrackBooViewLogic from './_TrackBookViewLogic';
-import { usePathname, useRouter,useSearchParams } from 'next/navigation';
 
 const options = [{ name: 'Book Length' }, { name: 'Book Title' }, { name: 'Last Read' }];
 

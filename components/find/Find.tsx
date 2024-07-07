@@ -1,36 +1,31 @@
 'use client';
 
-import { useCallback, useState } from 'react';
-import Button from '../basicUI/Button';
 import { GoogleBooksResponse } from '@/types/googlebookresponse';
-import { getGoogleBooks } from '@/actions/googleBookActions';
 import { usePathname, useRouter, useSearchParams } from 'next/navigation';
+import { useCallback } from 'react';
+import Button from '../basicUI/Button';
+import { addBook } from '@/actions/bookActions';
 
 interface Props {
   books: GoogleBooksResponse;
 }
 
 export default function Find(books: Props) {
-  const viewOptions = ['Card', 'List', 'Shelf'];
-  const [selectedView, setSelectedView] = useState<string | undefined>(viewOptions[0]);
-
-  const router = useRouter()
-  const pathname = usePathname()
-  const searchParams = useSearchParams()
+  const router = useRouter();
+  const pathname = usePathname();
+  const searchParams = useSearchParams();
 
   // Get a new searchParams string by merging the current
   // searchParams with a provided key/value pair
   const createQueryString = useCallback(
     (name: string, value: string) => {
-      const params = new URLSearchParams(searchParams.toString())
-      params.set(name, value)
- 
-      return params.toString()
+      const params = new URLSearchParams(searchParams.toString());
+      params.set(name, value);
+
+      return params.toString();
     },
     [searchParams]
-  )
-
-  const searchGoogleApi = () => {};
+  );
 
   const clear = () => ({});
 
@@ -54,15 +49,8 @@ export default function Find(books: Props) {
             className='flex border-2 border-gray-200 p-4 rounded-xl mb-2 w-full'
             placeholder='Search'
             onChange={(e) => {
-              router.push(pathname + '?' + createQueryString('title', e.target.value))
+              router.push(pathname + '?' + createQueryString('title', e.target.value));
             }}
-          />
-          <Button
-            text={'Search'}
-            handleClick={searchGoogleApi}
-            styles={
-              'focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 border rounded-lg active:translate-y-1 transition-all bg-indigo-600 border-indigo-600 hover:bg-indigo-700 text-white py-2 px-2 active:shadow-none gap-2'
-            }
           />
         </div>
 
@@ -86,8 +74,12 @@ export default function Find(books: Props) {
                     <div className='font-serif text-yellow-500 dark:text-yellow-50 underline-offset-4 text-lg no-underline hover:underline decoration-gray-300 dark:decoration-gray-500'>
                       {volume.volumeInfo.title}
                     </div>
-                    {volume.volumeInfo?.authors?.length > 0 ? (<div className='text-md'>By: {volume.volumeInfo?.authors[0]}</div>) : (<></>)}
-                    
+                    {volume.volumeInfo?.authors?.length > 0 ? (
+                      <div className='text-md'>By: {volume.volumeInfo?.authors[0]}</div>
+                    ) : (
+                      <></>
+                    )}
+
                     <div className='text-gray-600 dark:text-gray-400 text-sm font-semibold'>
                       {' '}
                       {volume.volumeInfo.categories}
@@ -101,7 +93,15 @@ export default function Find(books: Props) {
                 <div className='flex self-end'>
                   <Button
                     text={'Want To Read'}
-                    handleClick={() => {}}
+                    handleClick={() => {
+                      addBook(
+                        volume.volumeInfo.title,
+                        volume.volumeInfo?.authors[0],
+                        '',
+                        0,
+                        volume.volumeInfo?.imageLinks?.thumbnail
+                      );
+                    }}
                     styles={
                       'focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 border rounded-lg active:translate-y-1 transition-all bg-indigo-600 border-indigo-600 hover:bg-indigo-700 text-white py-2 px-2 active:shadow-none gap-2'
                     }

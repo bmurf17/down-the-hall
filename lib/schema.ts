@@ -24,7 +24,7 @@ export const authorRelations = relations(author, ({ many }) => ({
 export const book = pgTable("book", {
   id: serial("id").primaryKey().notNull(),
   title: text("title").notNull(),
-  authorId: integer("authorId").references(() => author.id),
+  authorId: integer("author_id").references(() => author.id),
   image: text("image"),
   status: integer("status")
 })
