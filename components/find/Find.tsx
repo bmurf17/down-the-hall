@@ -2,18 +2,34 @@
 
 import { GoogleBooksResponse } from '@/types/googlebookresponse';
 import { usePathname, useRouter, useSearchParams } from 'next/navigation';
-import { useCallback } from 'react';
+import { useCallback, useState } from 'react';
 import Button from '../basicUI/Button';
 import { addBook } from '@/actions/bookActions';
+import { ChevronDownIcon } from '../icons/ChevronDownIcon';
+import { Listbox, ListboxButton, ListboxOptions, ListboxOption } from '@headlessui/react';
+import clsx from 'clsx';
+import { CheckIcon } from '../icons/CheckIcon';
+import { Status } from '@/types/statusEnum';
 
 interface Props {
   books: GoogleBooksResponse;
 }
 
+export const readingStatusString: string[] = ['Reading', 'Read', 'TBR', 'DNF'];
+
+const listOptions = Object.keys(Status)
+  .map((key, index) => {
+    if (!isNaN(Number(key))) {
+      return { id: key, displayString: readingStatusString[index] };
+    }
+  })
+  .filter((item) => item !== undefined);
+
 export default function Find(books: Props) {
   const router = useRouter();
   const pathname = usePathname();
   const searchParams = useSearchParams();
+  const [selected, setSelected] = useState(listOptions[1]);
 
   // Get a new searchParams string by merging the current
   // searchParams with a provided key/value pair
@@ -91,21 +107,45 @@ export default function Find(books: Props) {
                 </div>
 
                 <div className='flex self-end'>
-                  <Button
-                    text={'Want To Read'}
-                    handleClick={() => {
+                  <Listbox value={{id: 0, displayString: "temp"}} onChange={(e) => {
                       addBook(
                         volume.volumeInfo.title,
                         volume.volumeInfo?.authors[0],
                         '',
-                        0,
+                        e.id,
                         volume.volumeInfo?.imageLinks?.thumbnail
                       );
-                    }}
-                    styles={
-                      'focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 border rounded-lg active:translate-y-1 transition-all bg-indigo-600 border-indigo-600 hover:bg-indigo-700 text-white py-2 px-2 active:shadow-none gap-2'
-                    }
-                  />
+                    }}>
+                    <ListboxButton
+                      className={clsx(
+                        'bg-indigo-600 relative block w-full rounded-lg py-1.5 pr-8 pl-3 text-left text-sm/6 text-white',
+                        'focus:outline-none data-[focus]:outline-2 data-[focus]:-outline-offset-2 data-[focus]:outline-white/25'
+                      )}>
+                      Add To List
+                      <ChevronDownIcon
+                        className='group pointer-events-none absolute top-2.5 right-2.5 size-4 fill-white/60'
+                        aria-hidden='true'
+                      />
+                    </ListboxButton>
+                    <ListboxOptions
+                      anchor='bottom'
+                      transition
+                      className={clsx(
+                        'w-[var(--button-width)] rounded-xl border border-white/5  p-1 [--anchor-gap:var(--spacing-1)] focus:outline-none bg-indigo-400 mt-2',
+                        'transition duration-100 ease-in data-[leave]:data-[closed]:opacity-0'
+                      )}>
+                      {listOptions.map((listName) => {
+                        return (
+                          <ListboxOption
+                            key={listName?.displayString}
+                            value={listName}
+                            className='group flex cursor-default items-center gap-2 rounded-lg py-1.5 px-3 select-none data-[focus]:bg-white/10'>
+                            <div className='text-sm/6 text-white'>{listName?.displayString}</div>
+                          </ListboxOption>
+                        );
+                      })}
+                    </ListboxOptions>
+                  </Listbox>
                 </div>
               </div>
             );

@@ -21,6 +21,7 @@ export function DrawerMenu({ close, open }: Props) {
         <div className='fixed inset-0 bg-black/30' aria-hidden='true' />
         <Transition
           as={Fragment}
+          show={open}
           enter='ease-in-out duration-300'
           enterFrom='-translate-x-full'
           enterTo='translate-x-0'

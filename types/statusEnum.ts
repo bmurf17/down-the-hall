@@ -4,3 +4,5 @@ export enum Status {
     WantToStart,
     DidNotFinish
 }
+
+export const readingStatusString: string[] = ['Reading', 'Read', 'TBR', 'DNF'];

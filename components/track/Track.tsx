@@ -121,8 +121,7 @@ export default function Track({ books }: Props) {
               />
             </div>
           </div>
-          {/* TODO actually filer what we send to book display based on which tab is displayed */}
-          <TabPanels>
+          <TabPanels className="mb-4">
             <TabPanel>
               <TrackBooViewLogic
                 selectedView={selectedView}

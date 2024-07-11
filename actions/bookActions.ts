@@ -2,19 +2,17 @@
 import { asc, eq } from "drizzle-orm";
 import { revalidatePath } from "next/cache";
 
-import db from "../lib/db";
-import { book, author } from "../lib/schema";
 import { Pool } from '@neondatabase/serverless';
-import { Book } from '@/types/book';
-import { date } from 'drizzle-orm/mysql-core';
+import db from "../lib/db";
+import { author, book } from "../lib/schema";
 
 
 export const getData = async (status?: string) => {
     if (status && status?.length > 0) {
-        const data = await db.select().from(book).innerJoin(author, eq(book.authorId, author.id)).where(eq(book.status, +status)).orderBy(asc(book.id));
+        const data = await db.select().from(book).fullJoin(author, eq(book.authorId, author.id)).where(eq(book.status, +status)).orderBy(asc(book.id));
         return data;
     }
-    const data = await db.select().from(book).innerJoin(author, eq(book.authorId, author.id)).orderBy(asc(book.id));
+    const data = await db.select().from(book).innerJoin(author, eq(book.authorId, author.id));
     return data;
 };
 
@@ -26,7 +24,7 @@ export const addBook = async (title: string, authorName: string, authorImg: stri
     const client = await pool.connect();
 
     const authorData = await db.select().from(author).where(eq(author.name, authorName));
-    
+
     //author does not exist so we need to start transaction to add them as well 
     if (authorData.length == 0) {
         try {
