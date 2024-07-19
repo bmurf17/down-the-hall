@@ -104,7 +104,6 @@ export default function Track({ books }: Props) {
                 icon={<ListIcon />}
                 handleClick={() => {
                   switchView(viewOptions[1]);
-                  console.log();
                 }}
                 styles={''}
                 tooltipText={viewOptions[1]}
