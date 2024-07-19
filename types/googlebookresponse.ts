@@ -13,8 +13,14 @@ export interface VolumeInfo {
     pageCount: number;
     categories: string[];
     imageLinks: ImageLinks;
+    industryIdentifiers: IndustryIdentifier[]
 }
 
 export interface ImageLinks {
     thumbnail: string;
+}
+
+export interface IndustryIdentifier {
+    type: string;
+    identifier: string;
 }
