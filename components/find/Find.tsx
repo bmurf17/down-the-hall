@@ -11,9 +11,10 @@ import clsx from 'clsx';
 import { CheckIcon } from '../icons/CheckIcon';
 import { Status } from '@/types/statusEnum';
 import Link from 'next/link';
+import { HardCoverApiResponse } from '@/types/hardcoverresponse';
 
 interface Props {
-  books: GoogleBooksResponse;
+  books: HardCoverApiResponse;
 }
 
 export const readingStatusString: string[] = ['Reading', 'Read', 'TBR', 'DNF'];
@@ -27,10 +28,12 @@ const listOptions = Object.keys(Status)
   .filter((item) => item !== undefined);
 
 export default function Find(books: Props) {
+  console.log(books)
+
+
   const router = useRouter();
   const pathname = usePathname();
   const searchParams = useSearchParams();
-  const [selected, setSelected] = useState(listOptions[1]);
 
   // Get a new searchParams string by merging the current
   // searchParams with a provided key/value pair
@@ -72,40 +75,46 @@ export default function Find(books: Props) {
         </div>
 
         <div className='flex flex-col gap-4'>
-          {books.books.items.map((volume, i) => {
-            if(volume.volumeInfo.industryIdentifiers?.length > 0 && volume.volumeInfo.pageCount > 0) {
+          {books.books.data.books.map((book, i) => {
+            if (book.image)
               return (
                 <div
                   className='flex justify-between p-4 border-b-2 border-gray-500 hover:bg-slate-200 hover:cursor-pointer'
-                  key={volume.volumeInfo.title + i}>
-                  <Link href={`book/${volume.volumeInfo.industryIdentifiers[0].identifier}`}>
+                  key={book.title + i}>
+                  <Link href={`book/${book.id}`}>
                     <div className='flex gap-2'>
                       <div>
                         <img
                           className='relative overflow-hidden group transition-all border border-gray-100/20 ring-accent hover:ring-1 hover:border-accent rounded-l-sm rounded-r-md shadow-md block'
-                          src={volume.volumeInfo?.imageLinks?.thumbnail || ''}
-                          alt={volume.volumeInfo.title}
+                          src={book.image.url}
+                          alt={book.title}
                           height={100}
                           width={100}
                         />
                       </div>
                       <div className='flex flex-col gap-2'>
                         <div className='font-serif text-yellow-500 dark:text-yellow-50 underline-offset-4 text-lg no-underline hover:underline decoration-gray-300 dark:decoration-gray-500'>
-                          {volume.volumeInfo.title}
+                          {book.title}
                         </div>
-                        {volume.volumeInfo?.authors?.length > 0 ? (
-                          <div className='text-md'>By: {volume.volumeInfo?.authors[0]}</div>
+                        {book.book_series.length > 0 ? (
+                          <div className='text-md'>
+                            By: {book.book_series[0].series.author.name}
+                          </div>
                         ) : (
                           <></>
                         )}
-  
+
                         <div className='text-gray-600 dark:text-gray-400 text-sm font-semibold'>
-                          {' '}
-                          {volume.volumeInfo.categories}
+                          Category
                         </div>
-                        <div className='text-gray-600 dark:text-gray-400 text-sm font-semibold'>
-                          Page Count: {volume.volumeInfo.pageCount}
-                        </div>
+
+                        {book.editions.length > 0 ? (
+                          <div className='text-gray-600 dark:text-gray-400 text-sm font-semibold'>
+                            Page Count: {book.editions[0].pages}
+                          </div>
+                        ) : (
+                          <></>
+                        )}
                       </div>
                     </div>
                   </Link>
@@ -114,11 +123,11 @@ export default function Find(books: Props) {
                       value={{ id: 0, displayString: 'temp' }}
                       onChange={(e) => {
                         addBook(
-                          volume.volumeInfo.title,
-                          volume.volumeInfo?.authors[0],
+                          book.title,
+                          book.book_series[0].series.author.name,
                           '',
                           e.id,
-                          volume.volumeInfo?.imageLinks?.thumbnail
+                          book.image?.url || ""
                         );
                       }}>
                       <ListboxButton
@@ -154,8 +163,6 @@ export default function Find(books: Props) {
                   </div>
                 </div>
               );
-            }
-
           })}
         </div>
       </div>
