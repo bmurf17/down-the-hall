@@ -73,86 +73,89 @@ export default function Find(books: Props) {
 
         <div className='flex flex-col gap-4'>
           {books.books.items.map((volume, i) => {
-            return (
-              <div
-                className='flex justify-between p-4 border-b-2 border-gray-500 hover:bg-slate-200 hover:cursor-pointer'
-                key={volume.volumeInfo.title + i}>
-                <Link href={`book/${volume.volumeInfo.industryIdentifiers[0].identifier}`}>
-                  <div className='flex gap-2'>
-                    <div>
-                      <img
-                        className='relative overflow-hidden group transition-all border border-gray-100/20 ring-accent hover:ring-1 hover:border-accent rounded-l-sm rounded-r-md shadow-md block'
-                        src={volume.volumeInfo?.imageLinks?.thumbnail || ''}
-                        alt={volume.volumeInfo.title}
-                        height={100}
-                        width={100}
-                      />
+            if(volume.volumeInfo.industryIdentifiers?.length > 0 && volume.volumeInfo.pageCount > 0) {
+              return (
+                <div
+                  className='flex justify-between p-4 border-b-2 border-gray-500 hover:bg-slate-200 hover:cursor-pointer'
+                  key={volume.volumeInfo.title + i}>
+                  <Link href={`book/${volume.volumeInfo.industryIdentifiers[0].identifier}`}>
+                    <div className='flex gap-2'>
+                      <div>
+                        <img
+                          className='relative overflow-hidden group transition-all border border-gray-100/20 ring-accent hover:ring-1 hover:border-accent rounded-l-sm rounded-r-md shadow-md block'
+                          src={volume.volumeInfo?.imageLinks?.thumbnail || ''}
+                          alt={volume.volumeInfo.title}
+                          height={100}
+                          width={100}
+                        />
+                      </div>
+                      <div className='flex flex-col gap-2'>
+                        <div className='font-serif text-yellow-500 dark:text-yellow-50 underline-offset-4 text-lg no-underline hover:underline decoration-gray-300 dark:decoration-gray-500'>
+                          {volume.volumeInfo.title}
+                        </div>
+                        {volume.volumeInfo?.authors?.length > 0 ? (
+                          <div className='text-md'>By: {volume.volumeInfo?.authors[0]}</div>
+                        ) : (
+                          <></>
+                        )}
+  
+                        <div className='text-gray-600 dark:text-gray-400 text-sm font-semibold'>
+                          {' '}
+                          {volume.volumeInfo.categories}
+                        </div>
+                        <div className='text-gray-600 dark:text-gray-400 text-sm font-semibold'>
+                          Page Count: {volume.volumeInfo.pageCount}
+                        </div>
+                      </div>
                     </div>
-                    <div className='flex flex-col gap-2'>
-                      <div className='font-serif text-yellow-500 dark:text-yellow-50 underline-offset-4 text-lg no-underline hover:underline decoration-gray-300 dark:decoration-gray-500'>
-                        {volume.volumeInfo.title}
-                      </div>
-                      {volume.volumeInfo?.authors?.length > 0 ? (
-                        <div className='text-md'>By: {volume.volumeInfo?.authors[0]}</div>
-                      ) : (
-                        <></>
-                      )}
-
-                      <div className='text-gray-600 dark:text-gray-400 text-sm font-semibold'>
-                        {' '}
-                        {volume.volumeInfo.categories}
-                      </div>
-                      <div className='text-gray-600 dark:text-gray-400 text-sm font-semibold'>
-                        Page Count: {volume.volumeInfo.pageCount}
-                      </div>
-                    </div>
-                  </div>
-                </Link>
-                <div className='flex self-end'>
-                  <Listbox
-                    value={{ id: 0, displayString: 'temp' }}
-                    onChange={(e) => {
-                      addBook(
-                        volume.volumeInfo.title,
-                        volume.volumeInfo?.authors[0],
-                        '',
-                        e.id,
-                        volume.volumeInfo?.imageLinks?.thumbnail
-                      );
-                    }}>
-                    <ListboxButton
-                      className={clsx(
-                        'bg-indigo-600 relative block w-full rounded-lg py-1.5 pr-8 pl-3 text-left text-sm/6 text-white',
-                        'focus:outline-none data-[focus]:outline-2 data-[focus]:-outline-offset-2 data-[focus]:outline-white/25'
-                      )}>
-                      Add To List
-                      <ChevronDownIcon
-                        className='group pointer-events-none absolute top-2.5 right-2.5 size-4 fill-white/60'
-                        aria-hidden='true'
-                      />
-                    </ListboxButton>
-                    <ListboxOptions
-                      anchor='bottom'
-                      transition
-                      className={clsx(
-                        'w-[var(--button-width)] rounded-xl border border-white/5  p-1 [--anchor-gap:var(--spacing-1)] focus:outline-none bg-indigo-400 mt-2',
-                        'transition duration-100 ease-in data-[leave]:data-[closed]:opacity-0'
-                      )}>
-                      {listOptions.map((listName) => {
-                        return (
-                          <ListboxOption
-                            key={listName?.displayString}
-                            value={listName}
-                            className='group flex cursor-default items-center gap-2 rounded-lg py-1.5 px-3 select-none data-[focus]:bg-white/10'>
-                            <div className='text-sm/6 text-white'>{listName?.displayString}</div>
-                          </ListboxOption>
+                  </Link>
+                  <div className='flex self-end'>
+                    <Listbox
+                      value={{ id: 0, displayString: 'temp' }}
+                      onChange={(e) => {
+                        addBook(
+                          volume.volumeInfo.title,
+                          volume.volumeInfo?.authors[0],
+                          '',
+                          e.id,
+                          volume.volumeInfo?.imageLinks?.thumbnail
                         );
-                      })}
-                    </ListboxOptions>
-                  </Listbox>
+                      }}>
+                      <ListboxButton
+                        className={clsx(
+                          'bg-indigo-600 relative block w-full rounded-lg py-1.5 pr-8 pl-3 text-left text-sm/6 text-white',
+                          'focus:outline-none data-[focus]:outline-2 data-[focus]:-outline-offset-2 data-[focus]:outline-white/25'
+                        )}>
+                        Add To List
+                        <ChevronDownIcon
+                          className='group pointer-events-none absolute top-2.5 right-2.5 size-4 fill-white/60'
+                          aria-hidden='true'
+                        />
+                      </ListboxButton>
+                      <ListboxOptions
+                        anchor='bottom'
+                        transition
+                        className={clsx(
+                          'w-[var(--button-width)] rounded-xl border border-white/5  p-1 [--anchor-gap:var(--spacing-1)] focus:outline-none bg-indigo-400 mt-2',
+                          'transition duration-100 ease-in data-[leave]:data-[closed]:opacity-0'
+                        )}>
+                        {listOptions.map((listName) => {
+                          return (
+                            <ListboxOption
+                              key={listName?.displayString}
+                              value={listName}
+                              className='group flex cursor-default items-center gap-2 rounded-lg py-1.5 px-3 select-none data-[focus]:bg-white/10'>
+                              <div className='text-sm/6 text-white'>{listName?.displayString}</div>
+                            </ListboxOption>
+                          );
+                        })}
+                      </ListboxOptions>
+                    </Listbox>
+                  </div>
                 </div>
-              </div>
-            );
+              );
+            }
+
           })}
         </div>
       </div>
