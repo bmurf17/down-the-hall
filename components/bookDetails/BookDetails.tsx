@@ -47,19 +47,7 @@ export default function BookDetails({ bookInfo }: Props) {
                               <span className='text-md mr-1'>By</span>
 
                               <span className='flex-inline flex-row mr-1'>
-                                {/* <div className='overflow-hidden border border-gray-700 dark:border-gray-50 rounded-full inline-block mr-1 align-middle w-5 h-5'>
-                                  <img
-                                    src='https://cdn.hardcover.app/enlarge?url=https://storage.googleapis.com/hardcover/authors/195360/8539488-L.jpg&amp;width=20&amp;height=20&amp;type=webp'
-                                    alt='R.F. Kuang'
-                                    width='20'
-                                    height='20'
-                                    loading='eager'
-                                    style={{
-                                      backgroundImage: `url(${'https://storage.googleapis.com/hardcover/images/people/profilePics/profilePic1.png'})`,
-                                    }}
-                                    className='avatar cursor-pointer object-cover bg-cover w-full h-full hover:opacity-80 group-hover:opacity-80  transition-all'
-                                  />
-                                </div> */}
+
 
                                 <span className='ml-1'>{bookInfo.book_series[0].series.author?.name}</span>
                               </span>
@@ -88,7 +76,7 @@ export default function BookDetails({ bookInfo }: Props) {
 
 
       </div>
-      <div className='mx-auto px-2 lg:px-0 my-4 max-w-3xl lg:mt-72'>
+      <div className='mx-auto px-2 lg:px-0 my-4 max-w-3xl lg:mt-80'>
         {bookInfo.description}
       </div>
 

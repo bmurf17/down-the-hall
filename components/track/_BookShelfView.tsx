@@ -12,8 +12,8 @@ export default function BookShelfView({ book }: Props) {
     <div className='flex'>
       <img
         className='relative overflow-hidden group transition-all border border-gray-100/20 ring-accent hover:ring-1 hover:border-accent rounded-l-sm rounded-r-md shadow-md block'
-        src={bookObject.image || ''}
-        alt={bookObject.title}
+        src={bookObject?.image || ''}
+        alt={bookObject?.title}
         height={100}
         width={100}
       />
