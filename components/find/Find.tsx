@@ -1,17 +1,15 @@
 'use client';
 
-import { GoogleBooksResponse } from '@/types/googlebookresponse';
-import { usePathname, useRouter, useSearchParams } from 'next/navigation';
-import { useCallback, useState } from 'react';
-import Button from '../basicUI/Button';
 import { addBook } from '@/actions/bookActions';
-import { ChevronDownIcon } from '../icons/ChevronDownIcon';
-import { Listbox, ListboxButton, ListboxOptions, ListboxOption } from '@headlessui/react';
-import clsx from 'clsx';
-import { CheckIcon } from '../icons/CheckIcon';
-import { Status } from '@/types/statusEnum';
-import Link from 'next/link';
 import { HardCoverApiResponse } from '@/types/hardcoverresponse';
+import { Status } from '@/types/statusEnum';
+import { Listbox, ListboxButton, ListboxOption, ListboxOptions } from '@headlessui/react';
+import clsx from 'clsx';
+import Link from 'next/link';
+import { usePathname, useRouter, useSearchParams } from 'next/navigation';
+import { useCallback } from 'react';
+import Button from '../basicUI/Button';
+import { ChevronDownIcon } from '../icons/ChevronDownIcon';
 
 interface Props {
   books: HardCoverApiResponse;
@@ -28,9 +26,6 @@ const listOptions = Object.keys(Status)
   .filter((item) => item !== undefined);
 
 export default function Find(books: Props) {
-  console.log(books)
-
-
   const router = useRouter();
   const pathname = usePathname();
   const searchParams = useSearchParams();
@@ -75,14 +70,7 @@ export default function Find(books: Props) {
         </div>
 
         <div className='flex flex-col gap-4'>
-          {books.books.data.books.map((book, i) => {
-            if(i == 0){
-              console.log(book)
-
-            }
-
-
-
+            {books?.books?.data?.books !== undefined ? (   <> {books.books.data.books.map((book, i) => {
             if (book.image)
               return (
                 <div
@@ -117,7 +105,12 @@ export default function Find(books: Props) {
 
                         {book.editions.length > 0 ? (
                           <div className='text-gray-600 dark:text-gray-400 text-sm font-semibold'>
-                            Page Count: {book.editions.filter(x => x.id === book.default_physical_edition_id)[0].pages}
+                            Page Count:{' '}
+                            {
+                              book.editions.filter(
+                                (x: { id: any; }) => x.id === book.default_physical_edition_id
+                              )[0].pages
+                            }
                           </div>
                         ) : (
                           <></>
@@ -134,7 +127,7 @@ export default function Find(books: Props) {
                           book.book_series[0].series?.author?.name,
                           '',
                           e.id,
-                          book.image?.url || ""
+                          book.image?.url || ''
                         );
                       }}>
                       <ListboxButton
@@ -170,7 +163,9 @@ export default function Find(books: Props) {
                   </div>
                 </div>
               );
-          })}
+          })} </>) : (<> Search to see results</>)}
+
+
         </div>
       </div>
     </div>

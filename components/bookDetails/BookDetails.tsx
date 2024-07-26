@@ -1,7 +1,8 @@
 import { BookItem } from '@/types/googlebookresponse';
+import { HardcoverBook } from '@/types/hardcoverresponse';
 
 interface Props {
-  bookInfo: BookItem;
+  bookInfo: HardcoverBook;
 }
 
 export default function BookDetails({ bookInfo }: Props) {
@@ -25,7 +26,7 @@ export default function BookDetails({ bookInfo }: Props) {
                   <div className='hidden lg:block mr-4 flex-none'>
                     <div className=' relative overflow-hidden group transition-all rounded-l-sm rounded-r-md border border-secondary '>
                       <img
-                        src={bookInfo.volumeInfo.imageLinks.thumbnail}
+                        src={bookInfo.image?.url}
                         alt='Yellowface'
                         width='180'
                         height='271'
@@ -38,7 +39,7 @@ export default function BookDetails({ bookInfo }: Props) {
                     <div>
                       <div className='mt-4'>
                         <h1 className='font-serif text-gray-800 dark:text-gray-200 mb-1 text-3xl lg:text-5xl'>
-                          {bookInfo.volumeInfo.title}
+                          {bookInfo.title}
                         </h1>
                         <div className='mt-2 lg:mt-0'>
                           <div className='font-semibold text-sm hidden lg:flex'>
@@ -60,7 +61,7 @@ export default function BookDetails({ bookInfo }: Props) {
                                   />
                                 </div> */}
 
-                                <span className='ml-1'>{bookInfo.volumeInfo.authors[0]}</span>
+                                <span className='ml-1'>{bookInfo.book_series[0].series.author?.name}</span>
                               </span>
                             </div>
                           </div>
@@ -88,7 +89,7 @@ export default function BookDetails({ bookInfo }: Props) {
 
       </div>
       <div className='mx-auto px-2 lg:px-0 my-4 max-w-3xl lg:mt-72'>
-        {bookInfo.volumeInfo.description}
+        {bookInfo.description}
       </div>
 
     </div>

@@ -1,10 +1,10 @@
 export type HardCoverApiResponse = {
     data: {
-      books: Book[];
+      books: HardcoverBook[];
     };
   };
   
-  type Book = {
+  export type HardcoverBook = {
     id: number;
     image: Image | null;
     title: string;
