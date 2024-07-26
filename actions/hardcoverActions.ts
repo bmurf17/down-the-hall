@@ -8,7 +8,7 @@ export const getBookDetails =  async (title: string) => {
 
     const requestBody = {
         query: `query Test {
-  books(where: {title: {_like: "%${title}%"}}, order_by: {users_count: desc}) {
+  books(where: {title: {_ilike: "%${title}%"}}, order_by: {users_count: desc}, limit: 10) {
     id
     image {
       url
@@ -38,7 +38,9 @@ export const getBookDetails =  async (title: string) => {
     editions {
       dto
       pages
+      id
     }
+    default_physical_edition_id
   }
 }`
     }

@@ -76,6 +76,13 @@ export default function Find(books: Props) {
 
         <div className='flex flex-col gap-4'>
           {books.books.data.books.map((book, i) => {
+            if(i == 0){
+              console.log(book)
+
+            }
+
+
+
             if (book.image)
               return (
                 <div
@@ -98,7 +105,7 @@ export default function Find(books: Props) {
                         </div>
                         {book.book_series.length > 0 ? (
                           <div className='text-md'>
-                            By: {book.book_series[0].series.author.name}
+                            By: {book.book_series[0].series.author?.name}
                           </div>
                         ) : (
                           <></>
@@ -110,7 +117,7 @@ export default function Find(books: Props) {
 
                         {book.editions.length > 0 ? (
                           <div className='text-gray-600 dark:text-gray-400 text-sm font-semibold'>
-                            Page Count: {book.editions[0].pages}
+                            Page Count: {book.editions.filter(x => x.id === book.default_physical_edition_id)[0].pages}
                           </div>
                         ) : (
                           <></>
@@ -124,7 +131,7 @@ export default function Find(books: Props) {
                       onChange={(e) => {
                         addBook(
                           book.title,
-                          book.book_series[0].series.author.name,
+                          book.book_series[0].series?.author?.name,
                           '',
                           e.id,
                           book.image?.url || ""

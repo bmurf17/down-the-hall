@@ -13,6 +13,7 @@ export type HardCoverApiResponse = {
     description: string | null;
     dto: Dto;
     editions: Edition[];
+    default_physical_edition_id: number
   };
   
   type Image = {
@@ -52,6 +53,7 @@ export type HardCoverApiResponse = {
   type Edition = {
     dto: EditionDto;
     pages: number | null;
+    id: number
   };
   
   type EditionDto = {
