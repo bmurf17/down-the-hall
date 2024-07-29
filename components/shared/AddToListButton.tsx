@@ -8,11 +8,18 @@ interface Props {
     title: string
     author: string
     image: string
-    addBookToList: (title: string, author: string, authorImg: string, status: number, image: string) => void
+    release_year: string
+    default_physical_edition_id: number
+    description: string
+    series_position: number
+    series_length: number
+    series_name: string
+    hardcover_id: number
+    addBookToList: (title: string, author: string, authorImg: string, status: number, image: string, release_year: string, default_physical_edition_id: number, description: string, series_position: number, series_length: number, series_name: string, hardcover_id: number ) => void
 
 }
 
-export function AddToListButton({title, author, image, addBookToList} : Props){
+export function AddToListButton({title, author, image, release_year, default_physical_edition_id, description, series_position, series_length, series_name, hardcover_id, addBookToList} : Props){
     const readingStatusString: string[] = ['Reading', 'Read', 'TBR', 'DNF'];
 
     const listOptions = Object.keys(Status)
@@ -28,7 +35,7 @@ export function AddToListButton({title, author, image, addBookToList} : Props){
         <Listbox
           value={{ id: 0, displayString: 'temp' }}
           onChange={(e) => {
-            addBookToList(title, author, "", e.id, image)
+            addBookToList(title, author, "", e.id, image, release_year, default_physical_edition_id, description, series_position, series_length, series_name, hardcover_id)
           }}>
           <ListboxButton
             className={clsx(

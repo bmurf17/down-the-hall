@@ -11,6 +11,7 @@ export type HardCoverApiResponse = {
     book_characters: any[];
     book_series: BookSeries[];
     description: string | null;
+    release_year: string;
     dto: Dto;
     editions: Edition[];
     default_physical_edition_id: number
@@ -24,12 +25,14 @@ export type HardCoverApiResponse = {
     position: number | null;
     details: string | null;
     series: Series;
+    books_count: number;
+    name: string;
   };
   
   type Series = {
     author: Author;
-    books_count: number;
     name: string;
+    books_count: number;
   };
   
   type Author = {

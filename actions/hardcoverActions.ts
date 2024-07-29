@@ -15,6 +15,7 @@ export const getBooks = async (title: string) => {
     query: `query Test {
   books(where: {title: {_ilike: "%${title}%"}}, order_by: {users_count: desc}, limit: 10) {
     id
+    release_year
     image {
       url
     }
@@ -29,13 +30,8 @@ export const getBooks = async (title: string) => {
         author {
           name
         }
-        book_series {
-          series {
-            books_count
-            is_completed
-            name
-          }
-        }
+        name
+        books_count
       }
     }
     description
@@ -71,6 +67,7 @@ export const getBook = async (id: string) => {
     query: `query Test {
               books(where: {id: {_eq: "${id}"}}, order_by: {users_count: desc}, limit: 1) {
               id
+              release_year
               image {
                 url
               }

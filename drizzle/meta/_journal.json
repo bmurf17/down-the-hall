@@ -22,6 +22,20 @@
       "when": 1720366719918,
       "tag": "0002_boring_night_nurse",
       "breakpoints": true
+    },
+    {
+      "idx": 3,
+      "version": "6",
+      "when": 1722019846141,
+      "tag": "0003_more_book_fields",
+      "breakpoints": true
+    },
+    {
+      "idx": 4,
+      "version": "6",
+      "when": 1722266028666,
+      "tag": "0004_fix_series_name",
+      "breakpoints": true
     }
   ]
 }

@@ -1,5 +1,5 @@
 
-import { InferModel, relations } from 'drizzle-orm';
+import {  relations } from 'drizzle-orm';
 import { integer, pgTable, serial, text } from 'drizzle-orm/pg-core';
 
 
@@ -26,7 +26,14 @@ export const book = pgTable("book", {
   title: text("title").notNull(),
   authorId: integer("author_id").references(() => author.id),
   image: text("image"),
-  status: integer("status")
+  status: integer("status"),
+  releaseYear: integer("release_year"),
+  defaultPhysicalEditionId: integer("default_physical_edition_id"),
+  description: text("description"),
+  seriesPosition: integer("series_position"),
+  seriesLength: integer("series_length"),
+  seriesName: text("series_name"),
+  hardcoverId: integer("hardcover_id")
 })
 
 export const bookRelations = relations(book, ({ one }) => ({

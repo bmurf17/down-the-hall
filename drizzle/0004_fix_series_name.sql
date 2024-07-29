@@ -1,0 +1,1 @@
+ALTER TABLE "book" ALTER COLUMN "series_name" SET DATA TYPE text;
