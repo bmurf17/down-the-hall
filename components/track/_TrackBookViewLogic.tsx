@@ -15,7 +15,7 @@ export default function TrackBooViewLogic({books, selectedView, viewOptions }: P
                 {selectedView === viewOptions[0] ? (
                   <div className='flex flex-col gap-2'>
                     {books.map((book) => {
-                      return <BookCardView key={book.book.id} book={book} />;
+                      return <BookCardView key={book?.book?.id} book={book} />;
                     })}
                   </div>
                 ) : (
@@ -23,13 +23,13 @@ export default function TrackBooViewLogic({books, selectedView, viewOptions }: P
                     {selectedView === viewOptions[1] ? (
                       <div className='flex flex-col gap-2'>
                         {books.map((book) => {
-                          return <BookListView key={book.book.id} book={book} />;
+                          return <BookListView key={book?.book?.id} book={book} />;
                         })}
                       </div>
                     ) : (
                       <div className='mt-4 grid grid-cols-4 md:grid-cols-6 lg:grid-cols-8 gap-2'>
                         {books.map((book) => {
-                          return <BookShelfView key={book.book.id} book={book} />;
+                          return <BookShelfView key={book?.book?.id} book={book} />;
                         })}
                       </div>
                     )}

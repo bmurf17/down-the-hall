@@ -1,16 +1,14 @@
 'use client';
 
-import { useState } from 'react';
+import { Book } from '@/types/book';
+import { Tab, TabGroup, TabList, TabPanel, TabPanels } from '@headlessui/react';
+import { usePathname, useRouter, useSearchParams } from 'next/navigation';
+import { useCallback, useState } from 'react';
 import IconButton from '../basicUI/IconButton';
 import { CardIcon } from '../icons/CardIcon';
 import { ListIcon } from '../icons/ListIcon';
 import { ShelfIcon } from '../icons/ShelfIcon';
-import BookCardView from './_BookCardView';
 import FilterTrack from './_FilterTracking';
-import { Book } from '@/types/book';
-import BookShelfView from './_BookShelfView';
-import BookListView from './_BookListView';
-import { Tab, TabGroup, TabList, TabPanel, TabPanels } from '@headlessui/react';
 import TrackBooViewLogic from './_TrackBookViewLogic';
 
 const options = [{ name: 'Book Length' }, { name: 'Book Title' }, { name: 'Last Read' }];
@@ -26,34 +24,64 @@ export default function Track({ books }: Props) {
   const viewOptions = ['Card', 'List', 'Shelf'];
   const [selectedView, setSelectedView] = useState<string | undefined>(viewOptions[0]);
 
+  const router = useRouter()
+  const pathname = usePathname()
+  const searchParams = useSearchParams()
+
+  // Get a new searchParams string by merging the current
+  // searchParams with a provided key/value pair
+  const createQueryString = useCallback(
+    (name: string, value: string) => {
+      const params = new URLSearchParams(searchParams.toString())
+      params.set(name, value)
+ 
+      return params.toString()
+    },
+    [searchParams]
+  )
+
   return (
     <div>
       <div>
         <TabGroup>
           <TabList className='flex gap-4'>
             <Tab
-              className='data-[selected]:bg-indigo-600 text-white rounded-xl p-4 data-[hover]:bg-indigo-400 data-[selected]:data-[hover]:bg-indigo-500 data-[focus]:outline-1 data-[focus]:outline-white  bg-slate-400
-            '>
+              className='data-[selected]:bg-indigo-600 text-white rounded-xl p-4 data-[hover]:bg-indigo-400 data-[selected]:data-[hover]:bg-indigo-500 data-[focus]:outline-1 data-[focus]:outline-white  bg-slate-400'
+              onClick={() => {
+                router.push(pathname + '?' + createQueryString('status', ""))
+              }}
+              >
               All
             </Tab>
             <Tab
-              className='data-[selected]:bg-indigo-600 text-white rounded-xl p-4 data-[hover]:bg-indigo-400 data-[selected]:data-[hover]:bg-indigo-500 data-[focus]:outline-1 data-[focus]:outline-white  bg-slate-400
-            '>
-              Want To Read
-            </Tab>
-            <Tab
-              className='data-[selected]:bg-indigo-600 text-white rounded-xl p-4 data-[hover]:bg-indigo-400 data-[selected]:data-[hover]:bg-indigo-500 data-[focus]:outline-1 data-[focus]:outline-white  bg-slate-400
-            '>
+              className='data-[selected]:bg-indigo-600 text-white rounded-xl p-4 data-[hover]:bg-indigo-400 data-[selected]:data-[hover]:bg-indigo-500 data-[focus]:outline-1 data-[focus]:outline-white  bg-slate-400'
+              onClick={() => {
+                router.push(pathname + '?' + createQueryString('status', "0"))
+              }}
+              >
               Currently Reading
             </Tab>
             <Tab
-              className='data-[selected]:bg-indigo-600 text-white rounded-xl p-4 data-[hover]:bg-indigo-400 data-[selected]:data-[hover]:bg-indigo-500 data-[focus]:outline-1 data-[focus]:outline-white  bg-slate-400
-            '>
+              className='data-[selected]:bg-indigo-600 text-white rounded-xl p-4 data-[hover]:bg-indigo-400 data-[selected]:data-[hover]:bg-indigo-500 data-[focus]:outline-1 data-[focus]:outline-white  bg-slate-400'
+              onClick={() => {
+                router.push(pathname + '?' + createQueryString('status', "1"))
+              }}>
               Read
             </Tab>
             <Tab
-              className='data-[selected]:bg-indigo-600 text-white rounded-xl p-4 data-[hover]:bg-indigo-400 data-[selected]:data-[hover]:bg-indigo-500 data-[focus]:outline-1 data-[focus]:outline-white  bg-slate-400
-            '>
+              className='data-[selected]:bg-indigo-600 text-white rounded-xl p-4 data-[hover]:bg-indigo-400 data-[selected]:data-[hover]:bg-indigo-500 data-[focus]:outline-1 data-[focus]:outline-white  bg-slate-400'
+              onClick={() => {
+                router.push(pathname + '?' + createQueryString('status', "2"))
+              }}
+              >
+              Want To Read
+            </Tab>
+            <Tab
+              className='data-[selected]:bg-indigo-600 text-white rounded-xl p-4 data-[hover]:bg-indigo-400 data-[selected]:data-[hover]:bg-indigo-500 data-[focus]:outline-1 data-[focus]:outline-white  bg-slate-400'
+              onClick={() => {
+                router.push(pathname + '?' + createQueryString('status', "3"))
+              }}
+              >
               Did Not Finish
             </Tab>
           </TabList>
@@ -76,7 +104,6 @@ export default function Track({ books }: Props) {
                 icon={<ListIcon />}
                 handleClick={() => {
                   switchView(viewOptions[1]);
-                  console.log();
                 }}
                 styles={''}
                 tooltipText={viewOptions[1]}
@@ -93,8 +120,7 @@ export default function Track({ books }: Props) {
               />
             </div>
           </div>
-          {/* TODO actually filer what we send to book display based on which tab is displayed */}
-          <TabPanels>
+          <TabPanels className="mb-4">
             <TabPanel>
               <TrackBooViewLogic
                 selectedView={selectedView}
