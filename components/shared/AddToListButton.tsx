@@ -34,6 +34,7 @@ interface Props {
     series_name: string,
     hardcover_id: number
   ) => void;
+  buttonText: string;
 }
 
 export function AddToListButton({
@@ -48,6 +49,7 @@ export function AddToListButton({
   series_name,
   hardcover_id,
   addBookToList,
+  buttonText,
 }: Props) {
   const readingStatusString: string[] = ["Reading", "Read", "TBR", "DNF"];
 
@@ -85,7 +87,7 @@ export function AddToListButton({
           "focus:outline-none data-[focus]:outline-2 data-[focus]:-outline-offset-2 data-[focus]:outline-white/25"
         )}
       >
-        Add To List
+        {buttonText}
         <ChevronDownIcon
           className="group pointer-events-none size-4 fill-white/60"
           aria-hidden="true"

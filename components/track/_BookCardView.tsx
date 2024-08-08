@@ -2,6 +2,7 @@ import { addBook, deleteBook, editBook } from "@/actions/bookActions";
 import { Book } from "@/types/book";
 import clsx from "clsx";
 import { AddToListButton } from "../shared/AddToListButton";
+import { readingStatusString } from "@/types/statusEnum";
 
 interface Props {
   book: Book;
@@ -41,7 +42,7 @@ export default function BookCardView({ book }: Props) {
   };
 
   return (
-    <div className="flex gap-4 justify-between border-b-2 border-gray-500 hover:bg-slate-200 hover:cursor-pointer">
+    <div className="flex flex-col md:flex-row gap-4 justify-between border-b-2 border-gray-500 hover:bg-slate-200 hover:cursor-pointer pb-2">
       <div className="flex gap-4">
         <img
           className="relative overflow-hidden group transition-all border border-gray-100/20 ring-accent hover:ring-1 hover:border-accent rounded-l-sm rounded-r-md shadow-md block"
@@ -75,6 +76,7 @@ export default function BookCardView({ book }: Props) {
           series_name={bookObject?.seriesName ?? ""}
           series_position={bookObject?.seriesPosition ?? 0}
           addBookToList={addBookToList}
+          buttonText={readingStatusString[bookObject?.status ?? 0]}
         />
 
         <button

@@ -179,6 +179,7 @@ export default function Find(books: Props) {
                             : 0
                         }
                         addBookToList={addBookToList}
+                        buttonText="Add To List"
                       />
                     </div>
                   </div>
