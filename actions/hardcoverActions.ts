@@ -114,3 +114,82 @@ export const getBook = async (id: string) => {
 
   return response;
 };
+
+export const getTrendingByMonth = async () => {
+  function getMonthString(date: Date): string {
+    const months = [
+      "January",
+      "February",
+      "March",
+      "April",
+      "May",
+      "June",
+      "July",
+      "August",
+      "September",
+      "October",
+      "November",
+      "December",
+    ];
+    return months[date.getMonth()];
+  }
+
+  const date = new Date();
+  const monthString = getMonthString(date);
+
+  // Step 1: Fetch the IDs from the first query
+  const headers = {
+    "content-type": "application/json",
+    Authorization: `${process.env.HARDCOVER_TOKEN}`,
+  };
+
+  const requestBody = {
+    query: `
+  query {
+    books_trending(limit: 10, from: ${monthString}, offset: 0) {
+      ids
+    }
+  }
+`,
+  };
+
+  const options = {
+    method: "POST",
+    headers,
+    body: JSON.stringify(requestBody),
+  };
+
+  const response = await (
+    await fetch(process.env.HARCOVER_URL || "", options)
+  ).json();
+
+  // Execute the query to get the IDs
+  const ids = response.data.books_trending.ids;
+
+  const requestBody2 = {
+    query: `
+    query {
+      ${ids
+        .map(
+          (id: number, index: number) => `
+        book${index}: books_by_pk(id: ${id}) {
+          id
+          users_count
+          users_read_count      
+          dto_combined
+        }
+      `
+        )
+        .join("")}
+    }
+  `,
+  };
+
+  const options2 = {
+    method: "POST",
+    headers,
+    body: JSON.stringify(requestBody2),
+  };
+
+  return await (await fetch(process.env.HARCOVER_URL || "", options2)).json();
+};
