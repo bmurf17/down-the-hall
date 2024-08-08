@@ -150,7 +150,7 @@ export default function Find(books: Props) {
                         title={book.title}
                         author={
                           book.book_series.length > 0
-                            ? book.book_series[0]?.series.author.name
+                            ? book.book_series[0]?.series?.author?.name
                             : ""
                         }
                         image={
