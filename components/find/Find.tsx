@@ -94,6 +94,8 @@ export default function Find(books: Props) {
             <>
               {" "}
               {books.books.data.books.map((book, i) => {
+                const number = Math.floor(Math.random() * 7) + 1;
+
                 return (
                   <div
                     className="flex justify-between p-4 border-b-2 border-gray-500 hover:bg-slate-200 hover:cursor-pointer"
@@ -106,7 +108,7 @@ export default function Find(books: Props) {
                             className="relative overflow-hidden group transition-all border border-gray-100/20 ring-accent hover:ring-1 hover:border-accent rounded-l-sm rounded-r-md shadow-md block"
                             src={
                               book?.image?.url ||
-                              "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQTURsU0h9PB1mXojMRR8ZAwnvg8v98oMA7wA&s"
+                              `https://hardcover.app/images/covers/cover${number}.png`
                             }
                             alt={book.title}
                             height={100}
@@ -155,7 +157,7 @@ export default function Find(books: Props) {
                         }
                         image={
                           book?.image?.url ??
-                          "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQTURsU0h9PB1mXojMRR8ZAwnvg8v98oMA7wA&s"
+                          `https://hardcover.app/images/covers/cover${number}.png`
                         }
                         default_physical_edition_id={
                           book.default_physical_edition_id
