@@ -1,15 +1,13 @@
-
 //TODO: Move to typesense
 export const getBooks = async (title: string) => {
-
   if (title === "") {
-    return []
+    return [];
   }
 
   const headers = {
-    'content-type': "application/json",
-    'Authorization': `${process.env.HARDCOVER_TOKEN}`
-  }
+    "content-type": "application/json",
+    Authorization: `${process.env.HARDCOVER_TOKEN}`,
+  };
 
   const requestBody = {
     query: `query Test {
@@ -43,25 +41,26 @@ export const getBooks = async (title: string) => {
     }
     default_physical_edition_id
   }
-}`
-  }
+}`,
+  };
 
   const options = {
-    method: 'POST',
+    method: "POST",
     headers,
-    body: JSON.stringify(requestBody)
-  }
+    body: JSON.stringify(requestBody),
+  };
 
-  const response = await (await fetch(process.env.HARCOVER_URL || "", options)).json();
-
-  return response
-}
+  const response = await (
+    await fetch(process.env.HARCOVER_URL || "", options)
+  ).json();
+  return response;
+};
 
 export const getBook = async (id: string) => {
   const headers = {
-    'content-type': "application/json",
-    'Authorization': `${process.env.HARDCOVER_TOKEN}`
-  }
+    "content-type": "application/json",
+    Authorization: `${process.env.HARDCOVER_TOKEN}`,
+  };
 
   const requestBody = {
     query: `query Test {
@@ -100,16 +99,18 @@ export const getBook = async (id: string) => {
               }
               default_physical_edition_id
               }
-            }`
-  }
+            }`,
+  };
 
   const options = {
-    method: 'POST',
+    method: "POST",
     headers,
-    body: JSON.stringify(requestBody)
-  }
+    body: JSON.stringify(requestBody),
+  };
 
-  const response = await (await fetch(process.env.HARCOVER_URL || "", options)).json();
+  const response = await (
+    await fetch(process.env.HARCOVER_URL || "", options)
+  ).json();
 
-  return response
-}
+  return response;
+};
