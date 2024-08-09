@@ -191,5 +191,66 @@ export const getTrendingByMonth = async () => {
     body: JSON.stringify(requestBody2),
   };
 
-  return await (await fetch(process.env.HARCOVER_URL || "", options2)).json();
+  const test = await (
+    await fetch(process.env.HARCOVER_URL || "", options2)
+  ).json();
+
+  const authorIds = Object.values(test.data)
+    .map((book: any) =>
+      book.dto_combined.contributions.map(
+        (contribution: any) => contribution.author_id
+      )
+    )
+    .flat();
+
+  // Join the authorIds array into a comma-separated string
+  const authorIdsString = authorIds.join(",");
+
+  const requestBody3 = {
+    query: `
+    query {
+      authors(where: {id: {_in: [${authorIdsString}]}}) {
+        id
+        name
+      }
+  }
+    `,
+  };
+
+  const options3 = {
+    method: "POST",
+    headers,
+    body: JSON.stringify(requestBody3),
+  };
+
+  const test2 = await (
+    await fetch(process.env.HARCOVER_URL || "", options3)
+  ).json();
+
+  const imageIds = Object.values(test.data).map(
+    (book: any) => book.dto_combined.image_ids[0]
+  );
+
+  const requestBody4 = {
+    query: `
+    query {
+      images(where: {id: {_in: [${imageIds}]}}) {
+        id
+        url
+      }
+  }
+    `,
+  };
+
+  const options4 = {
+    method: "POST",
+    headers,
+    body: JSON.stringify(requestBody4),
+  };
+
+  const test3 = await (
+    await fetch(process.env.HARCOVER_URL || "", options4)
+  ).json();
+
+  return { bookData: test, authorData: test2, imageData: test3 };
 };

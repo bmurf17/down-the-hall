@@ -8,16 +8,17 @@ import { Tab, TabGroup, TabList, TabPanel, TabPanels } from "@headlessui/react";
 import Link from "next/link";
 import { useState } from "react";
 import { AddToListButton } from "./shared/AddToListButton";
+import { Book } from "@/types/book";
 
 interface Props {
-  trendingData: TrendingBookData;
+  books: Book[];
 }
 
 function classNames(...classes: string[]) {
   return classes.filter(Boolean).join(" ");
 }
 
-export default function CentralDisplay({ trendingData }: Props) {
+export default function CentralDisplay({ books }: Props) {
   let [categories] = useState({
     Recent: [
       {
@@ -99,12 +100,6 @@ export default function CentralDisplay({ trendingData }: Props) {
     );
   };
 
-  var test: TrendingBookDetails[] = [];
-
-  for (const [key, book] of Object.entries(trendingData.data)) {
-    test.push(book);
-  }
-
   return (
     <div className="w-full  px-2 py-2 sm:px-0">
       <TabGroup>
@@ -137,64 +132,61 @@ export default function CentralDisplay({ trendingData }: Props) {
             >
               <div className="flex flex-col gap-4">
                 <>
-                  {test.map((book, i) => {
+                  {books.map((book, i) => {
                     const number = Math.floor(Math.random() * 7) + 1;
 
                     return (
                       <div
                         className="flex justify-between p-4 border-b-2 border-gray-500 hover:bg-slate-200 hover:cursor-pointer"
-                        key={book.dto_combined.title + i}
+                        key={book.book?.title || ""}
                       >
-                        <Link href={`book/${book.id}`}>
+                        <Link href={`book/${book.book?.hardcoverId}`}>
                           <div className="flex gap-2">
                             <div>
                               <img
                                 className="relative overflow-hidden group transition-all border border-gray-100/20 ring-accent hover:ring-1 hover:border-accent rounded-l-sm rounded-r-md shadow-md block"
-                                src={`https://hardcover.app/images/covers/cover${number}.png`}
-                                alt={book.dto_combined.title}
+                                src={
+                                  book.book?.image ||
+                                  `https://hardcover.app/images/covers/cover${number}.png`
+                                }
+                                alt={book.book?.title}
                                 height={100}
                                 width={100}
                               />
                             </div>
                             <div className="flex flex-col gap-2">
                               <div className="font-serif text-yellow-500 dark:text-yellow-50 underline-offset-4 text-lg no-underline hover:underline decoration-gray-300 dark:decoration-gray-500">
-                                {book.dto_combined.title}
+                                {book.book?.title}
                               </div>
-                              {book.dto_combined.series.length > 0 ? (
-                                <div className="text-md">
-                                  By:{" "}
-                                  {book.dto_combined.contributions[0].author_id}
-                                </div>
-                              ) : (
-                                <></>
-                              )}
+
+                              <div className="text-md">
+                                By: {book.author?.name}
+                              </div>
 
                               <div className="text-gray-600 dark:text-gray-400 text-sm font-semibold">
                                 Category
                               </div>
 
                               <div className="text-gray-600 dark:text-gray-400 text-sm font-semibold">
-                                Page Count: {book.dto_combined.page_count}
+                                {/* TODO actually get page count */}
+                                Page Count: {100}
                               </div>
                             </div>
                           </div>
                         </Link>
                         <div className="flex self-end">
                           <AddToListButton
-                            title={book.dto_combined.title}
+                            title={book.book?.title || ""}
                             //todo: actually get author
-                            author={
-                              book.dto_combined.contributions[0].author_id +
-                                "" || ""
-                            }
+                            author={book.author?.name || ""}
                             //TODO actually get image
                             image={""}
                             //TODO: get physcial edition in
                             default_physical_edition_id={0}
-                            description={book.dto_combined.description ?? ""}
-                            hardcover_id={book.id}
-                            release_year={book.dto_combined.release_year + ""}
-                            series_length={book.dto_combined.series.length}
+                            description={book.book?.description ?? ""}
+                            hardcover_id={book.book?.hardcoverId || 0}
+                            release_year={book.book?.releaseYear + ""}
+                            series_length={book.book?.seriesLength || 0}
                             series_name={""}
                             //TODO: actually load the series correctly
                             series_position={0}
