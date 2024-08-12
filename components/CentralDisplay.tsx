@@ -137,7 +137,7 @@ export default function CentralDisplay({ books }: Props) {
 
                     return (
                       <div
-                        className="flex justify-between p-4 border-b-2 border-gray-500 hover:bg-slate-200 hover:cursor-pointer"
+                        className="flex flex-col md:flex-row justify-between p-4 border-b-2 border-gray-500 hover:bg-slate-200 hover:cursor-pointer"
                         key={book.book?.title || ""}
                       >
                         <Link href={`book/${book.book?.hardcoverId}`}>
