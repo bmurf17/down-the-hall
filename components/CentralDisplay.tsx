@@ -126,7 +126,7 @@ export default function CentralDisplay({ books }: Props) {
             <TabPanel
               key={idx}
               className={classNames(
-                "rounded-xl bg-gray-300 p-3",
+                "rounded-xl bg-gray-300 p-3 animate-fade-in-grow",
                 "ring-white/60 ring-offset-2 ring-offset-blue-400 focus:outline-none focus:ring-2"
               )}
             >
