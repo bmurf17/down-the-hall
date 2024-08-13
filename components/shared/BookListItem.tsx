@@ -61,9 +61,15 @@ export default function BookListItem({ book, addBookToList }: Props) {
 
             <div className="text-md">By: {book.author?.name}</div>
 
-            <div className="text-gray-600 dark:text-gray-400 text-sm font-semibold">
-              Category
+            <div className="text-gray-600 dark:text-gray-400 text-sm font-semibold flex gap-2">
+              {book.book?.genres?.slice(0, 3).join(", ")}
             </div>
+
+            {book.book?.seriesName ? (
+              <div className="text-gray-600 dark:text-gray-400 text-sm font-semibold">
+                Series Name: {book.book?.seriesName}
+              </div>
+            ) : null}
 
             <div className="text-gray-600 dark:text-gray-400 text-sm font-semibold">
               Page Count: {book.book?.pageCount}
@@ -79,15 +85,13 @@ export default function BookListItem({ book, addBookToList }: Props) {
             book.book?.image ||
             `https://hardcover.app/images/covers/cover${number}.png`
           }
-          //TODO: get physcial edition in
-          default_physical_edition_id={0}
+          default_physical_edition_id={book.book?.defaultPhysicalEditionId || 0}
           description={book.book?.description ?? ""}
           hardcover_id={book.book?.hardcoverId || 0}
           release_year={book.book?.releaseYear + ""}
           series_length={book.book?.seriesLength || 0}
-          series_name={""}
-          //TODO: actually load the series correctly
-          series_position={0}
+          series_name={book.book?.seriesName || ""}
+          series_position={book.book?.seriesPosition || 0}
           addBookToList={addBookToList}
           buttonText={addbuttonText()}
         />

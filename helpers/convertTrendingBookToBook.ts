@@ -16,7 +16,7 @@ export function convertTrendingBookData(
         trendingBookDetails.dto_combined.contributions[0]?.author_id || null,
       image: imageData.data.images.filter(
         (img) => img.id === trendingBookDetails.dto_combined.image_ids[0]
-      )[0].url, // Assuming `image_id` is a reference to an image URL or path
+      )[0].url,
       status: null, // Set appropriate status based on your requirements
       releaseYear: trendingBookDetails.dto_combined.release_year,
       defaultPhysicalEditionId: null, // Set if applicable
@@ -27,6 +27,7 @@ export function convertTrendingBookData(
       seriesName: trendingBookDetails.dto_combined.series[0]?.details || null,
       hardcoverId: trendingBookDetails.id,
       pageCount: trendingBookDetails.dto_combined.page_count,
+      genres: trendingBookDetails.dto_combined.genres,
     };
 
     const author: SelectAuthor = {
@@ -34,8 +35,8 @@ export function convertTrendingBookData(
       name: authorData.data.authors.filter(
         (au) =>
           au.id === trendingBookDetails.dto_combined.contributions[0]?.author_id
-      )[0].name, // Set this if you have the author name elsewhere
-      image: "", // Set this if you have the author image elsewhere
+      )[0].name,
+      image: "",
     };
 
     return { book, author };

@@ -137,8 +137,7 @@ export const getTrendingByMonth = async () => {
   const date = new Date();
   const monthString = getMonthString(date);
 
-  // Step 1: Fetch the IDs from the first query
-  const headers = {
+  const trendingHeaders = {
     "content-type": "application/json",
     Authorization: `${process.env.HARDCOVER_TOKEN}`,
   };
@@ -155,7 +154,7 @@ export const getTrendingByMonth = async () => {
 
   const options = {
     method: "POST",
-    headers,
+    headers: trendingHeaders,
     body: JSON.stringify(requestBody),
   };
 
@@ -187,7 +186,7 @@ export const getTrendingByMonth = async () => {
 
   const options2 = {
     method: "POST",
-    headers,
+    headers: trendingHeaders,
     body: JSON.stringify(requestBody2),
   };
 
@@ -219,7 +218,7 @@ export const getTrendingByMonth = async () => {
 
   const options3 = {
     method: "POST",
-    headers,
+    headers: trendingHeaders,
     body: JSON.stringify(requestBody3),
   };
 
@@ -244,7 +243,7 @@ export const getTrendingByMonth = async () => {
 
   const options4 = {
     method: "POST",
-    headers,
+    headers: trendingHeaders,
     body: JSON.stringify(requestBody4),
   };
 

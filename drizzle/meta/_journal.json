@@ -43,6 +43,13 @@
       "when": 1723568169041,
       "tag": "0005_add_pagecount",
       "breakpoints": true
+    },
+    {
+      "idx": 6,
+      "version": "6",
+      "when": 1723581199491,
+      "tag": "0006_add_genres",
+      "breakpoints": true
     }
   ]
 }

@@ -12,8 +12,6 @@ export default async function Home() {
     trendingData.imageData
   );
 
-  // console.log(test);
-
   return (
     <div className="mx-16 ">
       <CentralDisplay books={test} />

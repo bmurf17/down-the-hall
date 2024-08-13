@@ -29,6 +29,7 @@ export const book = pgTable("book", {
   seriesLength: integer("series_length"),
   seriesName: text("series_name"),
   pageCount: integer("page_count"),
+  genres: text("genres").array(),
   hardcoverId: integer("hardcover_id"),
 });
 
