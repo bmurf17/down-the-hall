@@ -1,14 +1,9 @@
 "use client";
 import { addBook } from "@/actions/bookActions";
-import {
-  TrendingBookData,
-  TrendingBookDetails,
-} from "@/types/trendingbookresponse";
-import { Tab, TabGroup, TabList, TabPanel, TabPanels } from "@headlessui/react";
-import Link from "next/link";
-import { useState } from "react";
-import { AddToListButton } from "./shared/AddToListButton";
 import { Book } from "@/types/book";
+import { Tab, TabGroup, TabList, TabPanel, TabPanels } from "@headlessui/react";
+import { useState } from "react";
+import BookListItem from "./shared/BookListItem";
 
 interface Props {
   books: Book[];
@@ -20,7 +15,7 @@ function classNames(...classes: string[]) {
 
 export default function CentralDisplay({ books }: Props) {
   let [categories] = useState({
-    Recent: [
+    Trending: [
       {
         id: 1,
         title: "Does drinking coffee make you smarter?",
@@ -36,7 +31,7 @@ export default function CentralDisplay({ books }: Props) {
         shareCount: 2,
       },
     ],
-    Popular: [
+    "Your Feed": [
       {
         id: 1,
         title: "Is tech making coffee better or worse?",
@@ -50,22 +45,6 @@ export default function CentralDisplay({ books }: Props) {
         date: "Mar 19",
         commentCount: 24,
         shareCount: 12,
-      },
-    ],
-    Trending: [
-      {
-        id: 1,
-        title: "Ask Me Anything: 10 answers to your questions about coffee",
-        date: "2d ago",
-        commentCount: 9,
-        shareCount: 5,
-      },
-      {
-        id: 2,
-        title: "The worst advice we've ever heard about coffee",
-        date: "4d ago",
-        commentCount: 1,
-        shareCount: 2,
       },
     ],
   });
@@ -133,70 +112,14 @@ export default function CentralDisplay({ books }: Props) {
               <div className="flex flex-col gap-4">
                 <>
                   {books.map((book, i) => {
-                    const number = Math.floor(Math.random() * 7) + 1;
-
                     return (
-                      <div
-                        className="flex flex-col md:flex-row justify-between p-4 border-b-2 border-gray-500 hover:bg-slate-200 hover:cursor-pointer"
-                        key={book.book?.title || ""}
-                      >
-                        <Link href={`book/${book.book?.hardcoverId}`}>
-                          <div className="flex gap-2">
-                            <div>
-                              <img
-                                className="relative overflow-hidden group transition-all border border-gray-100/20 ring-accent hover:ring-1 hover:border-accent rounded-l-sm rounded-r-md shadow-md block"
-                                src={
-                                  book.book?.image ||
-                                  `https://hardcover.app/images/covers/cover${number}.png`
-                                }
-                                alt={book.book?.title}
-                                height={100}
-                                width={100}
-                              />
-                            </div>
-                            <div className="flex flex-col gap-2">
-                              <div className="font-serif text-yellow-500 dark:text-yellow-50 underline-offset-4 text-lg no-underline hover:underline decoration-gray-300 dark:decoration-gray-500">
-                                {book.book?.title}
-                              </div>
-
-                              <div className="text-md">
-                                By: {book.author?.name}
-                              </div>
-
-                              <div className="text-gray-600 dark:text-gray-400 text-sm font-semibold">
-                                Category
-                              </div>
-
-                              <div className="text-gray-600 dark:text-gray-400 text-sm font-semibold">
-                                {/* TODO actually get page count */}
-                                Page Count: {100}
-                              </div>
-                            </div>
-                          </div>
-                        </Link>
-                        <div className="flex self-end">
-                          <AddToListButton
-                            title={book.book?.title || ""}
-                            //todo: actually get author
-                            author={book.author?.name || ""}
-                            //TODO actually get image
-                            image={""}
-                            //TODO: get physcial edition in
-                            default_physical_edition_id={0}
-                            description={book.book?.description ?? ""}
-                            hardcover_id={book.book?.hardcoverId || 0}
-                            release_year={book.book?.releaseYear + ""}
-                            series_length={book.book?.seriesLength || 0}
-                            series_name={""}
-                            //TODO: actually load the series correctly
-                            series_position={0}
-                            addBookToList={addBookToList}
-                            buttonText="Add To List"
-                          />
-                        </div>
-                      </div>
+                      <BookListItem
+                        book={book}
+                        addBookToList={addBookToList}
+                        key={book.book?.hardcoverId}
+                      />
                     );
-                  })}{" "}
+                  })}
                 </>
               </div>
             </TabPanel>
