@@ -1,4 +1,7 @@
-import { TrendingAuthorsResponse } from "./authorhardcoverresponse";
+import {
+  TrendingAuthorsData,
+  TrendingAuthorsResponse,
+} from "./authorhardcoverresponse";
 
 export type TrendingBookDetails = {
   id: number;
@@ -67,15 +70,13 @@ export type TrendingBookDetails = {
 };
 
 export type TrendingBookData = {
-  data: {
-    [key: `book${number}`]: TrendingBookDetails;
-  };
+  [key: string]: TrendingBookDetails;
 };
 
 export type TrendingData = {
   bookData: TrendingBookData;
-  authorData: TrendingAuthorsResponse;
-  imageData: TrendingImage;
+  authorData: TrendingAuthorsData;
+  imageData: TrendingImageData;
 };
 
 type Image = {
@@ -83,7 +84,7 @@ type Image = {
   url: string;
 };
 
-type TrendingImageData = {
+export type TrendingImageData = {
   images: Image[];
 };
 

@@ -5,7 +5,7 @@ interface TrendingAuthor {
 }
 
 // Define the type for the data property
-interface TrendingAuthorsData {
+export interface TrendingAuthorsData {
   authors: TrendingAuthor[];
 }
 

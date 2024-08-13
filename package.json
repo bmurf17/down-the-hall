@@ -9,6 +9,7 @@
     "lint": "next lint"
   },
   "dependencies": {
+    "@apollo/client": "^3.11.4",
     "@headlessui/react": "^2.0.3",
     "@neondatabase/serverless": "^0.9.3",
     "clsx": "^2.1.1",

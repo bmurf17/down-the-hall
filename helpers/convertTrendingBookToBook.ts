@@ -1,20 +1,27 @@
 import { SelectBook, SelectAuthor } from "@/lib/schema";
-import { TrendingAuthorsResponse } from "@/types/authorhardcoverresponse";
+import {
+  TrendingAuthorsData,
+  TrendingAuthorsResponse,
+} from "@/types/authorhardcoverresponse";
 import { Book } from "@/types/book";
-import { TrendingBookData, TrendingImage } from "@/types/trendingbookresponse";
+import {
+  TrendingBookData,
+  TrendingImage,
+  TrendingImageData,
+} from "@/types/trendingbookresponse";
 
 export function convertTrendingBookData(
   trendingData: TrendingBookData,
-  authorData: TrendingAuthorsResponse,
-  imageData: TrendingImage
+  authorData: TrendingAuthorsData,
+  imageData: TrendingImageData
 ): Book[] {
-  return Object.values(trendingData.data).map((trendingBookDetails, index) => {
+  return Object.values(trendingData).map((trendingBookDetails, index) => {
     const book: SelectBook = {
       id: trendingBookDetails.id,
       title: trendingBookDetails.dto_combined.title,
       authorId:
         trendingBookDetails.dto_combined.contributions[0]?.author_id || null,
-      image: imageData.data.images.filter(
+      image: imageData.images.filter(
         (img) => img.id === trendingBookDetails.dto_combined.image_ids[0]
       )[0].url,
       status: null, // Set appropriate status based on your requirements
@@ -32,7 +39,7 @@ export function convertTrendingBookData(
 
     const author: SelectAuthor = {
       id: trendingBookDetails.dto_combined.contributions[0].author_id,
-      name: authorData.data.authors.filter(
+      name: authorData.authors.filter(
         (au) =>
           au.id === trendingBookDetails.dto_combined.contributions[0]?.author_id
       )[0].name,
