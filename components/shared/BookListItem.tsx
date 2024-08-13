@@ -1,6 +1,9 @@
 import { Book } from "@/types/book";
 import Link from "next/link";
 import { AddToListButton } from "./AddToListButton";
+import { readingStatusString } from "@/types/statusEnum";
+import clsx from "clsx";
+import { deleteBook } from "@/actions/bookActions";
 
 interface Props {
   book: Book;
@@ -22,6 +25,15 @@ interface Props {
 
 export default function BookListItem({ book, addBookToList }: Props) {
   const number = Math.floor(Math.random() * 7) + 1;
+  const addbuttonText = () => {
+    var status = book.book?.status;
+
+    if (status === null) {
+      return readingStatusString[4];
+    }
+
+    return readingStatusString[status || 0];
+  };
 
   return (
     <div
@@ -59,7 +71,7 @@ export default function BookListItem({ book, addBookToList }: Props) {
           </div>
         </div>
       </Link>
-      <div className="flex self-end">
+      <div className="flex self-end gap-2">
         <AddToListButton
           title={book.book?.title || ""}
           author={book.author?.name || ""}
@@ -77,8 +89,21 @@ export default function BookListItem({ book, addBookToList }: Props) {
           //TODO: actually load the series correctly
           series_position={0}
           addBookToList={addBookToList}
-          buttonText="Add To List"
+          buttonText={addbuttonText()}
         />
+        {book.book?.status !== null ? (
+          <button
+            className={clsx(
+              "bg-indigo-600 flex items-center justify-center p-4 rounded-lg  text-left text-sm/6 text-white",
+              "focus:outline-none data-[focus]:outline-2 data-[focus]:-outline-offset-2 data-[focus]:outline-white/25"
+            )}
+            onClick={() => {
+              deleteBook(book.book?.id ?? 0);
+            }}
+          >
+            Delete
+          </button>
+        ) : null}
       </div>
     </div>
   );
