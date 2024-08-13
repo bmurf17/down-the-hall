@@ -54,8 +54,7 @@ export default function BookListItem({ book, addBookToList }: Props) {
             </div>
 
             <div className="text-gray-600 dark:text-gray-400 text-sm font-semibold">
-              {/* TODO actually get page count */}
-              Page Count: {100}
+              Page Count: {book.book?.pageCount}
             </div>
           </div>
         </div>

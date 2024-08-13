@@ -26,6 +26,7 @@ export function convertTrendingBookData(
       seriesLength: trendingBookDetails.dto_combined.series.length || null,
       seriesName: trendingBookDetails.dto_combined.series[0]?.details || null,
       hardcoverId: trendingBookDetails.id,
+      pageCount: trendingBookDetails.dto_combined.page_count,
     };
 
     const author: SelectAuthor = {

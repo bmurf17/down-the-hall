@@ -1,25 +1,20 @@
-
-import {  relations } from 'drizzle-orm';
-import { integer, pgTable, serial, text } from 'drizzle-orm/pg-core';
-
+import { relations } from "drizzle-orm";
+import { integer, pgTable, serial, text } from "drizzle-orm/pg-core";
 
 export const user = pgTable("user_site", {
   id: serial("id").primaryKey().notNull(),
-  name: text("name").notNull()
-})
-
-
+  name: text("name").notNull(),
+});
 
 export const author = pgTable("author", {
   id: serial("id").primaryKey().notNull(),
   name: text("name").notNull(),
-  image: text("image")
-})
+  image: text("image"),
+});
 
 export const authorRelations = relations(author, ({ many }) => ({
   posts: many(book),
 }));
-
 
 export const book = pgTable("book", {
   id: serial("id").primaryKey().notNull(),
@@ -33,8 +28,9 @@ export const book = pgTable("book", {
   seriesPosition: integer("series_position"),
   seriesLength: integer("series_length"),
   seriesName: text("series_name"),
-  hardcoverId: integer("hardcover_id")
-})
+  pageCount: integer("page_count"),
+  hardcoverId: integer("hardcover_id"),
+});
 
 export const bookRelations = relations(book, ({ one }) => ({
   author: one(author, {
@@ -43,7 +39,7 @@ export const bookRelations = relations(book, ({ one }) => ({
   }),
 }));
 
-  export type SelectBook = typeof book.$inferSelect;
-  export type InsertBook = typeof book.$inferInsert;
-  export type SelectAuthor = typeof author.$inferSelect;
-  export type InsertAuthor = typeof author.$inferInsert;
+export type SelectBook = typeof book.$inferSelect;
+export type InsertBook = typeof book.$inferInsert;
+export type SelectAuthor = typeof author.$inferSelect;
+export type InsertAuthor = typeof author.$inferInsert;
