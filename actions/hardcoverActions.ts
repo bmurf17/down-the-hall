@@ -290,6 +290,7 @@ const BOOKS_BY_IDS_QUERY = (ids: number[]) => gql`
         (id, index) => `
         book${index}: books_by_pk(id: ${id}) {
           id
+          default_physical_edition_id
           users_count
           users_read_count      
           dto_combined
@@ -316,6 +317,15 @@ const IMAGES_BY_IDS_QUERY = (imageIds: number[]) => gql`
     images(where: {id: {_in: [${imageIds.join(",")}]}}) {
       id
       url
+    }
+  }
+`;
+
+const SERIES_BY_IDS_QUERY = (seriesIds: number[]) => gql`
+  query SeriesByIds {
+    series(where: {id: {_in: [${seriesIds.join(",")}]}}) {
+      id
+      name
     }
   }
 `;
@@ -356,10 +366,19 @@ async function fetchTrendingData() {
       query: IMAGES_BY_IDS_QUERY(imageIds),
     });
 
+    const seriesIds = Object.values(booksResponse.data)
+      .filter((book: any) => book.dto_combined.series.length > 0)
+      .map((book: any) => book.dto_combined.series[0].series_id);
+
+    const seriesResponse = await client.query({
+      query: SERIES_BY_IDS_QUERY(seriesIds),
+    });
+
     return {
       bookData: booksResponse.data,
       authorData: authorsResponse.data,
       imageData: imagesResponse.data,
+      seriesData: seriesResponse.data,
     };
   } catch (error) {
     console.error("Error fetching data:", error);

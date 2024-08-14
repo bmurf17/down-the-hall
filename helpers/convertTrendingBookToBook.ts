@@ -2,20 +2,26 @@ import { SelectBook, SelectAuthor } from "@/lib/schema";
 import {
   TrendingAuthorsData,
   TrendingAuthorsResponse,
-} from "@/types/authorhardcoverresponse";
+} from "@/types/trending/authorhardcoverresponse";
 import { Book } from "@/types/book";
 import {
   TrendingBookData,
-  TrendingImage,
   TrendingImageData,
-} from "@/types/trendingbookresponse";
+} from "@/types/trending/trendingbookresponse";
+import { SeriesListResponse } from "@/types/trending/seriesHardCoverResponse";
 
 export function convertTrendingBookData(
   trendingData: TrendingBookData,
   authorData: TrendingAuthorsData,
-  imageData: TrendingImageData
+  imageData: TrendingImageData,
+  seriesData: SeriesListResponse
 ): Book[] {
   return Object.values(trendingData).map((trendingBookDetails, index) => {
+    var series = seriesData?.series.filter(
+      (series) =>
+        series.id === trendingBookDetails.dto_combined.series[0]?.series_id
+    );
+
     const book: SelectBook = {
       id: trendingBookDetails.id,
       title: trendingBookDetails.dto_combined.title,
@@ -24,14 +30,14 @@ export function convertTrendingBookData(
       image: imageData.images.filter(
         (img) => img.id === trendingBookDetails.dto_combined.image_ids[0]
       )[0].url,
-      status: null, // Set appropriate status based on your requirements
+      status: null,
       releaseYear: trendingBookDetails.dto_combined.release_year,
-      defaultPhysicalEditionId: null, // Set if applicable
+      defaultPhysicalEditionId: trendingBookDetails.default_physical_edition_id, // Set if applicable
       description: trendingBookDetails.dto_combined.description,
       seriesPosition:
         trendingBookDetails.dto_combined.series[0]?.position || null,
       seriesLength: trendingBookDetails.dto_combined.series.length || null,
-      seriesName: trendingBookDetails.dto_combined.series[0]?.details || null,
+      seriesName: series.length > 0 ? series[0].name : "",
       hardcoverId: trendingBookDetails.id,
       pageCount: trendingBookDetails.dto_combined.page_count,
       genres: trendingBookDetails.dto_combined.genres,

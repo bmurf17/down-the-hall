@@ -2,11 +2,13 @@ import {
   TrendingAuthorsData,
   TrendingAuthorsResponse,
 } from "./authorhardcoverresponse";
+import { SeriesListResponse } from "./seriesHardCoverResponse";
 
 export type TrendingBookDetails = {
   id: number;
   users_count: number;
   users_read_count: number;
+  default_physical_edition_id: number;
   dto_combined: {
     // Define the structure of dto_combined if needed, based on the [Object] placeholder
     alternative_titles: string[];
@@ -77,6 +79,7 @@ export type TrendingData = {
   bookData: TrendingBookData;
   authorData: TrendingAuthorsData;
   imageData: TrendingImageData;
+  seriesData: SeriesListResponse;
 };
 
 type Image = {
