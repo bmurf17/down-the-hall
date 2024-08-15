@@ -1,4 +1,7 @@
-import fetchTrendingData from "@/actions/hardcoverActions";
+import {
+  fetchTrendingData,
+  generateImageBasedOffHardcoverUrl,
+} from "@/actions/hardcoverActions";
 import CentralDisplay from "@/components/CentralDisplay";
 import { convertTrendingBookData } from "@/helpers/convertTrendingBookToBook";
 import { TrendingData } from "@/types/trending/trendingbookresponse";
@@ -11,6 +14,9 @@ export default async function Home() {
     trendingData.imageData,
     trendingData.seriesData
   );
+
+  //TODO: Gonna need to do image stuff once the new endpoint is up
+  //const signedURL = generateImageBasedOffHardcoverUrl();
 
   return (
     <div className="mx-16 ">

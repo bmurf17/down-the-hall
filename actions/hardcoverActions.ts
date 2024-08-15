@@ -282,6 +282,16 @@ const TRENDING_BOOKS_QUERY = gql`
   }
 `;
 
+const GET_SIGNED_BOOK_URL = gql`
+  query SignUrl {
+    image_url_signed(
+      url: "https://storage.googleapis.com/hardcover/external_data/36306160/04fdf2f73287526f8326413f4d3d7ec77999b832.jpeg"
+    ) {
+      url
+    }
+  }
+`;
+
 // Query to get book details
 const BOOKS_BY_IDS_QUERY = (ids: number[]) => gql`
   query BooksByIds {
@@ -330,7 +340,7 @@ const SERIES_BY_IDS_QUERY = (seriesIds: number[]) => gql`
   }
 `;
 
-async function fetchTrendingData() {
+export async function fetchTrendingData() {
   try {
     // Fetch trending book IDs
     const trendingBooksResponse = await client.query({
@@ -386,4 +396,10 @@ async function fetchTrendingData() {
   }
 }
 
-export default fetchTrendingData;
+export async function generateImageBasedOffHardcoverUrl() {
+  const data = await client.query({
+    query: GET_SIGNED_BOOK_URL,
+  });
+
+  console.log(data);
+}

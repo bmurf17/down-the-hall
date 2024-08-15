@@ -1,4 +1,4 @@
-import { Book } from '@/types/book';
+import { Book } from "@/types/book";
 
 interface Props {
   book: Book;
@@ -9,15 +9,18 @@ export default function BookListView({ book }: Props) {
   const author = book.author;
 
   return (
-    <div className='flex gap-4'>
+    <div className="flex gap-4">
       <img
-        className='relative overflow-hidden group transition-all border border-gray-100/20 ring-accent hover:ring-1 hover:border-accent rounded-l-sm rounded-r-md shadow-md block'
-        src={bookObject?.image || ''}
+        className="relative overflow-hidden group transition-all border border-gray-100/20 ring-accent hover:ring-1 hover:border-accent rounded-l-sm rounded-r-md shadow-md block"
+        src={
+          "https://firebasestorage.googleapis.com/v0/b/booksite-2aa2a.appspot.com/o/427460_Hyperion.jpeg?alt=media&token=edf24071-e82b-4f80-b264-cc68ca9a0f5e" ||
+          ""
+        }
         alt={bookObject?.title}
         height={100}
         width={100}
       />
-      <div className='flex flex-col gap-2 justify-center'>
+      <div className="flex flex-col gap-2 justify-center">
         <div>{bookObject?.title}</div>
         <div>{author?.name}</div>
         <div>page number</div>

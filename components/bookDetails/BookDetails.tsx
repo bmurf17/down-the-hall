@@ -30,7 +30,9 @@ export default function BookDetails({ bookInfo }: Props) {
                   <div className="hidden lg:block mr-4 flex-none">
                     <div className=" relative overflow-hidden group transition-all rounded-l-sm rounded-r-md border border-secondary ">
                       <img
-                        src={bookInfo.image?.url}
+                        src={
+                          "https://firebasestorage.googleapis.com/v0/b/booksite-2aa2a.appspot.com/o/427460_Hyperion.jpeg?alt=media&token=edf24071-e82b-4f80-b264-cc68ca9a0f5e"
+                        }
                         alt="Yellowface"
                         width="180"
                         height="271"
