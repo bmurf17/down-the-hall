@@ -13,32 +13,63 @@ import { storage } from "@/lib/firebase-config";
 import { getDownloadURL, ref, uploadBytesResumable } from "firebase/storage";
 import { getSignedUrl } from "@/actions/hardcoverActions";
 
+const placeholderImage = "placeholder.png";
+
 export async function convertTrendingBookData(
   trendingData: TrendingBookData,
   authorData: TrendingAuthorsData,
   imageData: TrendingImageData,
   seriesData: SeriesListResponse
 ): Promise<Book[]> {
+  var test = imageData.images.map((img) => img);
+
+  //console.log(test);
   return await Promise.all(
-    Object.values(trendingData).map(async (trendingBookDetails) => {
-      var series = seriesData?.series.filter(
-        (series) =>
-          series.id === trendingBookDetails.dto_combined.series[0]?.series_id
-      );
+    Object.values(trendingData).map(async (trendingBookDetails, index) => {
+      var series = seriesData?.series.filter((series) => {
+        if (trendingBookDetails.dto_combined?.series?.length > 0) {
+          return (
+            series.id === trendingBookDetails.dto_combined.series[0]?.series_id
+          );
+        }
+      });
+
+      var testingArray = imageData.images.filter((img) => {
+        if (
+          trendingBookDetails.dto_combined?.image_ids?.length > 0 &&
+          trendingBookDetails.dto_combined?.image_ids
+        ) {
+          // console.log(
+          //   `Image id ${img.id} ==== ${trendingBookDetails.dto_combined.image_ids[0]}`
+          // );
+          return img.id === trendingBookDetails.dto_combined.image_ids[0];
+        }
+        return { url: placeholderImage };
+      })[0].url;
+      var testingSomething =
+        trendingBookDetails.dto_combined?.image_ids?.length > 0 &&
+        trendingBookDetails.dto_combined?.image_ids
+          ? testingArray
+          : placeholderImage;
+
+      // console.log(
+      //   `${index} + ${trendingBookDetails.dto_combined?.image_ids?.length} + ${testingSomething}`
+      // );
 
       var image = await handleImage(
         trendingBookDetails.id,
         trendingBookDetails.dto_combined.title,
-        imageData.images.filter(
-          (img) => img.id === trendingBookDetails.dto_combined.image_ids[0]
-        )[0].url
+        testingSomething
       );
 
       const book: SelectBook = {
         id: trendingBookDetails.id,
         title: trendingBookDetails.dto_combined.title,
         authorId:
-          trendingBookDetails.dto_combined.contributions[0]?.author_id || null,
+          trendingBookDetails.dto_combined.contributions?.length > 0
+            ? trendingBookDetails.dto_combined.contributions[0]?.author_id ||
+              null
+            : 0,
         image: image,
         status: null,
         releaseYear: trendingBookDetails.dto_combined.release_year,
@@ -46,8 +77,12 @@ export async function convertTrendingBookData(
           trendingBookDetails.default_physical_edition_id, // Set if applicable
         description: trendingBookDetails.dto_combined.description,
         seriesPosition:
-          trendingBookDetails.dto_combined.series[0]?.position || null,
-        seriesLength: trendingBookDetails.dto_combined.series.length || null,
+          trendingBookDetails.dto_combined.series?.length > 0
+            ? trendingBookDetails.dto_combined.series[0]?.position || null
+            : null,
+        seriesLength: trendingBookDetails.dto_combined.series?.length
+          ? trendingBookDetails.dto_combined.series.length || null
+          : null,
         seriesName: series.length > 0 ? series[0].name : "",
         hardcoverId: trendingBookDetails.id,
         pageCount: trendingBookDetails.dto_combined.page_count,
@@ -55,12 +90,18 @@ export async function convertTrendingBookData(
       };
 
       const author: SelectAuthor = {
-        id: trendingBookDetails.dto_combined.contributions[0].author_id,
-        name: authorData.authors.filter(
-          (au) =>
-            au.id ===
-            trendingBookDetails.dto_combined.contributions[0]?.author_id
-        )[0].name,
+        id:
+          trendingBookDetails.dto_combined.contributions?.length > 0
+            ? trendingBookDetails.dto_combined.contributions[0].author_id
+            : 0,
+        name:
+          trendingBookDetails.dto_combined.contributions?.length > 0
+            ? authorData.authors.filter(
+                (au) =>
+                  au.id ===
+                  trendingBookDetails.dto_combined.contributions[0]?.author_id
+              )[0]?.name || ""
+            : "",
         image: "",
       };
 
@@ -75,7 +116,12 @@ export async function convertTrendingBookData(
 }
 
 async function handleImage(id: number, bookTitle: string, imageUrl: string) {
-  const filePath = `${id}_${bookTitle}.jpeg`;
+  console.log(`ID: ${id} \n title: ${bookTitle} \n imageURL: ${imageUrl}`);
+
+  const filePath =
+    imageUrl !== placeholderImage
+      ? `${id}_${bookTitle}.jpeg`
+      : placeholderImage;
 
   const newImageRef = ref(storage, filePath);
 
@@ -83,6 +129,7 @@ async function handleImage(id: number, bookTitle: string, imageUrl: string) {
     const imageURL = await getDownloadURL(newImageRef);
     return imageURL || "";
   } catch (error) {
+    console.log("Does it error");
     //assuming the file has not been uploaded to fb
     const signedImageUrl = await getSignedUrl(imageUrl);
 
