@@ -1,11 +1,10 @@
 "use client";
 
+import { useState, useEffect, useCallback } from "react";
 import { addBook } from "@/actions/bookActions";
 import { HardCoverApiResponse } from "@/types/hardcoverresponse";
-import { Status } from "@/types/statusEnum";
-import Link from "next/link";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
-import { useCallback } from "react";
+import Link from "next/link";
 import Button from "../basicUI/Button";
 import { AddToListButton } from "../shared/AddToListButton";
 
@@ -13,10 +12,15 @@ interface Props {
   books: HardCoverApiResponse;
 }
 
-export default function Find(books: Props) {
+export default function Find({ books }: Props) {
   const router = useRouter();
   const pathname = usePathname();
   const searchParams = useSearchParams();
+
+  const [searchTerm, setSearchTerm] = useState("");
+
+  // Debounce delay (e.g., 300ms)
+  const debounceDelay = 300;
 
   // Get a new searchParams string by merging the current
   // searchParams with a provided key/value pair
@@ -29,6 +33,19 @@ export default function Find(books: Props) {
     },
     [searchParams]
   );
+
+  // Debounce logic
+  useEffect(() => {
+    const handler = setTimeout(() => {
+      if (searchTerm) {
+        router.push(pathname + "?" + createQueryString("title", searchTerm));
+      }
+    }, debounceDelay);
+
+    return () => {
+      clearTimeout(handler);
+    };
+  }, [searchTerm, router, pathname, createQueryString]);
 
   const clear = () => ({});
 
@@ -81,19 +98,15 @@ export default function Find(books: Props) {
           <input
             className="flex border-2 border-gray-200 p-4 rounded-xl mb-2 w-full"
             placeholder="Search"
-            onChange={(e) => {
-              router.push(
-                pathname + "?" + createQueryString("title", e.target.value)
-              );
-            }}
+            onChange={(e) => setSearchTerm(e.target.value)}
           />
         </div>
 
         <div className="flex flex-col gap-4">
-          {books?.books?.data?.books !== undefined ? (
+          {books?.data?.books !== undefined ? (
             <>
               {" "}
-              {books.books.data.books.map((book, i) => {
+              {books.data.books.map((book, i) => {
                 const number = Math.floor(Math.random() * 7) + 1;
 
                 return (
