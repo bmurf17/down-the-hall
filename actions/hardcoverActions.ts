@@ -282,10 +282,10 @@ const TRENDING_BOOKS_QUERY = gql`
   }
 `;
 
-const GET_SIGNED_BOOK_URL = gql`
+const GET_SIGNED_BOOK_URL = (url: string) => gql`
   query SignUrl {
     image_url_signed(
-      url: "https://storage.googleapis.com/hardcover/external_data/36306160/04fdf2f73287526f8326413f4d3d7ec77999b832.jpeg"
+      url: "${url}"
     ) {
       url
     }
@@ -396,10 +396,10 @@ export async function fetchTrendingData() {
   }
 }
 
-export async function generateImageBasedOffHardcoverUrl() {
+export async function getSignedUrl(url: string) {
   const data = await client.query({
-    query: GET_SIGNED_BOOK_URL,
+    query: GET_SIGNED_BOOK_URL(url),
   });
 
-  console.log(data);
+  return data;
 }

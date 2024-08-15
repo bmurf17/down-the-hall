@@ -46,7 +46,7 @@ export default function BookListItem({ book, addBookToList }: Props) {
             <img
               className="relative overflow-hidden group transition-all border border-gray-100/20 ring-accent hover:ring-1 hover:border-accent rounded-l-sm rounded-r-md shadow-md block"
               src={
-                "https://firebasestorage.googleapis.com/v0/b/booksite-2aa2a.appspot.com/o/427460_Hyperion.jpeg?alt=media&token=edf24071-e82b-4f80-b264-cc68ca9a0f5e" ||
+                book.book?.image ||
                 `https://hardcover.app/images/covers/cover${number}.png`
               }
               alt={book.book?.title}
