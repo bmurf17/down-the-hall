@@ -167,7 +167,7 @@ export const getBook = async (id: string) => {
   };
 
   const requestBody = {
-    query: `query Test {
+    query: `query GetBook {
               books(where: {id: {_eq: "${id}"}}, order_by: {users_count: desc}, limit: 1) {
               id
               release_year

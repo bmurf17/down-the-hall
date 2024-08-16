@@ -21,9 +21,6 @@ export async function convertTrendingBookData(
   imageData: TrendingImageData,
   seriesData: SeriesListResponse
 ): Promise<Book[]> {
-  var test = imageData.images.map((img) => img);
-
-  //console.log(test);
   return await Promise.all(
     Object.values(trendingData).map(async (trendingBookDetails, index) => {
       var series = seriesData?.series.filter((series) => {
@@ -34,32 +31,26 @@ export async function convertTrendingBookData(
         }
       });
 
-      var testingArray = imageData.images.filter((img) => {
+      var imageUrl = imageData.images.filter((img) => {
         if (
           trendingBookDetails.dto_combined?.image_ids?.length > 0 &&
           trendingBookDetails.dto_combined?.image_ids
         ) {
-          // console.log(
-          //   `Image id ${img.id} ==== ${trendingBookDetails.dto_combined.image_ids[0]}`
-          // );
           return img.id === trendingBookDetails.dto_combined.image_ids[0];
         }
         return { url: placeholderImage };
       })[0].url;
-      var testingSomething =
+
+      var finalUrl =
         trendingBookDetails.dto_combined?.image_ids?.length > 0 &&
         trendingBookDetails.dto_combined?.image_ids
-          ? testingArray
+          ? imageUrl
           : placeholderImage;
-
-      // console.log(
-      //   `${index} + ${trendingBookDetails.dto_combined?.image_ids?.length} + ${testingSomething}`
-      // );
 
       var image = await handleImage(
         trendingBookDetails.id,
         trendingBookDetails.dto_combined.title,
-        testingSomething
+        finalUrl
       );
 
       const book: SelectBook = {
@@ -116,8 +107,6 @@ export async function convertTrendingBookData(
 }
 
 async function handleImage(id: number, bookTitle: string, imageUrl: string) {
-  console.log(`ID: ${id} \n title: ${bookTitle} \n imageURL: ${imageUrl}`);
-
   const filePath =
     imageUrl !== placeholderImage
       ? `${id}_${bookTitle}.jpeg`
@@ -129,7 +118,6 @@ async function handleImage(id: number, bookTitle: string, imageUrl: string) {
     const imageURL = await getDownloadURL(newImageRef);
     return imageURL || "";
   } catch (error) {
-    console.log("Does it error");
     //assuming the file has not been uploaded to fb
     const signedImageUrl = await getSignedUrl(imageUrl);
 
