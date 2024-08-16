@@ -1,17 +1,18 @@
 "use client";
 
-import { useState, useEffect, useCallback } from "react";
 import { addBook } from "@/actions/bookActions";
-import { HardCoverApiResponse } from "@/types/hardcoverresponse";
-import { usePathname, useRouter, useSearchParams } from "next/navigation";
-import Link from "next/link";
-import Button from "../basicUI/Button";
-import { AddToListButton } from "../shared/AddToListButton";
 import { Book } from "@/types/book";
+import { usePathname, useRouter, useSearchParams } from "next/navigation";
+import { useCallback, useEffect, useState } from "react";
+import Button from "../basicUI/Button";
 import BookListItem from "../shared/BookListItem";
 
 interface Props {
   books: Book[];
+}
+
+function classNames(...classes: string[]) {
+  return classes.filter(Boolean).join(" ");
 }
 
 export default function Find({ books }: Props) {
@@ -104,10 +105,15 @@ export default function Find({ books }: Props) {
           />
         </div>
 
-        <div className="flex flex-col gap-4">
+        <div className="flex flex-col gap-4 ">
           {books.length > 0 ? (
             <>
-              <div className="flex flex-col gap-4">
+              <div
+                className={classNames(
+                  "rounded-xl bg-gray-300 p-3 animate-fade-in-grow",
+                  "ring-white/60 ring-offset-2 ring-offset-blue-400 focus:outline-none focus:ring-2"
+                )}
+              >
                 <>
                   {books.map((book, i) => {
                     return (

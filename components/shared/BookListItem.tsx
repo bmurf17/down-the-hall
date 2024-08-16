@@ -55,7 +55,7 @@ export default function BookListItem({ book, addBookToList }: Props) {
             />
           </div>
           <div className="flex flex-col gap-2">
-            <div className="font-serif text-yellow-500 dark:text-yellow-50 underline-offset-4 text-lg no-underline hover:underline decoration-gray-300 dark:decoration-gray-500">
+            <div className="font-serif text-purple-600 dark:text-yellow-50 underline-offset-4 text-lg no-underline hover:underline decoration-gray-300 dark:decoration-gray-500">
               {book.book?.title}
             </div>
 

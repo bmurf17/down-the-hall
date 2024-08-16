@@ -31,15 +31,16 @@ export async function convertTrendingBookData(
         }
       });
 
-      var imageUrl = imageData.images.filter((img) => {
-        if (
-          trendingBookDetails.dto_combined?.image_ids?.length > 0 &&
-          trendingBookDetails.dto_combined?.image_ids
-        ) {
-          return img.id === trendingBookDetails.dto_combined.image_ids[0];
-        }
-        return { url: placeholderImage };
-      })[0].url;
+      var imageUrl =
+        imageData.images.filter((img) => {
+          if (
+            trendingBookDetails.dto_combined?.image_ids?.length > 0 &&
+            trendingBookDetails.dto_combined?.image_ids
+          ) {
+            return img.id === trendingBookDetails.dto_combined.image_ids[0];
+          }
+          return { url: placeholderImage };
+        })[0]?.url || placeholderImage;
 
       var finalUrl =
         trendingBookDetails.dto_combined?.image_ids?.length > 0 &&
