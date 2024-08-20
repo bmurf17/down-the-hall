@@ -19,7 +19,8 @@ interface Props {
     series_position: number,
     series_length: number,
     series_name: string,
-    hardcover_id: number
+    hardcover_id: number,
+    page_number: number
   ) => void;
 }
 
@@ -94,6 +95,7 @@ export default function BookListItem({ book, addBookToList }: Props) {
           series_position={book.book?.seriesPosition || 0}
           addBookToList={addBookToList}
           buttonText={addbuttonText()}
+          page_number={book.book?.pageCount || 0}
         />
         {book.book?.status !== null ? (
           <button

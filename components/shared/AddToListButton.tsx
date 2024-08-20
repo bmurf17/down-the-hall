@@ -20,6 +20,7 @@ interface Props {
   series_length: number;
   series_name: string;
   hardcover_id: number;
+  page_number: number;
   addBookToList: (
     title: string,
     author: string,
@@ -32,7 +33,8 @@ interface Props {
     series_position: number,
     series_length: number,
     series_name: string,
-    hardcover_id: number
+    hardcover_id: number,
+    page_number: number
   ) => void;
   buttonText: string;
 }
@@ -50,6 +52,7 @@ export function AddToListButton({
   hardcover_id,
   addBookToList,
   buttonText,
+  page_number,
 }: Props) {
   const readingStatusString: string[] = ["Reading", "Read", "TBR", "DNF"];
 
@@ -77,7 +80,8 @@ export function AddToListButton({
           series_position,
           series_length,
           series_name,
-          hardcover_id
+          hardcover_id,
+          page_number
         );
       }}
     >

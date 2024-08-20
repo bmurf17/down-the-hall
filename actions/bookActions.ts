@@ -18,7 +18,8 @@ export const addBook = async (
   series_position: number,
   series_length: number,
   series_name: string,
-  hardcover_id: number
+  hardcover_id: number,
+  page_count: number
 ) => {
   // create a `Client` inside the request handler
   const pool = new Pool({ connectionString: process.env.DATABASE_URL });
@@ -41,7 +42,7 @@ export const addBook = async (
         [authorName, authorImg]
       );
       await client.query(
-        "INSERT INTO book (title, author_id, image, status, release_year, default_physical_edition_id, description, series_position, series_length, series_name, hardcover_id) VALUES ($1,$2, $3, $4, $5, $6, $7, $8, $9, $10, $11)",
+        "INSERT INTO book (title, author_id, image, status, release_year, default_physical_edition_id, description, series_position, series_length, series_name, hardcover_id, page_count) VALUES ($1,$2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12)",
         [
           title,
           authorId,
@@ -54,6 +55,7 @@ export const addBook = async (
           series_length,
           series_name,
           hardcover_id,
+          page_count,
         ]
       );
       await client.query("COMMIT");
@@ -69,7 +71,7 @@ export const addBook = async (
   }
 
   await client.query(
-    "INSERT INTO book (title, author_id, image, status, release_year, default_physical_edition_id, description, series_position, series_length, series_name, hardcover_id) VALUES ($1,$2, $3, $4, $5, $6, $7, $8, $9, $10, $11)",
+    "INSERT INTO book (title, author_id, image, status, release_year, default_physical_edition_id, description, series_position, series_length, series_name, hardcover_id, page_count) VALUES ($1,$2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12)",
     [
       title,
       authorData[0].id,
@@ -82,6 +84,7 @@ export const addBook = async (
       series_length,
       series_name,
       hardcover_id,
+      page_count,
     ]
   );
   revalidateTag("books");
@@ -104,7 +107,8 @@ export const editBook = async (
   series_position: number,
   series_length: number,
   series_name: string,
-  hardcover_id: number
+  hardcover_id: number,
+  page_count: number
 ) => {
   await db
     .update(book)

@@ -1,8 +1,5 @@
-import { addBook, deleteBook, editBook } from "@/actions/bookActions";
+import { editBook } from "@/actions/bookActions";
 import { Book } from "@/types/book";
-import clsx from "clsx";
-import { AddToListButton } from "../shared/AddToListButton";
-import { readingStatusString } from "@/types/statusEnum";
 import BookListItem from "../shared/BookListItem";
 
 interface Props {
@@ -25,7 +22,8 @@ export default function BookCardView({ book }: Props) {
     series_position: number,
     series_length: number,
     series_name: string,
-    hardcover_id: number
+    hardcover_id: number,
+    page_count: number
   ) => {
     editBook(
       bookObject?.id || 0,
@@ -38,7 +36,8 @@ export default function BookCardView({ book }: Props) {
       default_physical_edition_id,
       series_position,
       description,
-      series_length
+      series_length,
+      page_count
     );
   };
 

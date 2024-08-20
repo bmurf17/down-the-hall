@@ -61,7 +61,8 @@ export default function CentralDisplay({ books }: Props) {
     series_position: number,
     series_length: number,
     series_name: string,
-    hardcover_id: number
+    hardcover_id: number,
+    page_count: number
   ) => {
     addBook(
       title,
@@ -75,7 +76,8 @@ export default function CentralDisplay({ books }: Props) {
       series_position,
       series_length,
       series_name,
-      hardcover_id
+      hardcover_id,
+      page_count
     );
   };
 
