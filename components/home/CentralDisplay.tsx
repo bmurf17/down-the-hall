@@ -3,7 +3,8 @@ import { addBook } from "@/actions/bookActions";
 import { Book } from "@/types/book";
 import { Tab, TabGroup, TabList, TabPanel, TabPanels } from "@headlessui/react";
 import { useState } from "react";
-import BookListItem from "./shared/BookListItem";
+import TrendingDisplay from "./_TrendingDisplay";
+import UserLog from "./_UserLog";
 
 interface Props {
   books: Book[];
@@ -14,7 +15,7 @@ function classNames(...classes: string[]) {
 }
 
 export default function CentralDisplay({ books }: Props) {
-  let [categories] = useState({
+  let [tabs] = useState({
     Trending: [
       {
         id: 1,
@@ -49,43 +50,11 @@ export default function CentralDisplay({ books }: Props) {
     ],
   });
 
-  const addBookToList = (
-    title: string,
-    author: string,
-    authorImg: string,
-    status: number,
-    image: string,
-    release_year: string,
-    default_physical_edition_id: number,
-    description: string,
-    series_position: number,
-    series_length: number,
-    series_name: string,
-    hardcover_id: number,
-    page_count: number
-  ) => {
-    addBook(
-      title,
-      author,
-      "",
-      status,
-      image,
-      release_year,
-      default_physical_edition_id,
-      description,
-      series_position,
-      series_length,
-      series_name,
-      hardcover_id,
-      page_count
-    );
-  };
-
   return (
     <div className="w-full  px-2 py-2 sm:px-0">
       <TabGroup>
         <TabList className="flex space-x-1 rounded-xl bg-blue-900/20 p-1">
-          {Object.keys(categories).map((category) => (
+          {Object.keys(tabs).map((category) => (
             <Tab
               key={category}
               className={({ selected }) =>
@@ -103,29 +72,23 @@ export default function CentralDisplay({ books }: Props) {
           ))}
         </TabList>
         <TabPanels className="mt-2">
-          {Object.values(categories).map((posts, idx) => (
-            <TabPanel
-              key={idx}
-              className={classNames(
-                "rounded-xl bg-gray-300 p-3 animate-fade-in-grow",
-                "ring-white/60 ring-offset-2 ring-offset-blue-400 focus:outline-none focus:ring-2"
-              )}
-            >
-              <div className="flex flex-col gap-4">
-                <>
-                  {books.map((book, i) => {
-                    return (
-                      <BookListItem
-                        book={book}
-                        addBookToList={addBookToList}
-                        key={book.book?.hardcoverId}
-                      />
-                    );
-                  })}
-                </>
-              </div>
-            </TabPanel>
-          ))}
+          <TabPanel
+            className={classNames(
+              "rounded-xl bg-gray-300 p-3 animate-fade-in-grow",
+              "ring-white/60 ring-offset-2 ring-offset-blue-400 focus:outline-none focus:ring-2"
+            )}
+          >
+            <TrendingDisplay books={books} />
+          </TabPanel>
+
+          <TabPanel
+            className={classNames(
+              "rounded-xl bg-gray-300 p-3 animate-fade-in-grow",
+              "ring-white/60 ring-offset-2 ring-offset-blue-400 focus:outline-none focus:ring-2"
+            )}
+          >
+            <UserLog />
+          </TabPanel>
         </TabPanels>
       </TabGroup>
     </div>

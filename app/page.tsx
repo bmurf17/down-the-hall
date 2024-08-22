@@ -1,5 +1,5 @@
 import { fetchTrendingData } from "@/actions/hardcoverActions";
-import CentralDisplay from "@/components/CentralDisplay";
+import CentralDisplay from "@/components/home/CentralDisplay";
 import { convertTrendingBookData } from "@/helpers/convertTrendingBookToBook";
 import { TrendingData } from "@/types/trending/trendingbookresponse";
 
