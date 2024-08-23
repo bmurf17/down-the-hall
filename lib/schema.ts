@@ -1,5 +1,5 @@
 import { relations } from "drizzle-orm";
-import { integer, pgTable, serial, text } from "drizzle-orm/pg-core";
+import { date, integer, pgTable, serial, text } from "drizzle-orm/pg-core";
 
 export const user = pgTable("user_site", {
   id: serial("id").primaryKey().notNull(),
@@ -31,6 +31,8 @@ export const book = pgTable("book", {
   pageCount: integer("page_count"),
   genres: text("genres").array(),
   hardcoverId: integer("hardcover_id"),
+  dateRead: date("date_read"),
+  updatedDate: date("date_updated"),
 });
 
 export const bookRelations = relations(book, ({ one }) => ({
