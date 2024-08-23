@@ -93,7 +93,6 @@ export default function BookListItem({ book, addBookToList }: Props) {
           series_length={book.book?.seriesLength || 0}
           series_name={book.book?.seriesName || ""}
           series_position={book.book?.seriesPosition || 0}
-          addBookToList={addBookToList}
           buttonText={addbuttonText()}
           page_number={book.book?.pageCount || 0}
         />

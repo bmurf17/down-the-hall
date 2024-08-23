@@ -6,6 +6,7 @@ import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { useCallback, useEffect, useState } from "react";
 import Button from "../basicUI/Button";
 import BookListItem from "../shared/BookListItem";
+import { addBookToList } from "@/functions/addBook";
 
 interface Props {
   books: Book[];
@@ -51,38 +52,6 @@ export default function Find({ books }: Props) {
   }, [searchTerm, router, pathname, createQueryString]);
 
   const clear = () => ({});
-
-  const addBookToList = (
-    title: string,
-    author: string,
-    authorImg: string,
-    status: number,
-    image: string,
-    release_year: string,
-    default_physical_edition_id: number,
-    description: string,
-    series_position: number,
-    series_length: number,
-    series_name: string,
-    hardcover_id: number,
-    page_count: number
-  ) => {
-    addBook(
-      title,
-      author,
-      "",
-      status,
-      image,
-      release_year,
-      default_physical_edition_id,
-      description,
-      series_position,
-      series_length,
-      series_name,
-      hardcover_id,
-      page_count
-    );
-  };
 
   return (
     <div className="flex flex-col lg:grid lg:grid-cols-5 relative gap-2 lg:gap-4">

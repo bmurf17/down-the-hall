@@ -8,6 +8,7 @@ import {
 import clsx from "clsx";
 import { ChevronDownIcon } from "../icons/ChevronDownIcon";
 import { Status } from "@/types/statusEnum";
+import { addBookToList } from "@/functions/addBook";
 
 interface Props {
   title: string;
@@ -21,21 +22,6 @@ interface Props {
   series_name: string;
   hardcover_id: number;
   page_number: number;
-  addBookToList: (
-    title: string,
-    author: string,
-    authorImg: string,
-    status: number,
-    image: string,
-    release_year: string,
-    default_physical_edition_id: number,
-    description: string,
-    series_position: number,
-    series_length: number,
-    series_name: string,
-    hardcover_id: number,
-    page_number: number
-  ) => void;
   buttonText: string;
 }
 
@@ -50,7 +36,6 @@ export function AddToListButton({
   series_length,
   series_name,
   hardcover_id,
-  addBookToList,
   buttonText,
   page_number,
 }: Props) {
