@@ -16,9 +16,6 @@ export const addBookToList = (
   hardcover_id: number,
   page_count: number
 ) => {
-  if (status == Status.Finished) {
-    console.log("test");
-  }
   addBook(
     title,
     author,
