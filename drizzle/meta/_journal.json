@@ -57,6 +57,13 @@
       "when": 1724425798693,
       "tag": "0007_add_dates",
       "breakpoints": true
+    },
+    {
+      "idx": 8,
+      "version": "6",
+      "when": 1724446033858,
+      "tag": "0008_add_user_activity_log",
+      "breakpoints": true
     }
   ]
 }

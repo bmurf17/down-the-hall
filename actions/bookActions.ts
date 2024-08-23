@@ -4,8 +4,9 @@ import { revalidatePath, revalidateTag } from "next/cache";
 
 import { Pool } from "@neondatabase/serverless";
 import db from "../lib/db";
-import { author, book } from "../lib/schema";
+import { author, book, userActivityLog } from "../lib/schema";
 import { PoolClient } from "pg";
+import { logStatusString } from "@/types/statusEnum";
 
 export const addBook = async (
   title: string,
@@ -90,6 +91,8 @@ export const addBook = async (
     date_read
   );
 
+  client.release();
+
   revalidateTag("books");
 };
 
@@ -109,8 +112,10 @@ const insertQuery = async (
   page_count: number,
   date_read?: Date
 ) => {
-  await client.query(
-    "INSERT INTO book (title, author_id, image, status, release_year, default_physical_edition_id, description, series_position, series_length, series_name, hardcover_id, page_count, date_read, date_updated) VALUES ($1,$2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14)",
+  const {
+    rows: [{ id: book_id }],
+  } = await client.query(
+    "INSERT INTO book (title, author_id, image, status, release_year, default_physical_edition_id, description, series_position, series_length, series_name, hardcover_id, page_count, date_read, date_updated) VALUES ($1,$2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14)  RETURNING id",
     [
       title,
       author_id,
@@ -128,6 +133,13 @@ const insertQuery = async (
       new Date(),
     ]
   );
+
+  await db.insert(userActivityLog).values({
+    bookId: book_id,
+    updatedDate: new Date(),
+    action: logStatusString[status],
+    userId: 1,
+  });
 };
 
 export const deleteBook = async (id: number) => {

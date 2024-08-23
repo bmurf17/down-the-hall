@@ -1,10 +1,21 @@
 import { relations } from "drizzle-orm";
-import { date, integer, pgTable, serial, text } from "drizzle-orm/pg-core";
+import {
+  date,
+  integer,
+  pgTable,
+  serial,
+  text,
+  timestamp,
+} from "drizzle-orm/pg-core";
 
 export const user = pgTable("user_site", {
   id: serial("id").primaryKey().notNull(),
   name: text("name").notNull(),
 });
+
+export const userRelations = relations(user, ({ many }) => ({
+  logs: many(userActivityLog),
+}));
 
 export const author = pgTable("author", {
   id: serial("id").primaryKey().notNull(),
@@ -35,12 +46,35 @@ export const book = pgTable("book", {
   updatedDate: date("date_updated"),
 });
 
-export const bookRelations = relations(book, ({ one }) => ({
+export const bookRelations = relations(book, ({ one, many }) => ({
   author: one(author, {
     fields: [book.authorId],
     references: [author.id],
   }),
+  logs: many(userActivityLog),
 }));
+
+export const userActivityLog = pgTable("user_activity_log", {
+  id: serial("id").primaryKey().notNull(),
+  userId: integer("user_id").references(() => user.id),
+  bookId: integer("book_id").references(() => book.id),
+  updatedDate: timestamp("updated_date"),
+  action: text("action"),
+});
+
+export const userActivityLogRelations = relations(
+  userActivityLog,
+  ({ one }) => ({
+    book: one(book, {
+      fields: [userActivityLog.bookId],
+      references: [book.id],
+    }),
+    user: one(user, {
+      fields: [userActivityLog.userId],
+      references: [user.id],
+    }),
+  })
+);
 
 export type SelectBook = typeof book.$inferSelect;
 export type InsertBook = typeof book.$inferInsert;

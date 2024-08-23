@@ -12,3 +12,10 @@ export const readingStatusString: string[] = [
   "DNF",
   "Add To List",
 ];
+
+export const logStatusString: string[] = [
+  "Started Reading",
+  "Finished Reading",
+  "Want to Read",
+  "Did Not Finish",
+];
