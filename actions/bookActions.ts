@@ -36,6 +36,7 @@ export const addBook = async (
 
   //author does not exist so we need to start transaction to add them as well
   if (authorData.length == 0) {
+    console.log("HERE 1");
     try {
       await client.query("BEGIN");
       const {
@@ -45,7 +46,7 @@ export const addBook = async (
         [authorName, authorImg]
       );
 
-      await insertQuery(
+      var book_id = await insertQuery(
         client,
         title,
         authorId,
@@ -64,8 +65,16 @@ export const addBook = async (
 
       await client.query("COMMIT");
 
+      await db.insert(userActivityLog).values({
+        bookId: book_id,
+        updatedDate: new Date(),
+        action: logStatusString[status],
+        userId: 1,
+      });
+
       revalidateTag("books");
     } catch (err) {
+      console.log(err);
       await client.query("ROLLBACK");
       throw err;
     } finally {
@@ -74,24 +83,36 @@ export const addBook = async (
     }
   }
 
-  await insertQuery(
-    client,
-    title,
-    authorData[0].id,
-    status,
-    image,
-    release_year,
-    default_physical_edition_id,
-    description,
-    series_position,
-    series_length,
-    series_name,
-    hardcover_id,
-    page_count,
-    date_read
-  );
+  try {
+    console.log("HERE");
+    var book_id = await insertQuery(
+      client,
+      title,
+      authorData[0].id,
+      status,
+      image,
+      release_year,
+      default_physical_edition_id,
+      description,
+      series_position,
+      series_length,
+      series_name,
+      hardcover_id,
+      page_count,
+      date_read
+    );
 
-  client.release();
+    await db.insert(userActivityLog).values({
+      bookId: book_id,
+      updatedDate: new Date(),
+      action: logStatusString[status],
+      userId: 1,
+    });
+  } catch (err) {
+    console.log(err);
+  } finally {
+    client.release();
+  }
 
   revalidateTag("books");
 };
@@ -121,7 +142,7 @@ const insertQuery = async (
       author_id,
       image,
       status,
-      release_year,
+      release_year || 0,
       default_physical_edition_id,
       description,
       series_position,
@@ -134,12 +155,7 @@ const insertQuery = async (
     ]
   );
 
-  await db.insert(userActivityLog).values({
-    bookId: book_id,
-    updatedDate: new Date(),
-    action: logStatusString[status],
-    userId: 1,
-  });
+  return book_id;
 };
 
 export const deleteBook = async (id: number) => {
