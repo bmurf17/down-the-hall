@@ -36,6 +36,34 @@
       "when": 1722266028666,
       "tag": "0004_fix_series_name",
       "breakpoints": true
+    },
+    {
+      "idx": 5,
+      "version": "6",
+      "when": 1723568169041,
+      "tag": "0005_add_pagecount",
+      "breakpoints": true
+    },
+    {
+      "idx": 6,
+      "version": "6",
+      "when": 1723581199491,
+      "tag": "0006_add_genres",
+      "breakpoints": true
+    },
+    {
+      "idx": 7,
+      "version": "6",
+      "when": 1724425798693,
+      "tag": "0007_add_dates",
+      "breakpoints": true
+    },
+    {
+      "idx": 8,
+      "version": "6",
+      "when": 1724446033858,
+      "tag": "0008_add_user_activity_log",
+      "breakpoints": true
     }
   ]
 }
