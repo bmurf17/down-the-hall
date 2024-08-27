@@ -79,6 +79,8 @@ export async function convertTrendingBookData(
         hardcoverId: trendingBookDetails.id,
         pageCount: trendingBookDetails.dto_combined.page_count,
         genres: trendingBookDetails.dto_combined.genres,
+        dateRead: Date.now().toString(),
+        updatedDate: Date.now().toString(),
       };
 
       const author: SelectAuthor = {
