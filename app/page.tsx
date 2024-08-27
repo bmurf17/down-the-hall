@@ -12,10 +12,9 @@ export interface UserActivityLogReturnType {
 }
 
 async function getUserActivityLogData(userId?: string) {
-  const res = await fetch(
-    `http://localhost:3000/api/useractivitylog?userId=${userId}`,
-    { next: { tags: ["userActivityLog"] } }
-  );
+  const res = await fetch(`/api/useractivitylog?userId=${userId}`, {
+    next: { tags: ["userActivityLog"] },
+  });
   // The return value is *not* serialized
   // You can return Date, Map, Set, etc.
 
