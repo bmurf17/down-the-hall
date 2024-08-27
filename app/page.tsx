@@ -12,7 +12,9 @@ export interface UserActivityLogReturnType {
 }
 
 async function getUserActivityLogData(userId?: string) {
-  const res = await fetch(`/api/useractivitylog?userId=${userId}`, {
+  const baseUrl = process.env.NEXT_PUBLIC_API_URL || "http://localhost:3000";
+
+  const res = await fetch(`${baseUrl}/api/useractivitylog?userId=${userId}`, {
     next: { tags: ["userActivityLog"] },
   });
   // The return value is *not* serialized
@@ -27,6 +29,10 @@ async function getUserActivityLogData(userId?: string) {
 }
 
 export default async function Home() {
+  if (!process.env.NEXT_PUBLIC_API_URL) {
+    return null;
+  }
+
   const trendingData: TrendingData = await fetchTrendingData();
   const convertedData = await convertTrendingBookData(
     trendingData.bookData,

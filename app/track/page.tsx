@@ -6,7 +6,8 @@ interface Props {
 }
 
 async function getBookData(status?: string) {
-  const res = await fetch(`/api/books?status=${status}`, {
+  const baseUrl = process.env.NEXT_PUBLIC_API_URL || "http://localhost:3000";
+  const res = await fetch(`${baseUrl}/api/books?status=${status}`, {
     next: { tags: ["books"] },
   });
   // The return value is *not* serialized
@@ -21,6 +22,10 @@ async function getBookData(status?: string) {
 }
 
 export default async function TrackPage({ searchParams }: Props) {
+  if (!process.env.NEXT_PUBLIC_API_URL) {
+    return null;
+  }
+
   const books: Book[] = await getBookData(searchParams?.status);
   return (
     <div className="mx-16">
