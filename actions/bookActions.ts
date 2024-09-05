@@ -36,7 +36,6 @@ export const addBook = async (
 
   //author does not exist so we need to start transaction to add them as well
   if (authorData.length == 0) {
-    console.log("HERE 1");
     try {
       await client.query("BEGIN");
       const {
@@ -74,7 +73,6 @@ export const addBook = async (
 
       revalidateTag("books");
     } catch (err) {
-      console.log(err);
       await client.query("ROLLBACK");
       throw err;
     } finally {
@@ -84,7 +82,6 @@ export const addBook = async (
   }
 
   try {
-    console.log("HERE");
     var book_id = await insertQuery(
       client,
       title,

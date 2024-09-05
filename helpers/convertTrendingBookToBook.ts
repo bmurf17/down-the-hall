@@ -23,7 +23,7 @@ export async function convertTrendingBookData(
 ): Promise<Book[]> {
   return await Promise.all(
     Object.values(trendingData).map(async (trendingBookDetails, index) => {
-      var series = seriesData?.series.filter((series) => {
+      var series = seriesData?.series?.filter((series) => {
         if (trendingBookDetails.dto_combined?.series?.length > 0) {
           return (
             series.id === trendingBookDetails.dto_combined.series[0]?.series_id
@@ -32,7 +32,7 @@ export async function convertTrendingBookData(
       });
 
       var imageUrl =
-        imageData.images.filter((img) => {
+        imageData.images?.filter((img) => {
           if (
             trendingBookDetails.dto_combined?.image_ids?.length > 0 &&
             trendingBookDetails.dto_combined?.image_ids
@@ -51,7 +51,7 @@ export async function convertTrendingBookData(
       var image = await handleImage(
         trendingBookDetails.id,
         trendingBookDetails.dto_combined.title,
-        finalUrl
+        trendingBookDetails.cached_image.url
       );
 
       const book: SelectBook = {
@@ -75,7 +75,7 @@ export async function convertTrendingBookData(
         seriesLength: trendingBookDetails.dto_combined.series?.length
           ? trendingBookDetails.dto_combined.series.length || null
           : null,
-        seriesName: series.length > 0 ? series[0].name : "",
+        seriesName: series?.length > 0 ? series[0].name : "",
         hardcoverId: trendingBookDetails.id,
         pageCount: trendingBookDetails.dto_combined.page_count,
         genres: trendingBookDetails.dto_combined.genres,
@@ -122,9 +122,7 @@ async function handleImage(id: number, bookTitle: string, imageUrl: string) {
     return imageURL || "";
   } catch (error) {
     //assuming the file has not been uploaded to fb
-    const signedImageUrl = await getSignedUrl(imageUrl);
-
-    var blob = await urlToBlob(signedImageUrl.data.image_url_signed.url);
+    var blob = await urlToBlob(imageUrl);
 
     const newImageRef = ref(storage, filePath);
     await uploadBytesResumable(newImageRef, blob);

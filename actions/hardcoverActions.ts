@@ -59,6 +59,7 @@ const BOOKS_BY_IDS_QUERY = (ids: number[]) => gql`
           users_count
           users_read_count      
           dto_combined
+          cached_image
         }
       `
       )
@@ -221,7 +222,13 @@ export const getBook = async (id: string) => {
 
 const client = new ApolloClient({
   uri: process.env.HARCOVER_URL || "",
-  cache: new InMemoryCache(),
+  cache: new InMemoryCache({
+    typePolicies: {
+      images: {
+        keyFields: ["id"], // Ensures Apollo uses `id` as a unique cache key for each image
+      },
+    },
+  }),
   headers: {
     "content-type": "application/json",
     Authorization: `${process.env.HARDCOVER_TOKEN}`,
@@ -255,10 +262,9 @@ export async function fetchTrendingData() {
       query: AUTHORS_BY_IDS_QUERY(authorIds),
     });
 
-    const imageIds = Object.values(booksResponse.data).map(
-      (book: any) => book.dto_combined.image_ids[0]
-    );
-
+    const imageIds = Object.values(booksResponse.data).map((book: any) => {
+      return book.dto_combined.image_id;
+    });
     // Fetch image details
     const imagesResponse = await client.query({
       query: IMAGES_BY_IDS_QUERY(imageIds),
@@ -285,9 +291,24 @@ export async function fetchTrendingData() {
 }
 
 export async function getSignedUrl(url: string) {
-  const data = await client.query({
-    query: GET_SIGNED_BOOK_URL(url),
-  });
+  try {
+    const data = await client.query({
+      query: GET_SIGNED_BOOK_URL(url),
+    });
 
-  return data;
+    if (
+      !data ||
+      !data.data ||
+      !data.data.image_url_signed ||
+      !data.data.image_url_signed.url
+    ) {
+      throw new Error("Invalid response structure from signed URL query");
+    }
+
+    return data.data.image_url_signed.url;
+  } catch (error) {
+    console.error("Error getting signed URL:", error);
+    // You might want to return a default or placeholder URL here
+    return url; // Return the original URL if signing fails
+  }
 }
