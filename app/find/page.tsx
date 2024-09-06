@@ -20,7 +20,6 @@ export default async function FindPage({ searchParams }: Props) {
   if (hardcoverBooks !== null) {
     convertedData = await convertTrendingBookData(
       hardcoverBooks.bookData,
-      hardcoverBooks.authorData,
       hardcoverBooks.seriesData
     );
   }

@@ -8,12 +8,31 @@ type CachedImageResponse = {
   url: string;
 };
 
+type CachedContributor = {
+  author: {
+    slug: string;
+    name: string;
+    cachedImage: {
+      id: number;
+      url: string;
+      color: string;
+      width: number;
+      height: number;
+      color_name: string;
+    };
+  };
+  contribution: string | null;
+};
+
+type CachedContributors = CachedContributor[];
+
 export type TrendingBookDetails = {
   id: number;
   users_count: number;
   users_read_count: number;
   default_physical_edition_id: number;
   cached_image: CachedImageResponse;
+  cached_contributors: CachedContributors;
   dto_combined: {
     // Define the structure of dto_combined if needed, based on the [Object] placeholder
     alternative_titles: string[];
@@ -82,7 +101,6 @@ export type TrendingBookData = {
 
 export type TrendingData = {
   bookData: TrendingBookData;
-  authorData: TrendingAuthorsData;
   seriesData: SeriesListResponse;
 };
 

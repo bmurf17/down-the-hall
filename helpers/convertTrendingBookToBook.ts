@@ -1,23 +1,14 @@
-import { SelectBook, SelectAuthor } from "@/lib/schema";
-import {
-  TrendingAuthorsData,
-  TrendingAuthorsResponse,
-} from "@/types/trending/authorhardcoverresponse";
-import { Book } from "@/types/book";
-import {
-  TrendingBookData,
-  TrendingImageData,
-} from "@/types/trending/trendingbookresponse";
-import { SeriesListResponse } from "@/types/trending/seriesHardCoverResponse";
 import { storage } from "@/lib/firebase-config";
+import { SelectAuthor, SelectBook } from "@/lib/schema";
+import { Book } from "@/types/book";
+import { SeriesListResponse } from "@/types/trending/seriesHardCoverResponse";
+import { TrendingBookData } from "@/types/trending/trendingbookresponse";
 import { getDownloadURL, ref, uploadBytesResumable } from "firebase/storage";
-import { getSignedUrl } from "@/actions/hardcoverActions";
 
 const placeholderImage = "placeholder.png";
 
 export async function convertTrendingBookData(
   trendingData: TrendingBookData,
-  authorData: TrendingAuthorsData,
   seriesData: SeriesListResponse
 ): Promise<Book[]> {
   return await Promise.all(
@@ -71,12 +62,8 @@ export async function convertTrendingBookData(
             ? trendingBookDetails.dto_combined.contributions[0].author_id
             : 0,
         name:
-          trendingBookDetails.dto_combined.contributions?.length > 0
-            ? authorData.authors.filter(
-                (au) =>
-                  au.id ===
-                  trendingBookDetails.dto_combined.contributions[0]?.author_id
-              )[0]?.name || ""
+          trendingBookDetails.cached_contributors?.length > 0
+            ? trendingBookDetails.cached_contributors[0].author.name
             : "",
         image: "",
       };
