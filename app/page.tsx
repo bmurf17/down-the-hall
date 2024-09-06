@@ -37,7 +37,6 @@ export default async function Home() {
   const convertedData = await convertTrendingBookData(
     trendingData.bookData,
     trendingData.authorData,
-    trendingData.imageData,
     trendingData.seriesData
   );
   const userActivityLog: any = await getUserActivityLogData("1");

@@ -18,7 +18,6 @@ const placeholderImage = "placeholder.png";
 export async function convertTrendingBookData(
   trendingData: TrendingBookData,
   authorData: TrendingAuthorsData,
-  imageData: TrendingImageData,
   seriesData: SeriesListResponse
 ): Promise<Book[]> {
   return await Promise.all(
@@ -31,27 +30,10 @@ export async function convertTrendingBookData(
         }
       });
 
-      var imageUrl =
-        imageData.images?.filter((img) => {
-          if (
-            trendingBookDetails.dto_combined?.image_ids?.length > 0 &&
-            trendingBookDetails.dto_combined?.image_ids
-          ) {
-            return img.id === trendingBookDetails.dto_combined.image_ids[0];
-          }
-          return { url: placeholderImage };
-        })[0]?.url || placeholderImage;
-
-      var finalUrl =
-        trendingBookDetails.dto_combined?.image_ids?.length > 0 &&
-        trendingBookDetails.dto_combined?.image_ids
-          ? imageUrl
-          : placeholderImage;
-
       var image = await handleImage(
         trendingBookDetails.id,
         trendingBookDetails.dto_combined.title,
-        trendingBookDetails.cached_image.url
+        trendingBookDetails.cached_image.url || placeholderImage
       );
 
       const book: SelectBook = {
