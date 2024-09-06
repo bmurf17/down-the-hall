@@ -42,8 +42,8 @@ export default function BookListItem({ book, addBookToList }: Props) {
       key={book.book?.title || ""}
     >
       <Link href={`book/${book.book?.hardcoverId}`}>
-        <div className="flex gap-2">
-          <div>
+        <div className="flex flex-col md:flex-row gap-2 align-middle">
+          <div className="flex justify-center">
             <img
               className="relative overflow-hidden group transition-all border border-gray-100/20 ring-accent hover:ring-1 hover:border-accent rounded-l-sm rounded-r-md shadow-md block"
               src={
