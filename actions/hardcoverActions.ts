@@ -76,15 +76,6 @@ const AUTHORS_BY_IDS_QUERY = (authorIds: number[]) => gql`
   }
 `;
 
-const IMAGES_BY_IDS_QUERY = (imageIds: number[]) => gql`
-  query ImagesByIds {
-    images(where: {id: {_in: [${imageIds.join(",")}]}}) {
-      id
-      url
-    }
-  }
-`;
-
 const SERIES_BY_IDS_QUERY = (seriesIds: number[]) => gql`
   query SeriesByIds {
     series(where: {id: {_in: [${seriesIds.join(",")}]}}) {
@@ -127,17 +118,6 @@ export const getBooks = async (title: string) => {
       query: AUTHORS_BY_IDS_QUERY(authorIds),
     });
 
-    const imageIds = Object.values(booksResponse.data).map((book: any) => {
-      if (book.dto_combined?.image_ids?.length > 0) {
-        return book.dto_combined.image_id;
-      }
-    });
-
-    // Fetch image details
-    const imagesResponse = await client.query({
-      query: IMAGES_BY_IDS_QUERY(imageIds),
-    });
-
     const seriesIds = Object.values(booksResponse.data)
       .filter(
         (book: any) =>
@@ -152,7 +132,6 @@ export const getBooks = async (title: string) => {
     return {
       bookData: booksResponse.data,
       authorData: authorsResponse.data,
-      imageData: imagesResponse.data,
       seriesData: seriesResponse.data,
     };
   } catch (error) {
@@ -262,14 +241,6 @@ export async function fetchTrendingData() {
       query: AUTHORS_BY_IDS_QUERY(authorIds),
     });
 
-    const imageIds = Object.values(booksResponse.data).map((book: any) => {
-      return book.dto_combined.image_id;
-    });
-    // Fetch image details
-    const imagesResponse = await client.query({
-      query: IMAGES_BY_IDS_QUERY(imageIds),
-    });
-
     const seriesIds = Object.values(booksResponse.data)
       .filter((book: any) => book.dto_combined.series.length > 0)
       .map((book: any) => book.dto_combined.series[0].series_id);
@@ -281,7 +252,6 @@ export async function fetchTrendingData() {
     return {
       bookData: booksResponse.data,
       authorData: authorsResponse.data,
-      imageData: imagesResponse.data,
       seriesData: seriesResponse.data,
     };
   } catch (error) {

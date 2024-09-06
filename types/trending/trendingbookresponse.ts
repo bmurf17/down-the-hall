@@ -83,7 +83,6 @@ export type TrendingBookData = {
 export type TrendingData = {
   bookData: TrendingBookData;
   authorData: TrendingAuthorsData;
-  imageData: TrendingImageData;
   seriesData: SeriesListResponse;
 };
 
