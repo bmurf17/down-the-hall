@@ -60,19 +60,11 @@ const BOOKS_BY_IDS_QUERY = (ids: number[]) => gql`
           users_read_count      
           dto_combined
           cached_image
+          cached_contributors
         }
       `
       )
       .join("")}
-  }
-`;
-
-const AUTHORS_BY_IDS_QUERY = (authorIds: number[]) => gql`
-  query AuthorsByIds {
-    authors(where: {id: {_in: [${authorIds.join(",")}]}}) {
-      id
-      name
-    }
   }
 `;
 
@@ -105,19 +97,6 @@ export const getBooks = async (title: string) => {
       query: BOOKS_BY_IDS_QUERY(ids),
     });
 
-    const authorIds = Object.values(booksResponse.data)
-      .map((book: any) =>
-        book.dto_combined.contributions?.map(
-          (contribution: any) => contribution.author_id
-        )
-      )
-      .flat();
-
-    // Fetch author details
-    const authorsResponse = await client.query({
-      query: AUTHORS_BY_IDS_QUERY(authorIds),
-    });
-
     const seriesIds = Object.values(booksResponse.data)
       .filter(
         (book: any) =>
@@ -131,7 +110,6 @@ export const getBooks = async (title: string) => {
 
     return {
       bookData: booksResponse.data,
-      authorData: authorsResponse.data,
       seriesData: seriesResponse.data,
     };
   } catch (error) {
@@ -228,19 +206,6 @@ export async function fetchTrendingData() {
       query: BOOKS_BY_IDS_QUERY(ids),
     });
 
-    const authorIds = Object.values(booksResponse.data)
-      .map((book: any) =>
-        book.dto_combined.contributions.map(
-          (contribution: any) => contribution.author_id
-        )
-      )
-      .flat();
-
-    // Fetch author details
-    const authorsResponse = await client.query({
-      query: AUTHORS_BY_IDS_QUERY(authorIds),
-    });
-
     const seriesIds = Object.values(booksResponse.data)
       .filter((book: any) => book.dto_combined.series.length > 0)
       .map((book: any) => book.dto_combined.series[0].series_id);
@@ -251,7 +216,6 @@ export async function fetchTrendingData() {
 
     return {
       bookData: booksResponse.data,
-      authorData: authorsResponse.data,
       seriesData: seriesResponse.data,
     };
   } catch (error) {
