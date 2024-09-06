@@ -2,6 +2,7 @@ import { fetchTrendingData } from "@/actions/hardcoverActions";
 import CentralDisplay from "@/components/home/CentralDisplay";
 import { convertTrendingBookData } from "@/helpers/convertTrendingBookToBook";
 import { userActivityLog } from "@/lib/schema";
+import { UserActivityLogList } from "@/types/apiResponse/UseLogResponse";
 import { Book } from "@/types/book";
 import { TrendingData } from "@/types/trending/trendingbookresponse";
 import { UserActivityLog } from "@/types/userActivityLog";
@@ -38,7 +39,10 @@ export default async function Home() {
     trendingData.bookData,
     trendingData.seriesData
   );
-  const userActivityLog: any = await getUserActivityLogData("1");
+
+  const userActivityLog: UserActivityLogList = await getUserActivityLogData(
+    "1"
+  );
   return (
     <div className="mx-16 ">
       <CentralDisplay books={convertedData} userActivityLog={userActivityLog} />

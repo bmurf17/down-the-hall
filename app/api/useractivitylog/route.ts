@@ -1,6 +1,6 @@
 import { asc, eq } from "drizzle-orm";
 import db from "../../../lib/db";
-import { book, userActivityLog } from "../../../lib/schema";
+import { author, book, userActivityLog } from "../../../lib/schema";
 import { NextRequest, NextResponse } from "next/server";
 
 export async function GET(request: NextRequest) {
@@ -9,11 +9,15 @@ export async function GET(request: NextRequest) {
   // Convert userId to a number safely, handling the case where it might be null or invalid
   const userIdNumber = parseInt(userId || "0");
 
-  // Perform the query, joining userActivityLog with the book table
   const data = await db
-    .select()
+    .select({
+      userActivity: userActivityLog, // Selecting userActivityLog fields
+      bookDetails: book, // Selecting book fields
+      authorDetails: author, // Selecting author fields
+    })
     .from(userActivityLog)
-    .innerJoin(book, eq(userActivityLog.bookId, book.id)) // Corrected: Join userActivityLog with the book table
+    .innerJoin(book, eq(userActivityLog.bookId, book.id)) // Join userActivityLog with the book table
+    .leftJoin(author, eq(book.authorId, author.id)) // Left join in case author is missing
     .where(eq(userActivityLog.userId, userIdNumber)) // Use userId in the WHERE clause
     .orderBy(userActivityLog.updatedDate);
 

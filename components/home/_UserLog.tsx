@@ -1,44 +1,15 @@
 import { UserActivityLogReturnType } from "@/app/page";
+import { UserActivityLogList } from "@/types/apiResponse/UseLogResponse";
 
 interface Props {
-  userActivityLog: any[];
+  userActivityLog: UserActivityLogList;
 }
-
-const testData = [
-  {
-    image:
-      "https://firebasestorage.googleapis.com/v0/b/booksite-2aa2a.appspot.com/o/590689_Yellowface.jpeg?alt=media&token=7b6287d0-6674-4d4d-844f-ea646b43cd3d",
-    title: "Yellow Face",
-    author: "Rebecca Kuang",
-    action: "Finished Reading",
-    statsMonth: "First Book this month",
-    stasYear: "Fifth Book this Year",
-  },
-  {
-    image:
-      "https://firebasestorage.googleapis.com/v0/b/booksite-2aa2a.appspot.com/o/590689_Yellowface.jpeg?alt=media&token=7b6287d0-6674-4d4d-844f-ea646b43cd3d",
-    title: "Yellow Face",
-    author: "Rebecca Kuang",
-    action: "Finished Reading",
-    statsMonth: "First Book this month",
-    stasYear: "Fifth Book this Year",
-  },
-  {
-    image:
-      "https://firebasestorage.googleapis.com/v0/b/booksite-2aa2a.appspot.com/o/590689_Yellowface.jpeg?alt=media&token=7b6287d0-6674-4d4d-844f-ea646b43cd3d",
-    title: "Yellow Face",
-    author: "Rebecca Kuang",
-    action: "Finished Reading",
-    statsMonth: "First Book this month",
-    stasYear: "Fifth Book this Year",
-  },
-];
 
 export default function UserLog({ userActivityLog }: Props) {
   return (
     <div className="flex flex-col gap-4">
       {userActivityLog.map((data, index) => {
-        const book = data.book;
+        const book = data.bookDetails;
         return (
           <div
             className="flex flex-col md:flex-row justify-between p-4 border-b-2 border-gray-500 hover:bg-slate-200 hover:cursor-pointer"
@@ -53,9 +24,9 @@ export default function UserLog({ userActivityLog }: Props) {
                 width={100}
               />
               <div className="flex flex-col gap-2 justify-center">
-                <div className="text-lg">{data.user_activity_log.action}</div>
+                <div className="text-lg">{data.userActivity.action}</div>
                 <div className="font-serif text-purple-600">{book?.title}</div>
-                <div className="text-md">By: {data.book.author?.name}</div>
+                <div className="text-md">By: {data.authorDetails.name}</div>
               </div>
             </div>
             <div className="flex flex-col gap-2 justify-center">
