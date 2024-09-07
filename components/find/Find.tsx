@@ -62,7 +62,7 @@ export default function Find({ books }: Props) {
             text={"Clear"}
             handleClick={clear}
             styles={
-              "focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 border rounded-lg active:translate-y-1 transition-all bg-indigo-600 border-indigo-600 hover:bg-indigo-700 text-white py-2 px-2 active:shadow-none gap-2"
+              "focus:outline-none focus:ring-2 focus:ring-offset-2 focus:primary border rounded-lg active:translate-y-1 transition-all bg-primary border-primary hover:bg-primary text-white py-2 px-2 active:shadow-none gap-2"
             }
           />
         </div>

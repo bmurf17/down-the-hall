@@ -56,23 +56,25 @@ export default function BookListItem({ book, addBookToList }: Props) {
             />
           </div>
           <div className="flex flex-col gap-2">
-            <div className="font-serif text-purple-600 dark:text-yellow-50 underline-offset-4 text-lg no-underline hover:underline decoration-gray-300 dark:decoration-gray-500">
+            <div className=" text-black underline-offset-4 text-xl md:text-3xl font-bold  no-underline hover:underline decoration-gray-300 dark:decoration-gray-500">
               {book.book?.title}
             </div>
 
-            <div className="text-md">By: {book.author?.name}</div>
+            <div className="text-md md:text-lg font-semibold text-text">
+              By: {book.author?.name}
+            </div>
 
-            <div className="text-gray-600 dark:text-gray-400 text-sm font-semibold flex gap-2">
+            <div className="text-text text-sm md:text-base font-semibold flex gap-2">
               {book.book?.genres?.slice(0, 3).join(", ")}
             </div>
 
             {book.book?.seriesName ? (
-              <div className="text-gray-600 dark:text-gray-400 text-sm font-semibold">
+              <div className="text-text text-sm md:text-base font-semibold">
                 Series Name: {book.book?.seriesName}
               </div>
             ) : null}
 
-            <div className="text-gray-600 dark:text-gray-400 text-sm font-semibold">
+            <div className="text-text text-sm font-semibold">
               Page Count: {book.book?.pageCount}
             </div>
           </div>
@@ -99,7 +101,7 @@ export default function BookListItem({ book, addBookToList }: Props) {
         {book.book?.status !== null ? (
           <button
             className={clsx(
-              "bg-indigo-600 flex items-center justify-center p-4 rounded-lg  text-left text-sm/6 text-white",
+              "bg-primary flex items-center justify-center p-4 rounded-lg  text-left text-sm/6 text-white",
               "focus:outline-none data-[focus]:outline-2 data-[focus]:-outline-offset-2 data-[focus]:outline-white/25"
             )}
             onClick={() => {
