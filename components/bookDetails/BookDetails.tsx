@@ -15,7 +15,7 @@ export default function BookDetails({ bookInfo }: Props) {
         <div
           className="absolute top-0 bg-repeat bg-top w-full lg:h-[500px]"
           style={{
-            backgroundImage: `url(${"https://cdn.hardcover.app/enlarge?url=https://storage.googleapis.com/hardcover/images/bookHeaders/fiction.webp&width=2448&height=496&type=webp"})`,
+            backgroundImage: `url(${"https://firebasestorage.googleapis.com/v0/b/booksite-2aa2a.appspot.com/o/banner.webp?alt=media&token=aa88a249-421e-4f04-a56a-7b5257cbcd75"})`,
             width: "100%",
             height: "100%",
           }}
@@ -30,10 +30,8 @@ export default function BookDetails({ bookInfo }: Props) {
                   <div className="hidden lg:block mr-4 flex-none">
                     <div className=" relative overflow-hidden group transition-all rounded-l-sm rounded-r-md border border-secondary ">
                       <img
-                        src={
-                          "https://firebasestorage.googleapis.com/v0/b/booksite-2aa2a.appspot.com/o/427460_Hyperion.jpeg?alt=media&token=edf24071-e82b-4f80-b264-cc68ca9a0f5e"
-                        }
-                        alt="Yellowface"
+                        src={bookInfo.image?.url || ""}
+                        alt={bookInfo.title}
                         width="180"
                         height="271"
                         loading="lazy"
