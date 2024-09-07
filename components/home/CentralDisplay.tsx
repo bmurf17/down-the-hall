@@ -56,7 +56,7 @@ export default function CentralDisplay({ books, userActivityLog }: Props) {
   return (
     <div className="w-full  px-2 py-2 sm:px-0">
       <TabGroup>
-        <TabList className="flex space-x-1 rounded-xl bg-blue-900/20 p-1">
+        <TabList className="flex space-x-1 rounded-xl bg-card p-1">
           {Object.keys(tabs).map((category) => (
             <Tab
               key={category}
@@ -77,7 +77,7 @@ export default function CentralDisplay({ books, userActivityLog }: Props) {
         <TabPanels className="mt-2">
           <TabPanel
             className={classNames(
-              "rounded-xl bg-gray-300 p-3 animate-fade-in-grow",
+              "rounded-xl bg-card p-3 animate-fade-in-grow",
               "ring-white/60 ring-offset-2 ring-offset-blue-400 focus:outline-none focus:ring-2"
             )}
           >
@@ -86,7 +86,7 @@ export default function CentralDisplay({ books, userActivityLog }: Props) {
 
           <TabPanel
             className={classNames(
-              "rounded-xl bg-gray-300 p-3 animate-fade-in-grow",
+              "rounded-xl bg-card p-3 animate-fade-in-grow",
               "ring-white/60 ring-offset-2 ring-offset-blue-400 focus:outline-none focus:ring-2"
             )}
           >
