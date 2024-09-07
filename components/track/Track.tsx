@@ -25,7 +25,7 @@ export default function Track({ books }: Props) {
   const switchView = (toolName: string) =>
     setSelectedView(viewOptions.find((tool) => tool === toolName));
   const [selected, setSelected] = useState(options[0]);
-  const viewOptions = ["Card", "List", "Shelf"];
+  const viewOptions = ["Card", "List", "Shelf", "CrazyView"];
   const [selectedView, setSelectedView] = useState<string | undefined>(
     viewOptions[0]
   );
@@ -128,6 +128,16 @@ export default function Track({ books }: Props) {
                 styles={""}
                 tooltipText={viewOptions[2]}
                 active={selectedView === viewOptions[2]}
+              />
+
+              <IconButton
+                icon={<CardIcon />}
+                handleClick={() => {
+                  switchView(viewOptions[3]);
+                }}
+                styles={""}
+                tooltipText={viewOptions[3]}
+                active={selectedView === viewOptions[3]}
               />
             </div>
           </div>
