@@ -64,6 +64,13 @@
       "when": 1724446033858,
       "tag": "0008_add_user_activity_log",
       "breakpoints": true
+    },
+    {
+      "idx": 9,
+      "version": "6",
+      "when": 1725996342754,
+      "tag": "0009_user_id_guid",
+      "breakpoints": true
     }
   ]
 }

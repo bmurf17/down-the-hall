@@ -9,7 +9,7 @@ import {
 } from "drizzle-orm/pg-core";
 
 export const user = pgTable("user_site", {
-  id: serial("id").primaryKey().notNull(),
+  id: text("id").primaryKey().notNull(),
   name: text("name").notNull(),
 });
 
@@ -56,7 +56,7 @@ export const bookRelations = relations(book, ({ one, many }) => ({
 
 export const userActivityLog = pgTable("user_activity_log", {
   id: serial("id").primaryKey().notNull(),
-  userId: integer("user_id").references(() => user.id),
+  userId: text("user_id").references(() => user.id),
   bookId: integer("book_id").references(() => book.id),
   updatedDate: timestamp("updated_date"),
   action: text("action"),
