@@ -48,6 +48,29 @@ const GET_SIGNED_BOOK_URL = (url: string) => gql`
   }
 `;
 
+const BOOK_BY_ID_QUERY = (id: string) => gql`
+  query BookByID {
+    books_by_pk(id: ${id}) {
+      id
+      default_physical_edition_id
+      users_count
+      users_read_count      
+      dto_combined
+      cached_image
+      cached_contributors
+    }
+  }
+`;
+
+const SERIES_BY_ID_QUERY = (id: number) => gql`
+  query SeriesByIds {
+    series(where: {id: {_eq: ${id}}}) {
+      id
+      name
+    }
+  }
+`;
+
 const BOOKS_BY_IDS_QUERY = (ids: number[]) => gql`
   query BooksByIds {
     ${ids
@@ -119,62 +142,27 @@ export const getBooks = async (title: string) => {
 };
 
 export const getBook = async (id: string) => {
-  const headers = {
-    "content-type": "application/json",
-    Authorization: `${process.env.HARDCOVER_TOKEN}`,
-  };
+  try {
+    const booksResponse = await client.query({
+      query: BOOK_BY_ID_QUERY(id),
+    });
 
-  const requestBody = {
-    query: `query GetBook {
-              books(where: {id: {_eq: "${id}"}}, order_by: {users_count: desc}, limit: 1) {
-              id
-              release_year
-              image {
-                url
-              }
-              title
-              book_characters {
-                id
-              }
-              book_series {
-                position
-                details
-                series {
-                  author {
-                   name
-                  }
-                  book_series {
-                    series {
-                      books_count
-                      is_completed
-                      name
-                    }
-                  }
-                }
-              }
-              description
-              dto
-              editions {
-                dto
-                pages
-                id
-              }
-              default_physical_edition_id
-              }
-            }`,
-  };
+    var seriesResponse =
+      booksResponse.data.books_by_pk?.dto_combined?.series?.length > 0
+        ? await client.query({
+            query: SERIES_BY_ID_QUERY(
+              booksResponse.data.books_by_pk?.dto_combined?.series[0].series_id
+            ),
+          })
+        : null;
 
-  const options = {
-    method: "POST",
-    headers,
-    body: JSON.stringify(requestBody),
-  };
-
-  const response = await (
-    await fetch(process.env.HARCOVER_URL || "", options)
-  ).json();
-
-  return response;
+    return {
+      booksData: booksResponse.data,
+      seriesData: seriesResponse?.data || null,
+    };
+  } catch (ex) {
+    console.log(ex);
+  }
 };
 
 const client = new ApolloClient({
