@@ -5,6 +5,8 @@ import { BookItem } from "@/types/googlebookresponse";
 import { HardcoverBook } from "@/types/hardcoverresponse";
 import { readingStatusString } from "@/types/statusEnum";
 import { AddToListButton } from "../shared/AddToListButton";
+import { Tab, TabGroup, TabList, TabPanel } from "@headlessui/react";
+import router from "next/router";
 
 interface Props {
   bookInfo: Book;
@@ -20,6 +22,8 @@ export default function BookDetails({ bookInfo }: Props) {
 
     return readingStatusString[status || 0];
   };
+
+  const tabs = ["Info", "Notes", "Characters", "Series"];
 
   return (
     <div style={{ minHeight: "calc(100vh - 101px)" }}>
@@ -110,8 +114,20 @@ export default function BookDetails({ bookInfo }: Props) {
           </div>
         </div>
       </div>
+
       <div className="mx-auto px-2 py-8 lg:px-0 my-4 max-w-3xl lg:mt-80">
-        {bookInfo.book?.description}
+        <TabGroup>
+          <TabList className="flex gap-4 w-full sm:mx-auto overflow-x-auto overflow-y-hidden no-scrollbar ">
+            {tabs.map((tab) => {
+              return (
+                <Tab className="data-[selected]:border-b-4 data-[selected]:border-primary data-[hover]:border-b-4  data-[hover]:border-primary  text-lg  text-primary  p-2  data-[focus]:outline-1 data-[focus]:outline-white  ">
+                  {tab}
+                </Tab>
+              );
+            })}
+          </TabList>
+          <TabPanel>{bookInfo.book?.description}</TabPanel>
+        </TabGroup>
       </div>
     </div>
   );

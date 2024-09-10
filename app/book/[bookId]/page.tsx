@@ -10,8 +10,6 @@ export default async function Page({ params }: { params: { bookId: string } }) {
     data2.booksData.books_by_pk,
     data2.seriesData
   );
-
-  console.log(bookData);
   return (
     <div className="mx-16">
       <BookDetails bookInfo={bookData} />
