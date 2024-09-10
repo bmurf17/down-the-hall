@@ -1,11 +1,26 @@
+"use client";
+
+import { Book } from "@/types/book";
 import { BookItem } from "@/types/googlebookresponse";
 import { HardcoverBook } from "@/types/hardcoverresponse";
+import { readingStatusString } from "@/types/statusEnum";
+import { AddToListButton } from "../shared/AddToListButton";
 
 interface Props {
-  bookInfo: HardcoverBook;
+  bookInfo: Book;
 }
 
 export default function BookDetails({ bookInfo }: Props) {
+  const addbuttonText = () => {
+    var status = bookInfo.book?.status;
+
+    if (status === null) {
+      return readingStatusString[4];
+    }
+
+    return readingStatusString[status || 0];
+  };
+
   return (
     <div style={{ minHeight: "calc(100vh - 101px)" }}>
       <div
@@ -30,8 +45,8 @@ export default function BookDetails({ bookInfo }: Props) {
                   <div className="hidden lg:block mr-4 flex-none">
                     <div className=" relative overflow-hidden group transition-all rounded-l-sm rounded-r-md border border-secondary ">
                       <img
-                        src={bookInfo.image?.url || ""}
-                        alt={bookInfo.title}
+                        src={bookInfo?.book?.image || ""}
+                        alt={bookInfo?.book?.title}
                         width="180"
                         height="271"
                         loading="lazy"
@@ -43,7 +58,7 @@ export default function BookDetails({ bookInfo }: Props) {
                     <div>
                       <div className="mt-4">
                         <h1 className="font-serif text-gray-800 dark:text-gray-200 mb-1 text-3xl lg:text-5xl">
-                          {bookInfo.title}
+                          {bookInfo?.book?.title}
                         </h1>
                         <div className="mt-2 lg:mt-0">
                           <div className="font-semibold text-sm hidden lg:flex">
@@ -52,10 +67,7 @@ export default function BookDetails({ bookInfo }: Props) {
 
                               <span className="flex-inline flex-row mr-1">
                                 <span className="ml-1">
-                                  {
-                                    bookInfo.book_series[0]?.series?.author
-                                      ?.name
-                                  }
+                                  {bookInfo.author?.name}
                                 </span>
                               </span>
                             </div>
@@ -65,7 +77,24 @@ export default function BookDetails({ bookInfo }: Props) {
                     </div>
 
                     <div className="flex flex-col col-span-4 lg:col-span-2">
-                      <div className="hidden lg:block">Button</div>
+                      <div className="hidden lg:block">
+                        <AddToListButton
+                          title={bookInfo.book?.title || ""}
+                          author={bookInfo.author?.name || ""}
+                          image={bookInfo.book?.image || ``}
+                          default_physical_edition_id={
+                            bookInfo.book?.defaultPhysicalEditionId || 0
+                          }
+                          description={bookInfo.book?.description ?? ""}
+                          hardcover_id={bookInfo.book?.hardcoverId || 0}
+                          release_year={bookInfo.book?.releaseYear + ""}
+                          series_length={bookInfo.book?.seriesLength || 0}
+                          series_name={bookInfo.book?.seriesName || ""}
+                          series_position={bookInfo.book?.seriesPosition || 0}
+                          buttonText={addbuttonText()}
+                          page_number={bookInfo.book?.pageCount || 0}
+                        />
+                      </div>
                       <div>
                         <div className="mt-3 mb-2 flex justify-between">
                           <span className="text-gray-600 dark:text-gray-400 text-sm font-semibold">
@@ -81,8 +110,8 @@ export default function BookDetails({ bookInfo }: Props) {
           </div>
         </div>
       </div>
-      <div className="mx-auto px-2 lg:px-0 my-4 max-w-3xl lg:mt-80">
-        {bookInfo.description}
+      <div className="mx-auto px-2 py-8 lg:px-0 my-4 max-w-3xl lg:mt-80">
+        {bookInfo.book?.description}
       </div>
     </div>
   );
