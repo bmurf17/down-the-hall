@@ -2,6 +2,13 @@ import type { Metadata } from "next";
 import { Inter } from "next/font/google";
 import "./globals.css";
 import NavBar from "@/components/NavBar";
+import {
+  ClerkProvider,
+  SignedIn,
+  SignedOut,
+  SignInButton,
+  UserButton,
+} from "@clerk/nextjs";
 
 const inter = Inter({ subsets: ["latin"] });
 
@@ -16,14 +23,16 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en" className="h-full bg-background ">
-      <body className={inter.className + " h-max "}>
-        <div className="flex flex-col bg-background h-full">
-          <NavBar />
+    <ClerkProvider>
+      <html lang="en" className="h-full bg-background ">
+        <body className={inter.className + " h-max "}>
+          <div className="flex flex-col bg-background h-full">
+            <NavBar />
 
-          {children}
-        </div>
-      </body>
-    </html>
+            {children}
+          </div>
+        </body>
+      </html>
+    </ClerkProvider>
   );
 }
