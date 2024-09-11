@@ -1,6 +1,6 @@
 "use client";
-import { classNames } from "@/utilities/className";
-import { Dialog, Menu, Transition } from "@headlessui/react";
+import { SignedIn, SignedOut, SignInButton, UserButton } from "@clerk/nextjs";
+import { Dialog, Transition } from "@headlessui/react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { Fragment, useState } from "react";
@@ -9,7 +9,6 @@ import { BurgerMenuIcon } from "./icons/BurgerMenuIcon";
 import { ConnectionIcon } from "./icons/ConnectionIconIcon";
 import { ExploreIcon } from "./icons/ExploreIcon";
 import { SearchIcon } from "./icons/SearchIcon";
-import { SignedIn, SignedOut, SignInButton, UserButton } from "@clerk/nextjs";
 
 export default function NavBar() {
   const [menuOpen, setMenuOpen] = useState(false);

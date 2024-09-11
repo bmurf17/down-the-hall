@@ -9,6 +9,8 @@ import clsx from "clsx";
 import { ChevronDownIcon } from "../icons/ChevronDownIcon";
 import { Status } from "@/types/statusEnum";
 import { addBookToList } from "@/functions/addBook";
+import { useState, useEffect } from "react";
+import { currentUser, User } from "@clerk/nextjs/server";
 
 interface Props {
   title: string;
@@ -66,7 +68,8 @@ export function AddToListButton({
           series_length,
           series_name,
           hardcover_id,
-          page_number
+          page_number,
+          "_2ltL1a7tYquxdTIT2OTazKaJ5Al"
         );
       }}
     >

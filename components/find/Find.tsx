@@ -1,12 +1,11 @@
 "use client";
 
-import { addBook } from "@/actions/bookActions";
+import { addBookToList } from "@/functions/addBook";
 import { Book } from "@/types/book";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { useCallback, useEffect, useState } from "react";
 import Button from "../basicUI/Button";
 import BookListItem from "../shared/BookListItem";
-import { addBookToList } from "@/functions/addBook";
 
 interface Props {
   books: Book[];

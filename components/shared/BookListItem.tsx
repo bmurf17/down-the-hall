@@ -20,7 +20,8 @@ interface Props {
     series_length: number,
     series_name: string,
     hardcover_id: number,
-    page_number: number
+    page_number: number,
+    userId: string
   ) => void;
 }
 

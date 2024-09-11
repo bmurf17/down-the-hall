@@ -1,12 +1,10 @@
 "use client";
-import { addBook } from "@/actions/bookActions";
+import { UserActivityLogList } from "@/types/apiResponse/UseLogResponse";
 import { Book } from "@/types/book";
 import { Tab, TabGroup, TabList, TabPanel, TabPanels } from "@headlessui/react";
-import { Suspense, useState } from "react";
+import { useState } from "react";
 import TrendingDisplay from "./_TrendingDisplay";
 import UserLog from "./_UserLog";
-import { UserActivityLogReturnType } from "@/app/page";
-import { UserActivityLogList } from "@/types/apiResponse/UseLogResponse";
 
 interface Props {
   books: Book[];

@@ -22,6 +22,7 @@ export const addBook = async (
   series_name: string,
   hardcover_id: number,
   page_count: number,
+  userId: string,
   date_read?: Date
 ) => {
   // create a `Client` inside the request handler
@@ -68,7 +69,7 @@ export const addBook = async (
         bookId: book_id,
         updatedDate: new Date(),
         action: logStatusString[status],
-        userId: 1,
+        userId: userId,
       });
 
       revalidateTag("books");
@@ -103,7 +104,7 @@ export const addBook = async (
       bookId: book_id,
       updatedDate: new Date(),
       action: logStatusString[status],
-      userId: 1,
+      userId: userId,
     });
   } catch (err) {
     console.log(err);

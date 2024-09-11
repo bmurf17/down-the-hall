@@ -6,20 +6,26 @@ import { UserActivityLogList } from "@/types/apiResponse/UseLogResponse";
 import { Book } from "@/types/book";
 import { TrendingData } from "@/types/trending/trendingbookresponse";
 import { UserActivityLog } from "@/types/userActivityLog";
+import { currentUser } from "@clerk/nextjs/server";
 
 export interface UserActivityLogReturnType {
   user_activity_log: UserActivityLog;
   book: Book;
 }
 
-async function getUserActivityLogData(userId?: string) {
+async function getUserActivityLogData() {
   const baseUrl = process.env.NEXT_PUBLIC_API_URL || "http://localhost:3000";
 
-  const res = await fetch(`${baseUrl}/api/useractivitylog?userId=${userId}`, {
-    next: { tags: ["userActivityLog"] },
-  });
-  // The return value is *not* serialized
-  // You can return Date, Map, Set, etc.
+  const userRightNow = await currentUser();
+
+  // console.log(userRightNow?.id);
+
+  const res = await fetch(
+    `${baseUrl}/api/useractivitylog?userId=${userRightNow?.id || 0}`,
+    {
+      next: { tags: ["userActivityLog"] },
+    }
+  );
 
   if (!res.ok) {
     // This will activate the closest `error.js` Error Boundary
@@ -40,9 +46,7 @@ export default async function Home() {
     trendingData.seriesData
   );
 
-  const userActivityLog: UserActivityLogList = await getUserActivityLogData(
-    "1"
-  );
+  const userActivityLog: UserActivityLogList = await getUserActivityLogData();
   return (
     <div className="mx-16 ">
       <CentralDisplay books={convertedData} userActivityLog={userActivityLog} />
