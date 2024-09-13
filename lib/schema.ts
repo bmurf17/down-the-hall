@@ -8,15 +8,6 @@ import {
   timestamp,
 } from "drizzle-orm/pg-core";
 
-export const user = pgTable("user_site", {
-  id: text("id").primaryKey().notNull(),
-  name: text("name").notNull(),
-});
-
-export const userRelations = relations(user, ({ many }) => ({
-  logs: many(userActivityLog),
-}));
-
 export const author = pgTable("author", {
   id: serial("id").primaryKey().notNull(),
   name: text("name").notNull(),
@@ -56,7 +47,7 @@ export const bookRelations = relations(book, ({ one, many }) => ({
 
 export const userActivityLog = pgTable("user_activity_log", {
   id: serial("id").primaryKey().notNull(),
-  userId: text("user_id").references(() => user.id),
+  userId: text("user_id"),
   bookId: integer("book_id").references(() => book.id),
   updatedDate: timestamp("updated_date"),
   action: text("action"),
@@ -68,10 +59,6 @@ export const userActivityLogRelations = relations(
     book: one(book, {
       fields: [userActivityLog.bookId],
       references: [book.id],
-    }),
-    user: one(user, {
-      fields: [userActivityLog.userId],
-      references: [user.id],
     }),
   })
 );

@@ -71,6 +71,13 @@
       "when": 1725996342754,
       "tag": "0009_user_id_guid",
       "breakpoints": true
+    },
+    {
+      "idx": 10,
+      "version": "6",
+      "when": 1726093179550,
+      "tag": "0010_remove_user_table",
+      "breakpoints": true
     }
   ]
 }

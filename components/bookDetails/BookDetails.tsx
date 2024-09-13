@@ -120,7 +120,10 @@ export default function BookDetails({ bookInfo }: Props) {
           <TabList className="flex gap-4 w-full sm:mx-auto overflow-x-auto overflow-y-hidden no-scrollbar ">
             {tabs.map((tab) => {
               return (
-                <Tab className="data-[selected]:border-b-4 data-[selected]:border-primary data-[hover]:border-b-4  data-[hover]:border-primary  text-lg  text-primary  p-2  data-[focus]:outline-1 data-[focus]:outline-white  ">
+                <Tab
+                  key={tab}
+                  className="data-[selected]:border-b-4 data-[selected]:border-primary data-[hover]:border-b-4  data-[hover]:border-primary  text-lg  text-primary  p-2  data-[focus]:outline-1 data-[focus]:outline-white  "
+                >
                   {tab}
                 </Tab>
               );
