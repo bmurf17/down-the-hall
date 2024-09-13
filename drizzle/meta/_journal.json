@@ -78,6 +78,13 @@
       "when": 1726093179550,
       "tag": "0010_remove_user_table",
       "breakpoints": true
+    },
+    {
+      "idx": 11,
+      "version": "6",
+      "when": 1726249732239,
+      "tag": "0011_add_user_id_to_book",
+      "breakpoints": true
     }
   ]
 }

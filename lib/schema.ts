@@ -20,6 +20,7 @@ export const authorRelations = relations(author, ({ many }) => ({
 
 export const book = pgTable("book", {
   id: serial("id").primaryKey().notNull(),
+  userId: text("user_id"),
   title: text("title").notNull(),
   authorId: integer("author_id").references(() => author.id),
   image: text("image"),
