@@ -9,6 +9,7 @@ import { BurgerMenuIcon } from "./icons/BurgerMenuIcon";
 import { ConnectionIcon } from "./icons/ConnectionIconIcon";
 import { ExploreIcon } from "./icons/ExploreIcon";
 import { SearchIcon } from "./icons/SearchIcon";
+import { BarChartIcon } from "./icons/BarChartIcon";
 
 export default function NavBar() {
   const [menuOpen, setMenuOpen] = useState(false);
@@ -39,7 +40,6 @@ export default function NavBar() {
           </div>
 
           <div className=" inset-y-0 right-0 flex items-center pr-2 sm:static sm:inset-auto sm:ml-6 sm:pr-0 text-white">
-            {/* Profile dropdown */}
             <SignedOut>
               <SignInButton />
             </SignedOut>
@@ -121,6 +121,17 @@ export default function NavBar() {
                   >
                     <ConnectionIcon className="h-5 w-5" />
                     <div>Connection</div>
+                  </button>
+
+                  <button
+                    type="button"
+                    className="flex items-center gap-3 rounded-md px-3 py-2 text-sm font-medium text-gray-500 transition-colors hover:bg-gray-100 hover:text-gray-900"
+                    onClick={() => {
+                      navigateTo("/stats");
+                    }}
+                  >
+                    <BarChartIcon className="h-5 w-5" />
+                    Stats
                   </button>
 
                   <button
