@@ -60,6 +60,7 @@ export const addBook = async (
         series_name,
         hardcover_id,
         page_count,
+        userId,
         date_read
       );
 
@@ -97,6 +98,7 @@ export const addBook = async (
       series_name,
       hardcover_id,
       page_count,
+      userId,
       date_read
     );
 
@@ -129,12 +131,13 @@ const insertQuery = async (
   series_name: string,
   hardcover_id: number,
   page_count: number,
+  user_id: string,
   date_read?: Date
 ) => {
   const {
     rows: [{ id: book_id }],
   } = await client.query(
-    "INSERT INTO book (title, author_id, image, status, release_year, default_physical_edition_id, description, series_position, series_length, series_name, hardcover_id, page_count, date_read, date_updated) VALUES ($1,$2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14)  RETURNING id",
+    "INSERT INTO book (title, author_id, image, status, release_year, default_physical_edition_id, description, series_position, series_length, series_name, hardcover_id, page_count, date_read, user_id, date_updated) VALUES ($1,$2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15)  RETURNING id",
     [
       title,
       author_id,
@@ -149,6 +152,7 @@ const insertQuery = async (
       hardcover_id,
       page_count,
       date_read,
+      user_id,
       new Date(),
     ]
   );
