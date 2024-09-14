@@ -1,5 +1,6 @@
 import Track from "@/components/track/Track";
 import { Book } from "@/types/book";
+import { currentUser } from "@clerk/nextjs/server";
 
 interface Props {
   searchParams?: { status?: string };
@@ -7,9 +8,13 @@ interface Props {
 
 async function getBookData(status?: string) {
   const baseUrl = process.env.NEXT_PUBLIC_API_URL || "http://localhost:3000";
-  const res = await fetch(`${baseUrl}/api/books?status=${status}`, {
-    next: { tags: ["books"] },
-  });
+  const userRightNow = await currentUser();
+  const res = await fetch(
+    `${baseUrl}/api/books?status=${status}&user=${userRightNow?.id}`,
+    {
+      next: { tags: ["books"] },
+    }
+  );
   // The return value is *not* serialized
   // You can return Date, Map, Set, etc.
 
