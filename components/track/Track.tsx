@@ -52,7 +52,7 @@ export default function Track({ books }: Props) {
         <TabGroup>
           <TabList className="flex gap-4 w-full sm:mx-auto overflow-x-auto overflow-y-hidden no-scrollbar ">
             <Tab
-              className="data-[selected]:bg-primary text-white rounded-xl p-4 data-[hover]:bg-primary data-[selected]:data-[hover]:bg-primary data-[focus]:outline-1 data-[focus]:outline-white  bg-slate-400"
+              className="data-[selected]:bg-primary text-white rounded-xl p-4 data-[hover]:bg-primary data-[selected]:data-[hover]:bg-primary data-[focus]:outline-1 data-[focus]:outline-white  bg-card"
               onClick={() => {
                 router.push(pathname + "?" + createQueryString("status", ""));
               }}

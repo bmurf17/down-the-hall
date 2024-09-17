@@ -22,7 +22,7 @@ export default function TrackBookViewLogic({
   return (
     <div
       className={classNames(
-        "rounded-xl bg-gray-300 p-3 animate-fade-in-grow mt-4",
+        "rounded-xl bg-card p-3 animate-fade-in-grow mt-4",
         "ring-white/60 ring-offset-2 ring-offset-blue-400 focus:outline-none focus:ring-2"
       )}
     >

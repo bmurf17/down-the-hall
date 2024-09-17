@@ -19,15 +19,15 @@ import {
 
 export const description = "How many books read by month";
 const chartData = [
-  { month: "January", desktop: 186 },
-  { month: "February", desktop: 305 },
-  { month: "March", desktop: 237 },
-  { month: "April", desktop: 73 },
-  { month: "May", desktop: 209 },
-  { month: "June", desktop: 214 },
+  { month: "January", booksRead: 186 },
+  { month: "February", booksRead: 305 },
+  { month: "March", booksRead: 237 },
+  { month: "April", booksRead: 73 },
+  { month: "May", booksRead: 209 },
+  { month: "June", booksRead: 214 },
 ];
 const chartConfig = {
-  desktop: {
+  booksRead: {
     label: "Books Read",
     color: "hsl(var(--chart-1))",
   },
@@ -59,11 +59,10 @@ export default function Stats() {
                     content={<ChartTooltipContent indicator="dashed" />}
                   />
                   <Bar
-                    dataKey="desktop"
-                    fill="var(--color-desktop)"
+                    dataKey="booksRead"
+                    fill="var(--color-booksRead)"
                     radius={4}
                   />
-                  <Bar dataKey="mobile" fill="var(--color-mobile)" radius={4} />
                 </BarChart>
               </ChartContainer>
             </CardContent>

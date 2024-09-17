@@ -9,6 +9,7 @@ import {
   SignInButton,
   UserButton,
 } from "@clerk/nextjs";
+import Template from "./template";
 
 const inter = Inter({ subsets: ["latin"] });
 
@@ -29,7 +30,7 @@ export default function RootLayout({
           <div className="flex flex-col bg-background h-full">
             <NavBar />
 
-            {children}
+            <Template>{children}</Template>
           </div>
         </body>
       </html>
