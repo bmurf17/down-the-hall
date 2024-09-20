@@ -44,6 +44,7 @@ export const bookRelations = relations(book, ({ one, many }) => ({
     references: [author.id],
   }),
   logs: many(userActivityLog),
+  notes: many(bookNote),
 }));
 
 export const userActivityLog = pgTable("user_activity_log", {
@@ -54,15 +55,15 @@ export const userActivityLog = pgTable("user_activity_log", {
   action: text("action"),
 });
 
-export const userActivityLogRelations = relations(
-  userActivityLog,
-  ({ one }) => ({
-    book: one(book, {
-      fields: [userActivityLog.bookId],
-      references: [book.id],
-    }),
-  })
-);
+export const bookNote = pgTable("book_note", {
+  id: serial("id").primaryKey().notNull(),
+  userId: text("user_id"),
+  bookId: integer("book_id").references(() => book.id),
+  updatedDate: timestamp("updated_date"),
+  note: text("note"),
+  pageNumber: integer("page_number"),
+  series: text("series"),
+});
 
 export type SelectBook = typeof book.$inferSelect;
 export type InsertBook = typeof book.$inferInsert;
