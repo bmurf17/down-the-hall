@@ -64,6 +64,7 @@ export const processTrendingBookDetails = async (
     genres: trendingBookDetails.dto_combined.genres,
     dateRead: Date.now().toString(),
     updatedDate: Date.now().toString(),
+    userId: "",
   };
 
   const author: SelectAuthor = {
