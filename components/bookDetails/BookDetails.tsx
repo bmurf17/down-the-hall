@@ -7,6 +7,7 @@ import { readingStatusString } from "@/types/statusEnum";
 import { AddToListButton } from "../shared/AddToListButton";
 import { Tab, TabGroup, TabList, TabPanel } from "@headlessui/react";
 import router from "next/router";
+import Notes from "./_Notes";
 
 interface Props {
   bookInfo: Book;
@@ -130,6 +131,11 @@ export default function BookDetails({ bookInfo }: Props) {
             })}
           </TabList>
           <TabPanel>{bookInfo.book?.description}</TabPanel>
+          <TabPanel>
+            <Notes />
+          </TabPanel>
+          <TabPanel> Characters</TabPanel>
+          <TabPanel> Series</TabPanel>
         </TabGroup>
       </div>
     </div>
