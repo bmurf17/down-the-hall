@@ -132,7 +132,7 @@ export default function BookDetails({ bookInfo }: Props) {
           </TabList>
           <TabPanel>{bookInfo.book?.description}</TabPanel>
           <TabPanel>
-            <Notes />
+            <Notes bookId={bookInfo.book?.id || 0} />
           </TabPanel>
           <TabPanel> Characters</TabPanel>
           <TabPanel> Series</TabPanel>

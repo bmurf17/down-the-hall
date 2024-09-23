@@ -5,20 +5,11 @@ import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
 import { Textarea } from "../ui/textarea";
+import { InsertBookNote, SelectBookNote } from "@/lib/schema";
+import { addNote } from "@/actions/noteActions";
+import { addBookNote } from "@/functions/addBookNote";
 
-// Define the Note type based on the provided database schema
-type Note = {
-  id: number;
-  userId: string | null;
-  bookId: number | null;
-  updatedDate: Date;
-  note: string;
-  pageNumber: number | null;
-  series: string | null;
-};
-
-// Mock function to fetch notes (replace with actual API call)
-const fetchNotes = async (): Promise<Note[]> => {
+const fetchNotes = async (): Promise<SelectBookNote[]> => {
   // Simulating API call
   return [
     {
@@ -42,16 +33,12 @@ const fetchNotes = async (): Promise<Note[]> => {
   ];
 };
 
-// Mock function to add a new note (replace with actual API call)
-const addNote = async (
-  note: Omit<Note, "id" | "updatedDate">
-): Promise<Note> => {
-  // Simulating API call
-  return { ...note, id: Date.now(), updatedDate: new Date() };
-};
+interface Props {
+  bookId: number;
+}
 
-export default function Notes() {
-  const [notes, setNotes] = useState<Note[]>([]);
+export default function Notes({ bookId }: Props) {
+  const [notes, setNotes] = useState<SelectBookNote[]>([]);
   const [newNote, setNewNote] = useState("");
   const [pageNumber, setPageNumber] = useState<number | null>(null);
 
@@ -66,16 +53,18 @@ export default function Notes() {
   const handleAddNote = async () => {
     if (newNote.trim() === "") return;
 
-    const noteToAdd: Omit<Note, "id" | "updatedDate"> = {
+    console.log("HERE");
+
+    const noteToAdd: Omit<InsertBookNote, "id" | "updatedDate"> = {
       userId: "user1", // Replace with actual user ID
-      bookId: 1, // Replace with actual book ID
+      bookId: bookId, // Replace with actual book ID
       note: newNote,
       pageNumber: pageNumber,
       series: "Series A", // Replace with actual series or make it dynamic
     };
 
-    const addedNote = await addNote(noteToAdd);
-    setNotes([addedNote, ...notes]);
+    addBookNote(noteToAdd);
+
     setNewNote("");
     setPageNumber(null);
   };
@@ -109,7 +98,6 @@ export default function Notes() {
               <div className="mt-2 text-sm text-muted-foreground">
                 <p>Page: {note.pageNumber || "N/A"}</p>
                 <p>Series: {note.series || "N/A"}</p>
-                <p>Updated: {note.updatedDate.toLocaleString()}</p>
               </div>
             </CardContent>
           </Card>
