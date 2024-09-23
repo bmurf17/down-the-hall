@@ -48,6 +48,29 @@ const GET_SIGNED_BOOK_URL = (url: string) => gql`
   }
 `;
 
+const BOOK_BY_ID_QUERY = (id: string) => gql`
+  query BookByID {
+    books_by_pk(id: ${id}) {
+      id
+      default_physical_edition_id
+      users_count
+      users_read_count      
+      dto_combined
+      cached_image
+      cached_contributors
+    }
+  }
+`;
+
+const SERIES_BY_ID_QUERY = (id: number) => gql`
+  query SeriesByIds {
+    series(where: {id: {_eq: ${id}}}) {
+      id
+      name
+    }
+  }
+`;
+
 const BOOKS_BY_IDS_QUERY = (ids: number[]) => gql`
   query BooksByIds {
     ${ids
@@ -59,28 +82,12 @@ const BOOKS_BY_IDS_QUERY = (ids: number[]) => gql`
           users_count
           users_read_count      
           dto_combined
+          cached_image
+          cached_contributors
         }
       `
       )
       .join("")}
-  }
-`;
-
-const AUTHORS_BY_IDS_QUERY = (authorIds: number[]) => gql`
-  query AuthorsByIds {
-    authors(where: {id: {_in: [${authorIds.join(",")}]}}) {
-      id
-      name
-    }
-  }
-`;
-
-const IMAGES_BY_IDS_QUERY = (imageIds: number[]) => gql`
-  query ImagesByIds {
-    images(where: {id: {_in: [${imageIds.join(",")}]}}) {
-      id
-      url
-    }
   }
 `;
 
@@ -113,30 +120,6 @@ export const getBooks = async (title: string) => {
       query: BOOKS_BY_IDS_QUERY(ids),
     });
 
-    const authorIds = Object.values(booksResponse.data)
-      .map((book: any) =>
-        book.dto_combined.contributions?.map(
-          (contribution: any) => contribution.author_id
-        )
-      )
-      .flat();
-
-    // Fetch author details
-    const authorsResponse = await client.query({
-      query: AUTHORS_BY_IDS_QUERY(authorIds),
-    });
-
-    const imageIds = Object.values(booksResponse.data).map((book: any) => {
-      if (book.dto_combined?.image_ids?.length > 0) {
-        return book.dto_combined.image_id;
-      }
-    });
-
-    // Fetch image details
-    const imagesResponse = await client.query({
-      query: IMAGES_BY_IDS_QUERY(imageIds),
-    });
-
     const seriesIds = Object.values(booksResponse.data)
       .filter(
         (book: any) =>
@@ -150,8 +133,6 @@ export const getBooks = async (title: string) => {
 
     return {
       bookData: booksResponse.data,
-      authorData: authorsResponse.data,
-      imageData: imagesResponse.data,
       seriesData: seriesResponse.data,
     };
   } catch (error) {
@@ -161,67 +142,38 @@ export const getBooks = async (title: string) => {
 };
 
 export const getBook = async (id: string) => {
-  const headers = {
-    "content-type": "application/json",
-    Authorization: `${process.env.HARDCOVER_TOKEN}`,
-  };
+  try {
+    const booksResponse = await client.query({
+      query: BOOK_BY_ID_QUERY(id),
+    });
 
-  const requestBody = {
-    query: `query GetBook {
-              books(where: {id: {_eq: "${id}"}}, order_by: {users_count: desc}, limit: 1) {
-              id
-              release_year
-              image {
-                url
-              }
-              title
-              book_characters {
-                id
-              }
-              book_series {
-                position
-                details
-                series {
-                  author {
-                   name
-                  }
-                  book_series {
-                    series {
-                      books_count
-                      is_completed
-                      name
-                    }
-                  }
-                }
-              }
-              description
-              dto
-              editions {
-                dto
-                pages
-                id
-              }
-              default_physical_edition_id
-              }
-            }`,
-  };
+    var seriesResponse =
+      booksResponse.data.books_by_pk?.dto_combined?.series?.length > 0
+        ? await client.query({
+            query: SERIES_BY_ID_QUERY(
+              booksResponse.data.books_by_pk?.dto_combined?.series[0].series_id
+            ),
+          })
+        : null;
 
-  const options = {
-    method: "POST",
-    headers,
-    body: JSON.stringify(requestBody),
-  };
-
-  const response = await (
-    await fetch(process.env.HARCOVER_URL || "", options)
-  ).json();
-
-  return response;
+    return {
+      booksData: booksResponse.data,
+      seriesData: seriesResponse?.data || null,
+    };
+  } catch (ex) {
+    console.log(ex);
+  }
 };
 
 const client = new ApolloClient({
   uri: process.env.HARCOVER_URL || "",
-  cache: new InMemoryCache(),
+  cache: new InMemoryCache({
+    typePolicies: {
+      images: {
+        keyFields: ["id"], // Ensures Apollo uses `id` as a unique cache key for each image
+      },
+    },
+  }),
   headers: {
     "content-type": "application/json",
     Authorization: `${process.env.HARDCOVER_TOKEN}`,
@@ -242,28 +194,6 @@ export async function fetchTrendingData() {
       query: BOOKS_BY_IDS_QUERY(ids),
     });
 
-    const authorIds = Object.values(booksResponse.data)
-      .map((book: any) =>
-        book.dto_combined.contributions.map(
-          (contribution: any) => contribution.author_id
-        )
-      )
-      .flat();
-
-    // Fetch author details
-    const authorsResponse = await client.query({
-      query: AUTHORS_BY_IDS_QUERY(authorIds),
-    });
-
-    const imageIds = Object.values(booksResponse.data).map(
-      (book: any) => book.dto_combined.image_ids[0]
-    );
-
-    // Fetch image details
-    const imagesResponse = await client.query({
-      query: IMAGES_BY_IDS_QUERY(imageIds),
-    });
-
     const seriesIds = Object.values(booksResponse.data)
       .filter((book: any) => book.dto_combined.series.length > 0)
       .map((book: any) => book.dto_combined.series[0].series_id);
@@ -274,8 +204,6 @@ export async function fetchTrendingData() {
 
     return {
       bookData: booksResponse.data,
-      authorData: authorsResponse.data,
-      imageData: imagesResponse.data,
       seriesData: seriesResponse.data,
     };
   } catch (error) {
@@ -285,9 +213,24 @@ export async function fetchTrendingData() {
 }
 
 export async function getSignedUrl(url: string) {
-  const data = await client.query({
-    query: GET_SIGNED_BOOK_URL(url),
-  });
+  try {
+    const data = await client.query({
+      query: GET_SIGNED_BOOK_URL(url),
+    });
 
-  return data;
+    if (
+      !data ||
+      !data.data ||
+      !data.data.image_url_signed ||
+      !data.data.image_url_signed.url
+    ) {
+      throw new Error("Invalid response structure from signed URL query");
+    }
+
+    return data.data.image_url_signed.url;
+  } catch (error) {
+    console.error("Error getting signed URL:", error);
+    // You might want to return a default or placeholder URL here
+    return url; // Return the original URL if signing fails
+  }
 }

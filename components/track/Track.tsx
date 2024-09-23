@@ -25,7 +25,7 @@ export default function Track({ books }: Props) {
   const switchView = (toolName: string) =>
     setSelectedView(viewOptions.find((tool) => tool === toolName));
   const [selected, setSelected] = useState(options[0]);
-  const viewOptions = ["Card", "List", "Shelf"];
+  const viewOptions = ["Card", "List", "Shelf", "CrazyView"];
   const [selectedView, setSelectedView] = useState<string | undefined>(
     viewOptions[0]
   );
@@ -52,7 +52,7 @@ export default function Track({ books }: Props) {
         <TabGroup>
           <TabList className="flex gap-4 w-full sm:mx-auto overflow-x-auto overflow-y-hidden no-scrollbar ">
             <Tab
-              className="data-[selected]:bg-indigo-600 text-white rounded-xl p-4 data-[hover]:bg-indigo-400 data-[selected]:data-[hover]:bg-indigo-500 data-[focus]:outline-1 data-[focus]:outline-white  bg-slate-400"
+              className="data-[selected]:bg-primary text-white rounded-xl p-4 data-[hover]:bg-primary data-[selected]:data-[hover]:bg-primary data-[focus]:outline-1 data-[focus]:outline-white  bg-card"
               onClick={() => {
                 router.push(pathname + "?" + createQueryString("status", ""));
               }}
@@ -60,7 +60,7 @@ export default function Track({ books }: Props) {
               All
             </Tab>
             <Tab
-              className="data-[selected]:bg-indigo-600 text-white rounded-xl p-4 data-[hover]:bg-indigo-400 data-[selected]:data-[hover]:bg-indigo-500 data-[focus]:outline-1 data-[focus]:outline-white  bg-slate-400"
+              className="data-[selected]:bg-primary text-white rounded-xl p-4 data-[hover]:bg-primary data-[selected]:data-[hover]:bg-primary data-[focus]:outline-1 data-[focus]:outline-white  bg-slate-400"
               onClick={() => {
                 router.push(pathname + "?" + createQueryString("status", "0"));
               }}
@@ -68,7 +68,7 @@ export default function Track({ books }: Props) {
               Currently Reading
             </Tab>
             <Tab
-              className="data-[selected]:bg-indigo-600 text-white rounded-xl p-4 data-[hover]:bg-indigo-400 data-[selected]:data-[hover]:bg-indigo-500 data-[focus]:outline-1 data-[focus]:outline-white  bg-slate-400"
+              className="data-[selected]:bg-primary text-white rounded-xl p-4 data-[hover]:bg-primary data-[selected]:data-[hover]:bg-primary data-[focus]:outline-1 data-[focus]:outline-white  bg-slate-400"
               onClick={() => {
                 router.push(pathname + "?" + createQueryString("status", "1"));
               }}
@@ -76,7 +76,7 @@ export default function Track({ books }: Props) {
               Read
             </Tab>
             <Tab
-              className="data-[selected]:bg-indigo-600 text-white rounded-xl p-4 data-[hover]:bg-indigo-400 data-[selected]:data-[hover]:bg-indigo-500 data-[focus]:outline-1 data-[focus]:outline-white  bg-slate-400"
+              className="data-[selected]:bg-primary text-white rounded-xl p-4 data-[hover]:bg-primary data-[selected]:data-[hover]:bg-primary data-[focus]:outline-1 data-[focus]:outline-white  bg-slate-400"
               onClick={() => {
                 router.push(pathname + "?" + createQueryString("status", "2"));
               }}
@@ -84,7 +84,7 @@ export default function Track({ books }: Props) {
               Want To Read
             </Tab>
             <Tab
-              className="data-[selected]:bg-indigo-600 text-white rounded-xl p-4 data-[hover]:bg-indigo-400 data-[selected]:data-[hover]:bg-indigo-500 data-[focus]:outline-1 data-[focus]:outline-white  bg-slate-400"
+              className="data-[selected]:bg-primary text-white rounded-xl p-4 data-[hover]:bg-primary data-[selected]:data-[hover]:bg-primary data-[focus]:outline-1 data-[focus]:outline-white  bg-slate-400"
               onClick={() => {
                 router.push(pathname + "?" + createQueryString("status", "3"));
               }}
@@ -128,6 +128,16 @@ export default function Track({ books }: Props) {
                 styles={""}
                 tooltipText={viewOptions[2]}
                 active={selectedView === viewOptions[2]}
+              />
+
+              <IconButton
+                icon={<CardIcon />}
+                handleClick={() => {
+                  switchView(viewOptions[3]);
+                }}
+                styles={""}
+                tooltipText={viewOptions[3]}
+                active={selectedView === viewOptions[3]}
               />
             </div>
           </div>

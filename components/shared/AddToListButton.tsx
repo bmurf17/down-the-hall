@@ -9,6 +9,8 @@ import clsx from "clsx";
 import { ChevronDownIcon } from "../icons/ChevronDownIcon";
 import { Status } from "@/types/statusEnum";
 import { addBookToList } from "@/functions/addBook";
+import { useState, useEffect } from "react";
+import { currentUser, User } from "@clerk/nextjs/server";
 
 interface Props {
   title: string;
@@ -66,13 +68,14 @@ export function AddToListButton({
           series_length,
           series_name,
           hardcover_id,
-          page_number
+          page_number,
+          "_2ltL1a7tYquxdTIT2OTazKaJ5Al"
         );
       }}
     >
       <ListboxButton
         className={clsx(
-          "bg-indigo-600 flex items-center justify-center p-4 rounded-lg  text-sm/6 gap-2 text-white",
+          "bg-primary flex items-center justify-center p-4 rounded-lg  text-sm/6 gap-2 text-white",
           "focus:outline-none data-[focus]:outline-2 data-[focus]:-outline-offset-2 data-[focus]:outline-white/25"
         )}
       >
@@ -86,7 +89,7 @@ export function AddToListButton({
         anchor="bottom"
         transition
         className={clsx(
-          "w-[var(--button-width)] rounded-xl border border-white/5  p-1 [--anchor-gap:var(--spacing-1)] focus:outline-none bg-indigo-400 mt-2",
+          "w-[var(--button-width)] rounded-xl border border-white/5  p-1 [--anchor-gap:var(--spacing-1)] focus:outline-none bg-primary mt-2",
           "transition duration-100 ease-in data-[leave]:data-[closed]:opacity-0"
         )}
       >

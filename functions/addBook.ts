@@ -1,7 +1,10 @@
+"use server";
+
 import { addBook } from "@/actions/bookActions";
 import { Status } from "@/types/statusEnum";
+import { currentUser } from "@clerk/nextjs/server";
 
-export const addBookToList = (
+export const addBookToList = async (
   title: string,
   author: string,
   authorImg: string,
@@ -14,8 +17,13 @@ export const addBookToList = (
   series_length: number,
   series_name: string,
   hardcover_id: number,
-  page_count: number
+  page_count: number,
+  userId: string
 ) => {
+  const userRightNow = await currentUser();
+
+  console.log("User we upload: " + userRightNow?.id);
+
   addBook(
     title,
     author,
@@ -30,6 +38,7 @@ export const addBookToList = (
     series_name,
     hardcover_id,
     page_count,
+    userRightNow?.id || "",
     status == Status.Finished ? new Date() : undefined
   );
 };

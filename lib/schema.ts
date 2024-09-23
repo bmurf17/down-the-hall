@@ -8,15 +8,6 @@ import {
   timestamp,
 } from "drizzle-orm/pg-core";
 
-export const user = pgTable("user_site", {
-  id: serial("id").primaryKey().notNull(),
-  name: text("name").notNull(),
-});
-
-export const userRelations = relations(user, ({ many }) => ({
-  logs: many(userActivityLog),
-}));
-
 export const author = pgTable("author", {
   id: serial("id").primaryKey().notNull(),
   name: text("name").notNull(),
@@ -29,6 +20,7 @@ export const authorRelations = relations(author, ({ many }) => ({
 
 export const book = pgTable("book", {
   id: serial("id").primaryKey().notNull(),
+  userId: text("user_id"),
   title: text("title").notNull(),
   authorId: integer("author_id").references(() => author.id),
   image: text("image"),
@@ -52,29 +44,26 @@ export const bookRelations = relations(book, ({ one, many }) => ({
     references: [author.id],
   }),
   logs: many(userActivityLog),
+  notes: many(bookNote),
 }));
 
 export const userActivityLog = pgTable("user_activity_log", {
   id: serial("id").primaryKey().notNull(),
-  userId: integer("user_id").references(() => user.id),
+  userId: text("user_id"),
   bookId: integer("book_id").references(() => book.id),
   updatedDate: timestamp("updated_date"),
   action: text("action"),
 });
 
-export const userActivityLogRelations = relations(
-  userActivityLog,
-  ({ one }) => ({
-    book: one(book, {
-      fields: [userActivityLog.bookId],
-      references: [book.id],
-    }),
-    user: one(user, {
-      fields: [userActivityLog.userId],
-      references: [user.id],
-    }),
-  })
-);
+export const bookNote = pgTable("book_note", {
+  id: serial("id").primaryKey().notNull(),
+  userId: text("user_id"),
+  bookId: integer("book_id").references(() => book.id),
+  updatedDate: timestamp("updated_date"),
+  note: text("note"),
+  pageNumber: integer("page_number"),
+  series: text("series"),
+});
 
 export type SelectBook = typeof book.$inferSelect;
 export type InsertBook = typeof book.$inferInsert;
@@ -82,3 +71,5 @@ export type SelectAuthor = typeof author.$inferSelect;
 export type InsertAuthor = typeof author.$inferInsert;
 export type SelectUserActivityLog = typeof userActivityLog.$inferSelect;
 export type InsertUserActivityLog = typeof userActivityLog.$inferInsert;
+export type SelectBookNote = typeof bookNote.$inferSelect;
+export type InsertBookNote = typeof bookNote.$inferInsert;

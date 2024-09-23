@@ -1,6 +1,6 @@
 import { SVGProps } from "react";
 
-export function BookmarkIcon(
+export function BarChartIcon(
   props: JSX.IntrinsicAttributes & SVGProps<SVGSVGElement>
 ) {
   return (
@@ -16,7 +16,9 @@ export function BookmarkIcon(
       strokeLinecap="round"
       strokeLinejoin="round"
     >
-      <path d="M5 3v18l7-5 7 5V3z" />
+      <path d="M4 20h4V12H4v8z" />
+      <path d="M10 20h4V8h-4v12z" />
+      <path d="M16 20h4V4h-4v16z" />
     </svg>
   );
 }

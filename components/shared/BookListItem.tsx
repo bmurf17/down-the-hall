@@ -20,7 +20,8 @@ interface Props {
     series_length: number,
     series_name: string,
     hardcover_id: number,
-    page_number: number
+    page_number: number,
+    userId: string
   ) => void;
 }
 
@@ -42,8 +43,8 @@ export default function BookListItem({ book, addBookToList }: Props) {
       key={book.book?.title || ""}
     >
       <Link href={`book/${book.book?.hardcoverId}`}>
-        <div className="flex gap-2">
-          <div>
+        <div className="flex flex-col md:flex-row gap-2 align-middle">
+          <div className="flex justify-center">
             <img
               className="relative overflow-hidden group transition-all border border-gray-100/20 ring-accent hover:ring-1 hover:border-accent rounded-l-sm rounded-r-md shadow-md block"
               src={
@@ -56,23 +57,25 @@ export default function BookListItem({ book, addBookToList }: Props) {
             />
           </div>
           <div className="flex flex-col gap-2">
-            <div className="font-serif text-purple-600 dark:text-yellow-50 underline-offset-4 text-lg no-underline hover:underline decoration-gray-300 dark:decoration-gray-500">
+            <div className=" text-black underline-offset-4 text-xl md:text-3xl font-bold  no-underline hover:underline decoration-gray-300 dark:decoration-gray-500">
               {book.book?.title}
             </div>
 
-            <div className="text-md">By: {book.author?.name}</div>
+            <div className="text-md md:text-lg font-semibold text-text">
+              By: {book.author?.name}
+            </div>
 
-            <div className="text-gray-600 dark:text-gray-400 text-sm font-semibold flex gap-2">
+            <div className="text-text text-sm md:text-base font-semibold flex gap-2">
               {book.book?.genres?.slice(0, 3).join(", ")}
             </div>
 
             {book.book?.seriesName ? (
-              <div className="text-gray-600 dark:text-gray-400 text-sm font-semibold">
+              <div className="text-text text-sm md:text-base font-semibold">
                 Series Name: {book.book?.seriesName}
               </div>
             ) : null}
 
-            <div className="text-gray-600 dark:text-gray-400 text-sm font-semibold">
+            <div className="text-text text-sm font-semibold">
               Page Count: {book.book?.pageCount}
             </div>
           </div>
@@ -99,7 +102,7 @@ export default function BookListItem({ book, addBookToList }: Props) {
         {book.book?.status !== null ? (
           <button
             className={clsx(
-              "bg-indigo-600 flex items-center justify-center p-4 rounded-lg  text-left text-sm/6 text-white",
+              "bg-primary flex items-center justify-center p-4 rounded-lg  text-left text-sm/6 text-white",
               "focus:outline-none data-[focus]:outline-2 data-[focus]:-outline-offset-2 data-[focus]:outline-white/25"
             )}
             onClick={() => {
