@@ -161,6 +161,9 @@ const insertQuery = async (
 };
 
 export const deleteBook = async (id: number) => {
+  await db.delete(userActivityLog).where(eq(userActivityLog.bookId, id));
+
+  // Delete the book
   await db.delete(book).where(eq(book.id, id));
 
   revalidateTag("books");
@@ -180,6 +183,8 @@ export const editBook = async (
   hardcover_id: number,
   page_count: number
 ) => {
+  console.log("HERE?");
+
   await db
     .update(book)
     .set({
