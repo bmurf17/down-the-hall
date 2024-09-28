@@ -4,7 +4,7 @@ import { revalidatePath, revalidateTag } from "next/cache";
 
 import { Pool } from "@neondatabase/serverless";
 import db from "../lib/db";
-import { author, book, userActivityLog } from "../lib/schema";
+import { author, book, bookNote, userActivityLog } from "../lib/schema";
 import { PoolClient } from "pg";
 import { logStatusString } from "@/types/statusEnum";
 
@@ -161,6 +161,8 @@ const insertQuery = async (
 };
 
 export const deleteBook = async (id: number) => {
+  await db.delete(bookNote).where(eq(bookNote.bookId, id));
+
   await db.delete(userActivityLog).where(eq(userActivityLog.bookId, id));
 
   // Delete the book
