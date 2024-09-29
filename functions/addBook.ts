@@ -17,12 +17,9 @@ export const addBookToList = async (
   series_length: number,
   series_name: string,
   hardcover_id: number,
-  page_count: number,
-  userId: string
+  page_count: number
 ) => {
   const userRightNow = await currentUser();
-
-  console.log("User we upload: " + userRightNow?.id);
 
   addBook(
     title,

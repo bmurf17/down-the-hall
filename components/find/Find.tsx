@@ -87,11 +87,7 @@ export default function Find({ books }: Props) {
                 <>
                   {books.map((book, i) => {
                     return (
-                      <BookListItem
-                        book={book}
-                        addBookToList={addBookToList}
-                        key={book.book?.hardcoverId}
-                      />
+                      <BookListItem book={book} key={book.book?.hardcoverId} />
                     );
                   })}
                 </>

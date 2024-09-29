@@ -7,25 +7,9 @@ import { deleteBook } from "@/actions/bookActions";
 
 interface Props {
   book: Book;
-  addBookToList: (
-    title: string,
-    author: string,
-    authorImg: string,
-    status: number,
-    image: string,
-    release_year: string,
-    default_physical_edition_id: number,
-    description: string,
-    series_position: number,
-    series_length: number,
-    series_name: string,
-    hardcover_id: number,
-    page_number: number,
-    userId: string
-  ) => void;
 }
 
-export default function BookListItem({ book, addBookToList }: Props) {
+export default function BookListItem({ book }: Props) {
   const number = Math.floor(Math.random() * 7) + 1;
   const addbuttonText = () => {
     var status = book.book?.status;
@@ -98,6 +82,7 @@ export default function BookListItem({ book, addBookToList }: Props) {
           series_position={book.book?.seriesPosition || 0}
           buttonText={addbuttonText()}
           page_number={book.book?.pageCount || 0}
+          id={book.book?.id || 0}
         />
         {book.book?.status !== null ? (
           <button

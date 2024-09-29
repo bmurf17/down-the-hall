@@ -40,7 +40,7 @@ export const processTrendingBookDetails = async (
   );
 
   const book: SelectBook = {
-    id: trendingBookDetails.id,
+    id: 0,
     title: trendingBookDetails.dto_combined.title,
     authorId:
       trendingBookDetails.dto_combined.contributions?.length > 0

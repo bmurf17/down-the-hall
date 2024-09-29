@@ -171,29 +171,21 @@ export const deleteBook = async (id: number) => {
   revalidateTag("books");
 };
 
-export const editBook = async (
-  id: number,
-  title: string,
-  status: number,
-  image: string,
-  release_year: string,
-  default_physical_edition_id: number,
-  description: string,
-  series_position: number,
-  series_length: number,
-  series_name: string,
-  hardcover_id: number,
-  page_count: number
-) => {
-  console.log("HERE?");
-
-  await db
-    .update(book)
-    .set({
-      title: title,
-      status: status,
-    })
-    .where(eq(book.id, id));
-
-  revalidateTag("books");
+export const editBook = async (id: number, title: string, status: number) => {
+  try {
+    console.log("Editing book:", id, title, status);
+    await db
+      .update(book)
+      .set({
+        title: title,
+        status: status,
+      })
+      .where(eq(book.id, id));
+    console.log("Book updated successfully");
+    revalidateTag("books");
+    console.log("Revalidation tag called");
+  } catch (error) {
+    console.error("Error editing book:", error);
+    throw error;
+  }
 };

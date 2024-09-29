@@ -98,6 +98,7 @@ export default function BookDetails({ bookInfo }: Props) {
                           series_position={bookInfo.book?.seriesPosition || 0}
                           buttonText={addbuttonText()}
                           page_number={bookInfo.book?.pageCount || 0}
+                          id={bookInfo.book?.id || 0}
                         />
                       </div>
                       <div>

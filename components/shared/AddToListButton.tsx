@@ -1,4 +1,3 @@
-import { addBook } from "@/actions/bookActions";
 import {
   Listbox,
   ListboxButton,
@@ -11,6 +10,8 @@ import { Status } from "@/types/statusEnum";
 import { addBookToList } from "@/functions/addBook";
 import { useState, useEffect } from "react";
 import { currentUser, User } from "@clerk/nextjs/server";
+import { editBookToList } from "@/functions/editBook";
+import { useRouter } from "next/navigation";
 
 interface Props {
   title: string;
@@ -25,6 +26,7 @@ interface Props {
   hardcover_id: number;
   page_number: number;
   buttonText: string;
+  id: number;
 }
 
 export function AddToListButton({
@@ -40,7 +42,10 @@ export function AddToListButton({
   hardcover_id,
   buttonText,
   page_number,
+  id,
 }: Props) {
+  const router = useRouter();
+
   const readingStatusString: string[] = ["Reading", "Read", "TBR", "DNF"];
 
   const listOptions = Object.keys(Status)
@@ -55,22 +60,26 @@ export function AddToListButton({
     <Listbox
       value={{ id: 0, displayString: "temp" }}
       onChange={(e) => {
-        addBookToList(
-          title,
-          author,
-          "",
-          e.id,
-          image,
-          release_year,
-          default_physical_edition_id,
-          description,
-          series_position,
-          series_length,
-          series_name,
-          hardcover_id,
-          page_number,
-          "_2ltL1a7tYquxdTIT2OTazKaJ5Al"
-        );
+        if (id) {
+          editBookToList(id, title, e.id);
+          router.refresh();
+        } else {
+          addBookToList(
+            title,
+            author,
+            "",
+            e.id,
+            image,
+            release_year,
+            default_physical_edition_id,
+            description,
+            series_position,
+            series_length,
+            series_name,
+            hardcover_id,
+            page_number
+          );
+        }
       }}
     >
       <ListboxButton
