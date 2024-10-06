@@ -28,7 +28,7 @@ export default function NavBar() {
     <>
       <header className="w-full  z-10">
         <div className="bg-navbar text-white px-16 py-4 mb-4 flex gap-4 justify-between">
-          <div className="flex gap-4 hover:cursor-pointer">
+          <div className="flex gap-4 hover:cursor-pointer items-center">
             <div
               onClick={() => {
                 setMenuOpen(true);
