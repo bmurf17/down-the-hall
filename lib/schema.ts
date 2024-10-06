@@ -1,6 +1,7 @@
 import { relations } from "drizzle-orm";
 import {
   date,
+  decimal,
   integer,
   pgTable,
   serial,
@@ -28,7 +29,7 @@ export const book = pgTable("book", {
   releaseYear: integer("release_year"),
   defaultPhysicalEditionId: integer("default_physical_edition_id"),
   description: text("description"),
-  seriesPosition: integer("series_position"),
+  seriesPosition: decimal("series_position"),
   seriesLength: integer("series_length"),
   seriesName: text("series_name"),
   pageCount: integer("page_count"),
