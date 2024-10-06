@@ -11,8 +11,6 @@ export const addBookNote = async (
 ) => {
   const userRightNow = await currentUser();
 
-  console.log("User we upload: " + userRightNow?.id);
-
   noteToAdd.userId = userRightNow?.id;
 
   addNote(noteToAdd);

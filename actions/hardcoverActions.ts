@@ -119,8 +119,6 @@ export const getBooks = async (title: string) => {
       return null;
     }
 
-    console.log(ids);
-
     // Fetch book details
     const booksResponse = await client.query({
       query: BOOKS_BY_IDS_QUERY(ids),

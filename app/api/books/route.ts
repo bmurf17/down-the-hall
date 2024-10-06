@@ -7,8 +7,6 @@ export async function GET(request: NextRequest) {
   const status = request.nextUrl.searchParams.get("status");
   const userId = request.nextUrl.searchParams.get("user");
 
-  console.log(userId);
-
   if (status && status?.length > 0 && !Number.isNaN(+status)) {
     const data = await db
       .select()

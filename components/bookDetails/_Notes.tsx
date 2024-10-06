@@ -53,8 +53,6 @@ export default function Notes({ bookId }: Props) {
   const handleAddNote = async () => {
     if (newNote.trim() === "") return;
 
-    console.log("HERE");
-
     const noteToAdd: Omit<InsertBookNote, "id" | "updatedDate"> = {
       userId: "user1", // Replace with actual user ID
       bookId: bookId, // Replace with actual book ID

@@ -10,6 +10,7 @@ import {
   UserButton,
 } from "@clerk/nextjs";
 import Template from "./template";
+import { Toaster } from "@/components/ui/toaster";
 
 const inter = Inter({ subsets: ["latin"] });
 
@@ -31,6 +32,8 @@ export default function RootLayout({
             <NavBar />
 
             <Template>{children}</Template>
+
+            <Toaster />
           </div>
         </body>
       </html>

@@ -1,3 +1,5 @@
+"use client";
+
 import {
   Listbox,
   ListboxButton,
@@ -12,6 +14,7 @@ import { useState, useEffect } from "react";
 import { currentUser, User } from "@clerk/nextjs/server";
 import { editBookToList } from "@/functions/editBook";
 import { useRouter } from "next/navigation";
+import { useToast } from "@/hooks/use-toast";
 
 interface Props {
   title: string;
@@ -45,6 +48,7 @@ export function AddToListButton({
   id,
 }: Props) {
   const router = useRouter();
+  const { toast } = useToast();
 
   const readingStatusString: string[] = ["Reading", "Read", "TBR", "DNF"];
 
@@ -79,6 +83,12 @@ export function AddToListButton({
             hardcover_id,
             page_number
           );
+          console.log("Added");
+
+          toast({
+            title: "Successfully Added Book",
+            description: `${title} was added to`,
+          });
         }
       }}
     >

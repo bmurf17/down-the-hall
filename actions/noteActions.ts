@@ -3,8 +3,6 @@ import { bookNote, InsertBookNote } from "@/lib/schema";
 import { currentUser } from "@clerk/nextjs/server";
 
 export const addNote = async (book: InsertBookNote) => {
-  console.log("HERE action");
-
   await db.insert(bookNote).values({
     bookId: 91,
     note: book.note,

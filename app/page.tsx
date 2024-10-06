@@ -18,8 +18,6 @@ async function getUserActivityLogData() {
 
   const userRightNow = await currentUser();
 
-  // console.log(userRightNow?.id);
-
   const res = await fetch(
     `${baseUrl}/api/useractivitylog?userId=${userRightNow?.id || 0}`,
     {

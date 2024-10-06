@@ -20,8 +20,6 @@ async function getBookData(status?: string) {
     throw new Error("Failed to fetch data");
   }
 
-  console.log("revalidate");
-
   return res.json();
 }
 

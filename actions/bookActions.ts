@@ -173,7 +173,6 @@ export const deleteBook = async (id: number) => {
 
 export const editBook = async (id: number, title: string, status: number) => {
   try {
-    console.log("Editing book:", id, title, status);
     await db
       .update(book)
       .set({
@@ -181,9 +180,7 @@ export const editBook = async (id: number, title: string, status: number) => {
         status: status,
       })
       .where(eq(book.id, id));
-    console.log("Book updated successfully");
     revalidateTag("books");
-    console.log("Revalidation tag called");
   } catch (error) {
     console.error("Error editing book:", error);
     throw error;
