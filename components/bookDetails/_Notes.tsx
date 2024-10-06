@@ -1,13 +1,13 @@
 "use client";
 
-import { useState, useEffect } from "react";
-import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
-import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
-import { Textarea } from "../ui/textarea";
-import { InsertBookNote, SelectBookNote } from "@/lib/schema";
-import { addNote } from "@/actions/noteActions";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Input } from "@/components/ui/input";
 import { addBookNote } from "@/functions/addBookNote";
+import { InsertBookNote, SelectBookNote } from "@/lib/schema";
+import clsx from "clsx";
+import { useEffect, useState } from "react";
+import { Textarea } from "../ui/textarea";
 
 const fetchNotes = async (): Promise<SelectBookNote[]> => {
   // Simulating API call
@@ -41,7 +41,6 @@ export default function Notes({ bookId }: Props) {
   const [notes, setNotes] = useState<SelectBookNote[]>([]);
   const [newNote, setNewNote] = useState("");
   const [pageNumber, setPageNumber] = useState<number | null>(null);
-
   useEffect(() => {
     const loadNotes = async () => {
       const fetchedNotes = await fetchNotes();
@@ -55,7 +54,7 @@ export default function Notes({ bookId }: Props) {
 
     const noteToAdd: Omit<InsertBookNote, "id" | "updatedDate"> = {
       userId: "user1", // Replace with actual user ID
-      bookId: bookId, // Replace with actual book ID
+      bookId: bookId,
       note: newNote,
       pageNumber: pageNumber,
       series: "Series A", // Replace with actual series or make it dynamic
@@ -83,7 +82,17 @@ export default function Notes({ bookId }: Props) {
             setPageNumber(e.target.value ? parseInt(e.target.value) : null)
           }
         />
-        <Button onClick={handleAddNote}>Add Note</Button>
+        <div className="flex justify-end">
+          <Button
+            className={clsx(
+              "bg-primary flex items-center justify-center p-4 rounded-lg  text-sm/6 gap-2 text-white",
+              "focus:outline-none data-[focus]:outline-2 data-[focus]:-outline-offset-2 data-[focus]:outline-white/25"
+            )}
+            onClick={handleAddNote}
+          >
+            Add Note
+          </Button>
+        </div>
       </div>
       <div className="space-y-4">
         {notes.map((note) => (

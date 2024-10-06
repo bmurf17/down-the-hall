@@ -83,7 +83,6 @@ export function AddToListButton({
             hardcover_id,
             page_number
           );
-          console.log("Added");
 
           toast({
             title: "Successfully Added Book",

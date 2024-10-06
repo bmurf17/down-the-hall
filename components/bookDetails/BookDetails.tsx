@@ -1,21 +1,19 @@
 "use client";
 
 import { Book } from "@/types/book";
-import { BookItem } from "@/types/googlebookresponse";
-import { HardcoverBook } from "@/types/hardcoverresponse";
 import { readingStatusString } from "@/types/statusEnum";
-import { AddToListButton } from "../shared/AddToListButton";
 import { Tab, TabGroup, TabList, TabPanel } from "@headlessui/react";
-import router from "next/router";
+import { AddToListButton } from "../shared/AddToListButton";
 import Notes from "./_Notes";
 
 interface Props {
-  bookInfo: Book;
+  hardCoverBookInfo: Book;
+  dbBookInfo?: Book;
 }
 
-export default function BookDetails({ bookInfo }: Props) {
+export default function BookDetails({ hardCoverBookInfo, dbBookInfo }: Props) {
   const addbuttonText = () => {
-    var status = bookInfo.book?.status;
+    var status = hardCoverBookInfo.book?.status;
 
     if (status === null) {
       return readingStatusString[4];
@@ -24,7 +22,19 @@ export default function BookDetails({ bookInfo }: Props) {
     return readingStatusString[status || 0];
   };
 
-  const tabs = ["Info", "Notes", "Characters", "Series"];
+  const tabItems = [
+    { value: "details", label: "Details" },
+    { value: "reviews", label: "Reviews" },
+    { value: "series", label: "Series" },
+    ...(dbBookInfo
+      ? [
+          { value: "notes", label: "Notes" },
+          { value: "characters", label: "Characters" },
+        ]
+      : []),
+  ];
+
+  console.log(dbBookInfo);
 
   return (
     <div style={{ minHeight: "calc(100vh - 101px)" }}>
@@ -50,8 +60,8 @@ export default function BookDetails({ bookInfo }: Props) {
                   <div className="hidden lg:block mr-4 flex-none">
                     <div className=" relative overflow-hidden group transition-all rounded-l-sm rounded-r-md border border-secondary ">
                       <img
-                        src={bookInfo?.book?.image || ""}
-                        alt={bookInfo?.book?.title}
+                        src={hardCoverBookInfo?.book?.image || ""}
+                        alt={hardCoverBookInfo?.book?.title}
                         width="180"
                         height="271"
                         loading="lazy"
@@ -63,7 +73,7 @@ export default function BookDetails({ bookInfo }: Props) {
                     <div>
                       <div className="mt-4">
                         <h1 className="font-serif text-gray-800 dark:text-gray-200 mb-1 text-3xl lg:text-5xl">
-                          {bookInfo?.book?.title}
+                          {hardCoverBookInfo?.book?.title}
                         </h1>
                         <div className="mt-2 lg:mt-0">
                           <div className="font-semibold text-sm hidden lg:flex">
@@ -72,7 +82,7 @@ export default function BookDetails({ bookInfo }: Props) {
 
                               <span className="flex-inline flex-row mr-1">
                                 <span className="ml-1">
-                                  {bookInfo.author?.name}
+                                  {hardCoverBookInfo.author?.name}
                                 </span>
                               </span>
                             </div>
@@ -84,21 +94,35 @@ export default function BookDetails({ bookInfo }: Props) {
                     <div className="flex flex-col col-span-4 lg:col-span-2">
                       <div className="hidden lg:block">
                         <AddToListButton
-                          title={bookInfo.book?.title || ""}
-                          author={bookInfo.author?.name || ""}
-                          image={bookInfo.book?.image || ``}
+                          title={hardCoverBookInfo.book?.title || ""}
+                          author={hardCoverBookInfo.author?.name || ""}
+                          image={hardCoverBookInfo.book?.image || ``}
                           default_physical_edition_id={
-                            bookInfo.book?.defaultPhysicalEditionId || 0
+                            hardCoverBookInfo.book?.defaultPhysicalEditionId ||
+                            0
                           }
-                          description={bookInfo.book?.description ?? ""}
-                          hardcover_id={bookInfo.book?.hardcoverId || 0}
-                          release_year={bookInfo.book?.releaseYear + ""}
-                          series_length={bookInfo.book?.seriesLength || 0}
-                          series_name={bookInfo.book?.seriesName || ""}
-                          series_position={bookInfo.book?.seriesPosition || 0}
+                          description={
+                            hardCoverBookInfo.book?.description ?? ""
+                          }
+                          hardcover_id={
+                            hardCoverBookInfo.book?.hardcoverId || 0
+                          }
+                          release_year={
+                            hardCoverBookInfo.book?.releaseYear + ""
+                          }
+                          series_length={
+                            hardCoverBookInfo.book?.seriesLength || 0
+                          }
+                          series_name={hardCoverBookInfo.book?.seriesName || ""}
+                          series_position={
+                            hardCoverBookInfo.book &&
+                            hardCoverBookInfo.book.seriesPosition !== null
+                              ? +hardCoverBookInfo.book.seriesPosition
+                              : 0
+                          }
                           buttonText={addbuttonText()}
-                          page_number={bookInfo.book?.pageCount || 0}
-                          id={bookInfo.book?.id || 0}
+                          page_number={hardCoverBookInfo.book?.pageCount || 0}
+                          id={hardCoverBookInfo.book?.id || 0}
                         />
                       </div>
                       <div>
@@ -120,23 +144,24 @@ export default function BookDetails({ bookInfo }: Props) {
       <div className="mx-auto px-2 py-8 lg:px-0 my-4 max-w-3xl lg:mt-80">
         <TabGroup>
           <TabList className="flex gap-4 w-full sm:mx-auto overflow-x-auto overflow-y-hidden no-scrollbar ">
-            {tabs.map((tab) => {
+            {tabItems.map((tab) => {
               return (
                 <Tab
-                  key={tab}
+                  key={tab.value}
                   className="data-[selected]:border-b-4 data-[selected]:border-primary data-[hover]:border-b-4  data-[hover]:border-primary  text-lg  text-primary  p-2  data-[focus]:outline-1 data-[focus]:outline-white  "
                 >
-                  {tab}
+                  {tab.label}
                 </Tab>
               );
             })}
           </TabList>
-          <TabPanel>{bookInfo.book?.description}</TabPanel>
+          <TabPanel>{hardCoverBookInfo.book?.description}</TabPanel>
+          <TabPanel> Reviews</TabPanel>
+          <TabPanel> Series</TabPanel>
           <TabPanel>
-            <Notes bookId={bookInfo.book?.id || 0} />
+            <Notes bookId={dbBookInfo?.book?.id || 0} />
           </TabPanel>
           <TabPanel> Characters</TabPanel>
-          <TabPanel> Series</TabPanel>
         </TabGroup>
       </div>
     </div>

@@ -4,7 +4,7 @@ import { currentUser } from "@clerk/nextjs/server";
 
 export const addNote = async (book: InsertBookNote) => {
   await db.insert(bookNote).values({
-    bookId: 91,
+    bookId: book.id,
     note: book.note,
     pageNumber: book.pageNumber,
     series: book.series,
