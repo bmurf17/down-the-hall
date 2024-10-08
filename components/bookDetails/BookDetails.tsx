@@ -8,7 +8,7 @@ import Notes from "./_Notes";
 
 interface Props {
   hardCoverBookInfo: Book;
-  dbBookInfo?: Book;
+  dbBookInfo: Book | null;
 }
 
 export default function BookDetails({ hardCoverBookInfo, dbBookInfo }: Props) {
@@ -33,8 +33,6 @@ export default function BookDetails({ hardCoverBookInfo, dbBookInfo }: Props) {
         ]
       : []),
   ];
-
-  console.log(dbBookInfo);
 
   return (
     <div style={{ minHeight: "calc(100vh - 101px)" }}>
@@ -159,7 +157,7 @@ export default function BookDetails({ hardCoverBookInfo, dbBookInfo }: Props) {
           <TabPanel> Reviews</TabPanel>
           <TabPanel> Series</TabPanel>
           <TabPanel>
-            <Notes bookId={dbBookInfo?.book?.id || 0} />
+            <Notes dbBookInfo={dbBookInfo} />
           </TabPanel>
           <TabPanel> Characters</TabPanel>
         </TabGroup>

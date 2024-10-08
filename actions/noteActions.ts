@@ -1,14 +1,20 @@
 import db from "@/lib/db";
 import { bookNote, InsertBookNote } from "@/lib/schema";
 import { currentUser } from "@clerk/nextjs/server";
+import { revalidateTag } from "next/cache";
 
-export const addNote = async (book: InsertBookNote) => {
+export const addNote = async (
+  booknote: InsertBookNote,
+  hardcover_id: number
+) => {
   await db.insert(bookNote).values({
-    bookId: book.id,
-    note: book.note,
-    pageNumber: book.pageNumber,
-    series: book.series,
+    bookId: booknote.bookId,
+    note: booknote.note,
+    pageNumber: booknote.pageNumber,
+    series: booknote.series,
     updatedDate: new Date(),
-    userId: book.userId,
+    userId: booknote.userId,
   });
+
+  revalidateTag(`userBook${hardcover_id}`);
 };

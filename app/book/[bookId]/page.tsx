@@ -4,16 +4,19 @@ import { processTrendingBookDetails } from "@/helpers/convertTrendingBookToBook"
 import { Book } from "@/types/book";
 import { currentUser } from "@clerk/nextjs/server";
 
-async function getBookData(bookId: string): Promise<Book> {
+async function getBookData(bookId: string): Promise<Book | null> {
   const baseUrl = process.env.NEXT_PUBLIC_API_URL || "http://localhost:3000";
   const userRightNow = await currentUser();
-  console.log(`${baseUrl}/api/books${userRightNow?.id}/${bookId}`);
   const res = await fetch(
     `${baseUrl}/api/books/${userRightNow?.id}/${bookId}`,
     {
       next: { tags: ["userBook" + bookId] },
     }
   );
+
+  if (res.status === 404) {
+    return null;
+  }
 
   if (!res.ok) {
     throw new Error("Failed to fetch data");

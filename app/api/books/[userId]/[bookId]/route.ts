@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 
-import { book, author } from "@/lib/schema"; // adjust this import based on your project structure
+import { book, author, bookNote } from "@/lib/schema"; // adjust this import based on your project structure
 import { eq, and } from "drizzle-orm";
 import db from "@/lib/db";
 
@@ -18,20 +18,29 @@ export async function GET(
   }
 
   try {
+    const bookData = await db
+      .select()
+      .from(book)
+      .where(eq(book.hardcoverId, parseInt(bookId)));
+
     const data = await db
       .select()
       .from(book)
       .innerJoin(author, eq(book.authorId, author.id))
-      .where(
-        and(eq(book.userId, userId), eq(book.hardcoverId, parseInt(bookId)))
-      )
-      .limit(1);
+      .leftJoin(bookNote, eq(book.id, bookNote.bookId))
+      .where(and(eq(book.userId, userId), eq(book.id, bookData[0].id)));
 
     if (data.length === 0) {
       return NextResponse.json({ error: "Book not found" }, { status: 404 });
     }
 
-    return NextResponse.json(data[0]);
+    const result = {
+      book: data[0].book,
+      author: data[0].author,
+      book_notes: data.map((entry) => entry.book_note).filter(Boolean),
+    };
+
+    return NextResponse.json(result);
   } catch (error) {
     console.error("Error fetching book:", error);
     return NextResponse.json(
