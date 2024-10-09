@@ -49,18 +49,15 @@ export async function GET(
 
     const data = result.rows[0];
 
-    console.log(data);
     const response = {
       book: {
         id: data.id,
         title: data.title,
         hardcover_id: data.hardcover_id,
-        // Include other book fields as needed
       },
       author: {
         id: data.author_id,
         name: data.author_name,
-        // Include other author fields as needed
       },
       book_notes: data.book_notes || [],
     };
