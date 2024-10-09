@@ -4,11 +4,12 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { addBookNote } from "@/functions/addBookNote";
-import { book, InsertBookNote, SelectBookNote } from "@/lib/schema";
-import clsx from "clsx";
-import { useEffect, useState } from "react";
-import { Textarea } from "../ui/textarea";
+import { InsertBookNote } from "@/lib/schema";
 import { Book } from "@/types/book";
+import clsx from "clsx";
+import { useRouter } from "next/navigation";
+import { useState } from "react";
+import { Textarea } from "../ui/textarea";
 
 interface Props {
   dbBookInfo: Book | null;
@@ -17,6 +18,8 @@ interface Props {
 export default function Notes({ dbBookInfo }: Props) {
   const [newNote, setNewNote] = useState("");
   const [pageNumber, setPageNumber] = useState<number | null>(null);
+
+  const router = useRouter();
 
   const handleAddNote = async () => {
     if (newNote.trim() === "") return;
@@ -32,6 +35,8 @@ export default function Notes({ dbBookInfo }: Props) {
 
     setNewNote("");
     setPageNumber(null);
+
+    router.refresh();
   };
   return (
     <>
