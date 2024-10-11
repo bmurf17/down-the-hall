@@ -15,6 +15,7 @@ const options = [
   { name: "Book Length" },
   { name: "Book Title" },
   { name: "Last Read" },
+  { name: "Author" },
 ];
 
 interface Props {
