@@ -21,6 +21,10 @@ interface Props {
   books: Book[];
 }
 
+function SanitizeOrderByParam(str: string): string {
+  return str.replace(/\s/g, "").toLocaleLowerCase();
+}
+
 export default function Track({ books }: Props) {
   const switchView = (toolName: string) =>
     setSelectedView(viewOptions.find((tool) => tool === toolName));
@@ -43,6 +47,14 @@ export default function Track({ books }: Props) {
     },
     [searchParams]
   );
+
+  const setFilterSelction = (e: { name: string }) => {
+    router.push(
+      pathname + "?" + createQueryString("order", SanitizeOrderByParam(e.name))
+    );
+
+    setSelected(e);
+  };
 
   return (
     <div>
@@ -96,7 +108,7 @@ export default function Track({ books }: Props) {
               <FilterTrack
                 options={options}
                 selected={selected}
-                setSelected={setSelected}
+                setSelected={setFilterSelction}
               />
             </div>
             <div className="flex gap-4">
