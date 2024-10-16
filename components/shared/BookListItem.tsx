@@ -4,12 +4,15 @@ import { AddToListButton } from "./AddToListButton";
 import { readingStatusString } from "@/types/statusEnum";
 import clsx from "clsx";
 import { deleteBook } from "@/actions/bookActions";
+import { useToast } from "@/hooks/use-toast";
 
 interface Props {
   book: Book;
 }
 
 export default function BookListItem({ book }: Props) {
+  const { toast } = useToast();
+
   const number = Math.floor(Math.random() * 7) + 1;
   const addbuttonText = () => {
     var status = book.book?.status;
@@ -79,7 +82,7 @@ export default function BookListItem({ book }: Props) {
           release_year={book.book?.releaseYear + ""}
           series_length={book.book?.seriesLength || 0}
           series_name={book.book?.seriesName || ""}
-          series_position={book.book?.seriesPosition || 0}
+          series_position={book.book?.seriesPosition || ""}
           buttonText={addbuttonText()}
           page_number={book.book?.pageCount || 0}
           id={book.book?.id || 0}
@@ -92,6 +95,11 @@ export default function BookListItem({ book }: Props) {
             )}
             onClick={() => {
               deleteBook(book.book?.id ?? 0);
+
+              toast({
+                title: "Successfully Deleted Book",
+                description: `${book.book?.title} was added`,
+              });
             }}
           >
             Delete

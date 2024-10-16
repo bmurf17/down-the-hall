@@ -13,7 +13,7 @@ export const addBookToList = async (
   release_year: string,
   default_physical_edition_id: number,
   description: string,
-  series_position: number,
+  series_position: string,
   series_length: number,
   series_name: string,
   hardcover_id: number,

@@ -1,20 +1,18 @@
 "use client";
 
+import { addBookToList } from "@/functions/addBook";
+import { editBookToList } from "@/functions/editBook";
+import { useToast } from "@/hooks/use-toast";
+import { Status } from "@/types/statusEnum";
 import {
   Listbox,
   ListboxButton,
-  ListboxOptions,
   ListboxOption,
+  ListboxOptions,
 } from "@headlessui/react";
 import clsx from "clsx";
-import { ChevronDownIcon } from "../icons/ChevronDownIcon";
-import { Status } from "@/types/statusEnum";
-import { addBookToList } from "@/functions/addBook";
-import { useState, useEffect } from "react";
-import { currentUser, User } from "@clerk/nextjs/server";
-import { editBookToList } from "@/functions/editBook";
 import { useRouter } from "next/navigation";
-import { useToast } from "@/hooks/use-toast";
+import { ChevronDownIcon } from "../icons/ChevronDownIcon";
 
 interface Props {
   title: string;
@@ -23,7 +21,7 @@ interface Props {
   release_year: string;
   default_physical_edition_id: number;
   description: string;
-  series_position: number;
+  series_position: string;
   series_length: number;
   series_name: string;
   hardcover_id: number;
@@ -86,7 +84,7 @@ export function AddToListButton({
 
           toast({
             title: "Successfully Added Book",
-            description: `${title} was added to`,
+            description: `${title} was added`,
           });
         }
       }}
