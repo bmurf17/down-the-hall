@@ -99,6 +99,13 @@
       "when": 1728237592443,
       "tag": "0013_series_decimal_position",
       "breakpoints": true
+    },
+    {
+      "idx": 14,
+      "version": "6",
+      "when": 1729352898680,
+      "tag": "0014_book_rating",
+      "breakpoints": true
     }
   ]
 }

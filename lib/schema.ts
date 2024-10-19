@@ -37,6 +37,7 @@ export const book = pgTable("book", {
   hardcoverId: integer("hardcover_id"),
   dateRead: date("date_read"),
   updatedDate: date("date_updated"),
+  rating: decimal("rating"),
 });
 
 export const bookRelations = relations(book, ({ one, many }) => ({
