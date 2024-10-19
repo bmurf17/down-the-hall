@@ -1,6 +1,8 @@
 import Track from "@/components/track/Track";
 import { Book } from "@/types/book";
 import { currentUser } from "@clerk/nextjs/server";
+import { Suspense } from "react";
+import Loading from "../loading";
 
 interface Props {
   searchParams?: { status?: string; order?: string };
@@ -28,13 +30,18 @@ export default async function TrackPage({ searchParams }: Props) {
     return null;
   }
 
-  const books: Book[] = await getBookData(
-    searchParams?.status,
-    searchParams?.order
-  );
+  const booksPromise = getBookData(searchParams?.status, searchParams?.order);
+
   return (
     <div className="mx-16">
-      <Track books={books} />
+      <Suspense fallback={<Loading />}>
+        <AsyncTrack booksPromise={booksPromise} />
+      </Suspense>
     </div>
   );
+}
+
+async function AsyncTrack({ booksPromise }: { booksPromise: Promise<Book[]> }) {
+  const books = await booksPromise;
+  return <Track books={books} />;
 }
