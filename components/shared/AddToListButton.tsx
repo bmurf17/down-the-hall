@@ -28,6 +28,7 @@ interface Props {
   page_number: number;
   buttonText: string;
   id: number;
+  rating: string;
 }
 
 export function AddToListButton({
@@ -44,6 +45,7 @@ export function AddToListButton({
   buttonText,
   page_number,
   id,
+  rating,
 }: Props) {
   const router = useRouter();
   const { toast } = useToast();
@@ -63,7 +65,7 @@ export function AddToListButton({
       value={{ id: 0, displayString: "temp" }}
       onChange={(e) => {
         if (id) {
-          editBookToList(id, title, e.id);
+          editBookToList(id, title, e.id, rating);
           router.refresh();
         } else {
           addBookToList(

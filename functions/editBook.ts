@@ -1,13 +1,12 @@
 "use server";
 
-import { addBook, editBook } from "@/actions/bookActions";
-import { Status } from "@/types/statusEnum";
-import { currentUser } from "@clerk/nextjs/server";
+import { editBook } from "@/actions/bookActions";
 
 export const editBookToList = async (
   id: number,
   title: string,
-  status: number
+  status: number,
+  ranking: string
 ) => {
-  editBook(id, title, status);
+  editBook(id, title, status, ranking);
 };

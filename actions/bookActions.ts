@@ -171,13 +171,20 @@ export const deleteBook = async (id: number) => {
   revalidateTag("books");
 };
 
-export const editBook = async (id: number, title: string, status: number) => {
+export const editBook = async (
+  id: number,
+  title: string,
+  status: number,
+  rating: string
+) => {
+  console.log(rating);
   try {
     await db
       .update(book)
       .set({
         title: title,
         status: status,
+        rating: rating,
       })
       .where(eq(book.id, id));
     revalidateTag("books");

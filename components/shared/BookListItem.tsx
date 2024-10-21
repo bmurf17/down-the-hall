@@ -1,10 +1,13 @@
-import { Book } from "@/types/book";
-import Link from "next/link";
-import { AddToListButton } from "./AddToListButton";
-import { readingStatusString } from "@/types/statusEnum";
-import clsx from "clsx";
 import { deleteBook } from "@/actions/bookActions";
 import { useToast } from "@/hooks/use-toast";
+import { Book } from "@/types/book";
+import { readingStatusString } from "@/types/statusEnum";
+import clsx from "clsx";
+import Link from "next/link";
+import { useState } from "react";
+import { AddToListButton } from "./AddToListButton";
+import StarRating from "./StarRating";
+import { SelectBook } from "@/lib/schema";
 
 interface Props {
   book: Book;
@@ -12,6 +15,7 @@ interface Props {
 
 export default function BookListItem({ book }: Props) {
   const { toast } = useToast();
+  const [rating, setRating] = useState(book.book?.rating);
 
   const number = Math.floor(Math.random() * 7) + 1;
   const addbuttonText = () => {
@@ -68,7 +72,14 @@ export default function BookListItem({ book }: Props) {
           </div>
         </div>
       </Link>
+
       <div className="flex self-end gap-2">
+        <div className="flex justify-center">
+          {book.book && book.book.status !== null ? (
+            <StarRating book={book.book as SelectBook} />
+          ) : null}
+        </div>
+
         <AddToListButton
           title={book.book?.title || ""}
           author={book.author?.name || ""}
@@ -86,6 +97,7 @@ export default function BookListItem({ book }: Props) {
           buttonText={addbuttonText()}
           page_number={book.book?.pageCount || 0}
           id={book.book?.id || 0}
+          rating={book.book?.rating || "0"}
         />
         {book.book?.status !== null ? (
           <button
