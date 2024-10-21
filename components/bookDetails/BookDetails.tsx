@@ -115,12 +115,13 @@ export default function BookDetails({ hardCoverBookInfo, dbBookInfo }: Props) {
                           series_position={
                             hardCoverBookInfo.book &&
                             hardCoverBookInfo.book.seriesPosition !== null
-                              ? +hardCoverBookInfo.book.seriesPosition
-                              : 0
+                              ? hardCoverBookInfo.book.seriesPosition
+                              : ""
                           }
                           buttonText={addbuttonText()}
                           page_number={hardCoverBookInfo.book?.pageCount || 0}
                           id={hardCoverBookInfo.book?.id || 0}
+                          rating={"0"}
                         />
                       </div>
                       <div>

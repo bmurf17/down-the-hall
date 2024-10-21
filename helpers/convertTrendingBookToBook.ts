@@ -53,7 +53,8 @@ export const processTrendingBookDetails = async (
     description: trendingBookDetails.dto_combined.description,
     seriesPosition:
       trendingBookDetails.dto_combined.series?.length > 0
-        ? trendingBookDetails.dto_combined.series[0]?.position || null
+        ? trendingBookDetails.dto_combined.series[0]?.position.toString() ||
+          null
         : null,
     seriesLength: trendingBookDetails.dto_combined.series?.length
       ? trendingBookDetails.dto_combined.series.length || null
@@ -65,6 +66,7 @@ export const processTrendingBookDetails = async (
     dateRead: Date.now().toString(),
     updatedDate: Date.now().toString(),
     userId: "",
+    rating: "0",
   };
 
   const author: SelectAuthor = {
@@ -82,6 +84,7 @@ export const processTrendingBookDetails = async (
   const returnBook: Book = {
     author: author,
     book: book,
+    book_notes: null,
   };
 
   return returnBook;

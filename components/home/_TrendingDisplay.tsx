@@ -10,13 +10,7 @@ export default function TrendingDisplay({ books }: Props) {
   return (
     <div className="flex flex-col gap-4">
       {books.map((book) => {
-        return (
-          <BookListItem
-            book={book}
-            addBookToList={addBookToList}
-            key={book.book?.hardcoverId}
-          />
-        );
+        return <BookListItem book={book} key={book.book?.hardcoverId} />;
       })}
     </div>
   );
