@@ -28,7 +28,7 @@ export default function NavBar() {
     <>
       <header className="w-full  z-10">
         <div className="bg-navbar text-white px-16 py-4 mb-4 flex gap-4 justify-between">
-          <div className="flex gap-4 hover:cursor-pointer">
+          <div className="flex gap-4 hover:cursor-pointer items-center">
             <div
               onClick={() => {
                 setMenuOpen(true);
@@ -100,18 +100,16 @@ export default function NavBar() {
                     <SearchIcon className="h-5 w-5" />
                     Find
                   </button>
-                  <div>
-                    <button
-                      type="button"
-                      className="flex items-center gap-3 rounded-md px-3 py-2 text-sm font-medium text-gray-500 transition-colors hover:bg-gray-100 hover:text-gray-900"
-                      onClick={() => {
-                        navigateTo("/track");
-                      }}
-                    >
-                      <BookmarkIcon className="h-5 w-5" />
-                      <div>Track</div>
-                    </button>
-                  </div>
+                  <button
+                    type="button"
+                    className="flex items-center gap-3 rounded-md px-3 py-2 text-sm font-medium text-gray-500 transition-colors hover:bg-gray-100 hover:text-gray-900"
+                    onClick={() => {
+                      navigateTo("/track");
+                    }}
+                  >
+                    <BookmarkIcon className="h-5 w-5" />
+                    <div>Track</div>
+                  </button>
                   <button
                     type="button"
                     className="flex items-center gap-3 rounded-md px-3 py-2 text-sm font-medium text-gray-500 transition-colors hover:bg-gray-100 hover:text-gray-900"

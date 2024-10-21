@@ -4,7 +4,7 @@ import { revalidatePath, revalidateTag } from "next/cache";
 
 import { Pool } from "@neondatabase/serverless";
 import db from "../lib/db";
-import { author, book, userActivityLog } from "../lib/schema";
+import { author, book, bookNote, userActivityLog } from "../lib/schema";
 import { PoolClient } from "pg";
 import { logStatusString } from "@/types/statusEnum";
 
@@ -17,7 +17,7 @@ export const addBook = async (
   release_year: string,
   default_physical_edition_id: number,
   description: string,
-  series_position: number,
+  series_position: string,
   series_length: number,
   series_name: string,
   hardcover_id: number,
@@ -126,7 +126,7 @@ const insertQuery = async (
   release_year: string,
   default_physical_edition_id: number,
   description: string,
-  series_position: number,
+  series_position: string,
   series_length: number,
   series_name: string,
   hardcover_id: number,
@@ -161,6 +161,11 @@ const insertQuery = async (
 };
 
 export const deleteBook = async (id: number) => {
+  await db.delete(bookNote).where(eq(bookNote.bookId, id));
+
+  await db.delete(userActivityLog).where(eq(userActivityLog.bookId, id));
+
+  // Delete the book
   await db.delete(book).where(eq(book.id, id));
 
   revalidateTag("books");
@@ -170,23 +175,21 @@ export const editBook = async (
   id: number,
   title: string,
   status: number,
-  image: string,
-  release_year: string,
-  default_physical_edition_id: number,
-  description: string,
-  series_position: number,
-  series_length: number,
-  series_name: string,
-  hardcover_id: number,
-  page_count: number
+  rating: string
 ) => {
-  await db
-    .update(book)
-    .set({
-      title: title,
-      status: status,
-    })
-    .where(eq(book.id, id));
-
-  revalidateTag("books");
+  console.log(rating);
+  try {
+    await db
+      .update(book)
+      .set({
+        title: title,
+        status: status,
+        rating: rating,
+      })
+      .where(eq(book.id, id));
+    revalidateTag("books");
+  } catch (error) {
+    console.error("Error editing book:", error);
+    throw error;
+  }
 };

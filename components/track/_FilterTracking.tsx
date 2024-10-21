@@ -16,11 +16,7 @@ interface Props {
   selected: {
     name: string;
   };
-  setSelected: Dispatch<
-    SetStateAction<{
-      name: string;
-    }>
-  >;
+  setSelected: (e: any) => void;
 }
 
 export default function FilterTrack({ options, selected, setSelected }: Props) {

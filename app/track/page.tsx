@@ -1,25 +1,24 @@
 import Track from "@/components/track/Track";
 import { Book } from "@/types/book";
 import { currentUser } from "@clerk/nextjs/server";
+import { Suspense } from "react";
+import Loading from "../loading";
 
 interface Props {
-  searchParams?: { status?: string };
+  searchParams?: { status?: string; order?: string };
 }
 
-async function getBookData(status?: string) {
+async function getBookData(status?: string, order?: string) {
   const baseUrl = process.env.NEXT_PUBLIC_API_URL || "http://localhost:3000";
   const userRightNow = await currentUser();
   const res = await fetch(
-    `${baseUrl}/api/books?status=${status}&user=${userRightNow?.id}`,
+    `${baseUrl}/api/books?status=${status}&user=${userRightNow?.id}&order=${order}`,
     {
       next: { tags: ["books"] },
     }
   );
-  // The return value is *not* serialized
-  // You can return Date, Map, Set, etc.
 
   if (!res.ok) {
-    // This will activate the closest `error.js` Error Boundary
     throw new Error("Failed to fetch data");
   }
 
@@ -31,10 +30,18 @@ export default async function TrackPage({ searchParams }: Props) {
     return null;
   }
 
-  const books: Book[] = await getBookData(searchParams?.status);
+  const booksPromise = getBookData(searchParams?.status, searchParams?.order);
+
   return (
     <div className="mx-16">
-      <Track books={books} />
+      <Suspense fallback={<Loading />}>
+        <AsyncTrack booksPromise={booksPromise} />
+      </Suspense>
     </div>
   );
+}
+
+async function AsyncTrack({ booksPromise }: { booksPromise: Promise<Book[]> }) {
+  const books = await booksPromise;
+  return <Track books={books} />;
 }

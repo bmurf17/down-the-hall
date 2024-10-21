@@ -1,16 +1,18 @@
-import { addBook } from "@/actions/bookActions";
+"use client";
+
+import { addBookToList } from "@/functions/addBook";
+import { editBookToList } from "@/functions/editBook";
+import { useToast } from "@/hooks/use-toast";
+import { Status } from "@/types/statusEnum";
 import {
   Listbox,
   ListboxButton,
-  ListboxOptions,
   ListboxOption,
+  ListboxOptions,
 } from "@headlessui/react";
 import clsx from "clsx";
+import { useRouter } from "next/navigation";
 import { ChevronDownIcon } from "../icons/ChevronDownIcon";
-import { Status } from "@/types/statusEnum";
-import { addBookToList } from "@/functions/addBook";
-import { useState, useEffect } from "react";
-import { currentUser, User } from "@clerk/nextjs/server";
 
 interface Props {
   title: string;
@@ -19,12 +21,14 @@ interface Props {
   release_year: string;
   default_physical_edition_id: number;
   description: string;
-  series_position: number;
+  series_position: string;
   series_length: number;
   series_name: string;
   hardcover_id: number;
   page_number: number;
   buttonText: string;
+  id: number;
+  rating: string;
 }
 
 export function AddToListButton({
@@ -40,7 +44,12 @@ export function AddToListButton({
   hardcover_id,
   buttonText,
   page_number,
+  id,
+  rating,
 }: Props) {
+  const router = useRouter();
+  const { toast } = useToast();
+
   const readingStatusString: string[] = ["Reading", "Read", "TBR", "DNF"];
 
   const listOptions = Object.keys(Status)
@@ -55,22 +64,31 @@ export function AddToListButton({
     <Listbox
       value={{ id: 0, displayString: "temp" }}
       onChange={(e) => {
-        addBookToList(
-          title,
-          author,
-          "",
-          e.id,
-          image,
-          release_year,
-          default_physical_edition_id,
-          description,
-          series_position,
-          series_length,
-          series_name,
-          hardcover_id,
-          page_number,
-          "_2ltL1a7tYquxdTIT2OTazKaJ5Al"
-        );
+        if (id) {
+          editBookToList(id, title, e.id, rating);
+          router.refresh();
+        } else {
+          addBookToList(
+            title,
+            author,
+            "",
+            e.id,
+            image,
+            release_year,
+            default_physical_edition_id,
+            description,
+            series_position,
+            series_length,
+            series_name,
+            hardcover_id,
+            page_number
+          );
+
+          toast({
+            title: "Successfully Added Book",
+            description: `${title} was added`,
+          });
+        }
       }}
     >
       <ListboxButton

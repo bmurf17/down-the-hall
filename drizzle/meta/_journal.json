@@ -92,6 +92,20 @@
       "when": 1726849139982,
       "tag": "0012_adding_notes",
       "breakpoints": true
+    },
+    {
+      "idx": 13,
+      "version": "6",
+      "when": 1728237592443,
+      "tag": "0013_series_decimal_position",
+      "breakpoints": true
+    },
+    {
+      "idx": 14,
+      "version": "6",
+      "when": 1729352898680,
+      "tag": "0014_book_rating",
+      "breakpoints": true
     }
   ]
 }

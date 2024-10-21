@@ -15,10 +15,15 @@ const options = [
   { name: "Book Length" },
   { name: "Book Title" },
   { name: "Last Read" },
+  { name: "Author" },
 ];
 
 interface Props {
   books: Book[];
+}
+
+function SanitizeOrderByParam(str: string): string {
+  return str.replace(/\s/g, "").toLocaleLowerCase();
 }
 
 export default function Track({ books }: Props) {
@@ -34,8 +39,6 @@ export default function Track({ books }: Props) {
   const pathname = usePathname();
   const searchParams = useSearchParams();
 
-  // Get a new searchParams string by merging the current
-  // searchParams with a provided key/value pair
   const createQueryString = useCallback(
     (name: string, value: string) => {
       const params = new URLSearchParams(searchParams.toString());
@@ -45,6 +48,14 @@ export default function Track({ books }: Props) {
     },
     [searchParams]
   );
+
+  const setFilterSelction = (e: { name: string }) => {
+    router.push(
+      pathname + "?" + createQueryString("order", SanitizeOrderByParam(e.name))
+    );
+
+    setSelected(e);
+  };
 
   return (
     <div>
@@ -98,7 +109,7 @@ export default function Track({ books }: Props) {
               <FilterTrack
                 options={options}
                 selected={selected}
-                setSelected={setSelected}
+                setSelected={setFilterSelction}
               />
             </div>
             <div className="flex gap-4">

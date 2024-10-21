@@ -20,7 +20,7 @@ export default function BookListView({ book }: Props) {
       <div className="flex flex-col gap-2 justify-center">
         <div>{bookObject?.title}</div>
         <div>{author?.name}</div>
-        <div>page number</div>
+        <div>{bookObject?.pageCount}</div>
       </div>
     </div>
   );

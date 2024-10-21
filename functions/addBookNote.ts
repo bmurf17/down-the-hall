@@ -7,13 +7,12 @@ import { Status } from "@/types/statusEnum";
 import { currentUser } from "@clerk/nextjs/server";
 
 export const addBookNote = async (
-  noteToAdd: Omit<InsertBookNote, "id" | "updatedDate">
+  noteToAdd: Omit<InsertBookNote, "id" | "updatedDate">,
+  hardcoverId: number
 ) => {
   const userRightNow = await currentUser();
 
-  console.log("User we upload: " + userRightNow?.id);
-
   noteToAdd.userId = userRightNow?.id;
 
-  addNote(noteToAdd);
+  addNote(noteToAdd, hardcoverId);
 };

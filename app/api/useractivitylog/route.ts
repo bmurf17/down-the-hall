@@ -6,8 +6,6 @@ import { author, book, userActivityLog } from "../../../lib/schema";
 export async function GET(request: NextRequest) {
   const userId = request.nextUrl.searchParams.get("userId");
 
-  console.log(userId);
-
   // Convert userId to a number safely, handling the case where it might be null or invali
   const data = await db
     .select({
