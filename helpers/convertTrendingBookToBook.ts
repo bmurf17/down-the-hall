@@ -53,7 +53,7 @@ export const processTrendingBookDetails = async (
     description: trendingBookDetails.dto_combined.description,
     seriesPosition:
       trendingBookDetails.dto_combined.series?.length > 0
-        ? trendingBookDetails.dto_combined.series[0]?.position.toString() ||
+        ? trendingBookDetails.dto_combined.series[0]?.position?.toString() ||
           null
         : null,
     seriesLength: trendingBookDetails.dto_combined.series?.length
