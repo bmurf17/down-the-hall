@@ -132,7 +132,7 @@ export function AddToListButton({
         anchor="bottom"
         transition
         className={clsx(
-          "w-[var(--button-width)] rounded-xl border border-white/5 p-1 [--anchor-gap:var(--spacing-1)] focus:outline-none bg-primary mt-2",
+          "rounded-xl border border-white/5 p-1 [--anchor-gap:var(--spacing-1)] focus:outline-none bg-primary mt-2 w-fit",
           "transition duration-100 ease-in data-[leave]:data-[closed]:opacity-0"
         )}
       >

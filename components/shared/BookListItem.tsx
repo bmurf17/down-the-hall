@@ -9,6 +9,7 @@ import { AddToListButton } from "./AddToListButton";
 import StarRating from "./StarRating";
 import { SelectBook } from "@/lib/schema";
 import { SignedIn } from "@clerk/nextjs";
+import { Loader2 } from "lucide-react";
 
 interface Props {
   book: Book;
@@ -16,6 +17,7 @@ interface Props {
 
 export default function BookListItem({ book }: Props) {
   const { toast } = useToast();
+  const [isLoading, setIsLoading] = useState(false);
 
   const number = Math.floor(Math.random() * 7) + 1;
   const addbuttonText = () => {
@@ -110,15 +112,24 @@ export default function BookListItem({ book }: Props) {
               "focus:outline-none data-[focus]:outline-2 data-[focus]:-outline-offset-2 data-[focus]:outline-white/25"
             )}
             onClick={() => {
+              setIsLoading(true);
               deleteBook(book.book?.id ?? 0);
 
               toast({
                 title: "Successfully Deleted Book",
                 description: `${book.book?.title} was added`,
               });
+              setIsLoading(false);
             }}
           >
-            Delete
+            {isLoading ? (
+              <>
+                <Loader2 className="h-4 w-4 animate-spin" />
+                <span>Updating...</span>
+              </>
+            ) : (
+              <>Delete</>
+            )}
           </button>
         ) : null}
       </div>
