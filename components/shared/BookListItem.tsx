@@ -8,6 +8,7 @@ import { useState } from "react";
 import { AddToListButton } from "./AddToListButton";
 import StarRating from "./StarRating";
 import { SelectBook } from "@/lib/schema";
+import { SignedIn } from "@clerk/nextjs";
 
 interface Props {
   book: Book;
@@ -15,7 +16,6 @@ interface Props {
 
 export default function BookListItem({ book }: Props) {
   const { toast } = useToast();
-  const [rating, setRating] = useState(book.book?.rating);
 
   const number = Math.floor(Math.random() * 7) + 1;
   const addbuttonText = () => {
@@ -80,25 +80,29 @@ export default function BookListItem({ book }: Props) {
           ) : null}
         </div>
 
-        <AddToListButton
-          title={book.book?.title || ""}
-          author={book.author?.name || ""}
-          image={
-            book.book?.image ||
-            `https://hardcover.app/images/covers/cover${number}.png`
-          }
-          default_physical_edition_id={book.book?.defaultPhysicalEditionId || 0}
-          description={book.book?.description ?? ""}
-          hardcover_id={book.book?.hardcoverId || 0}
-          release_year={book.book?.releaseYear + ""}
-          series_length={book.book?.seriesLength || 0}
-          series_name={book.book?.seriesName || ""}
-          series_position={book.book?.seriesPosition || ""}
-          buttonText={addbuttonText()}
-          page_number={book.book?.pageCount || 0}
-          id={book.book?.id || 0}
-          rating={book.book?.rating || "0"}
-        />
+        <SignedIn>
+          <AddToListButton
+            title={book.book?.title || ""}
+            author={book.author?.name || ""}
+            image={
+              book.book?.image ||
+              `https://hardcover.app/images/covers/cover${number}.png`
+            }
+            default_physical_edition_id={
+              book.book?.defaultPhysicalEditionId || 0
+            }
+            description={book.book?.description ?? ""}
+            hardcover_id={book.book?.hardcoverId || 0}
+            release_year={book.book?.releaseYear + ""}
+            series_length={book.book?.seriesLength || 0}
+            series_name={book.book?.seriesName || ""}
+            series_position={book.book?.seriesPosition || ""}
+            buttonText={addbuttonText()}
+            page_number={book.book?.pageCount || 0}
+            id={book.book?.id || 0}
+            rating={book.book?.rating || "0"}
+          />
+        </SignedIn>
         {book.book?.status !== null ? (
           <button
             className={clsx(
