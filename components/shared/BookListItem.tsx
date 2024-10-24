@@ -1,3 +1,5 @@
+"use client";
+
 import { deleteBook } from "@/actions/bookActions";
 import { useToast } from "@/hooks/use-toast";
 import { Book } from "@/types/book";
