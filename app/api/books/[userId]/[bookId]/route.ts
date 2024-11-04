@@ -38,7 +38,7 @@ export async function GET(
       FROM book_data b
       LEFT JOIN author a ON b.author_id = a.id
       LEFT JOIN book_note bn ON b.id = bn.book_id AND bn.user_id = $2
-      GROUP BY b.id, a.id,  b.title, b.author_id,  b.image, b.status, b.release_year, b.default_physical_edition_id, b.description, b.series_position, b.series_name, b.series_length, b.hardcover_id, b.page_count, b.genres, b.date_read, b.date_updated, b.user_id; 
+      GROUP BY b.id, a.id,  b.title, b.author_id,  b.image, b.status, b.release_year, b.default_physical_edition_id, b.description, b.series_position, b.series_name, b.series_length, b.hardcover_id, b.page_count, b.genres, b.date_read, b.date_updated, b.user_id, b.rating; 
     `;
 
     const result = await pool.query(query, [parseInt(bookId), userId]);

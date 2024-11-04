@@ -67,6 +67,13 @@ const SERIES_BY_ID_QUERY = (id: number) => gql`
     series(where: {id: {_eq: ${id}}}) {
       id
       name
+    book_series {
+        position
+        book{
+          title
+          dto_combined
+        }
+      }
     }
   }
 `;
@@ -160,9 +167,54 @@ export const getBook = async (id: string) => {
           })
         : null;
 
+    if (seriesResponse?.data) {
+      var filteredSeries = seriesResponse?.data.series
+        .map((book: any) => ({
+          ...book,
+          book_series: book.book_series.filter(
+            (x: any) =>
+              x.book.dto_combined.country_id === 1 &&
+              !x.book.dto_combined.contributions.some(
+                (contribution: any) =>
+                  contribution.contribution === "Translator"
+              )
+          ),
+        }))
+        .filter((book: any) => book.book_series.length > 0);
+
+      const uniquePositionBooks = filteredSeries[0].book_series.reduce(
+        (
+          acc: { [x: string]: any },
+          current: {
+            position: string | number;
+            book: { users_read_count: number };
+          }
+        ) => {
+          if (
+            !acc[current.position] ||
+            acc[current.position].book.users_read_count <
+              current.book.users_read_count
+          ) {
+            acc[current.position] = current;
+          }
+          return acc;
+        },
+        {}
+      );
+
+      const result = Object.values(uniquePositionBooks).sort(
+        (a: any, b: any) => a.position - b.position
+      );
+
+      return {
+        booksData: booksResponse.data,
+        seriesData: result,
+      };
+    }
+
     return {
       booksData: booksResponse.data,
-      seriesData: seriesResponse?.data || null,
+      seriesData: {},
     };
   } catch (ex) {
     console.log(ex);

@@ -126,8 +126,11 @@ export default function BookDetails({ hardCoverBookInfo, dbBookInfo }: Props) {
                       </div>
                       <div>
                         <div className="mt-3 mb-2 flex justify-between">
-                          <span className="text-gray-600 dark:text-gray-400 text-sm font-semibold">
-                            2023 • 336 Pages
+                          <span className="text-gray-600 dark:text-gray-400 text-sm font-semibold flex gap-1">
+                            <p>
+                              Released {hardCoverBookInfo.book?.releaseYear} •
+                            </p>
+                            <p>{hardCoverBookInfo.book?.pageCount} Pages</p>
                           </span>
                         </div>
                       </div>

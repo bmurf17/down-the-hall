@@ -29,7 +29,7 @@ export default async function Page({ params }: { params: { bookId: string } }) {
   const data: any = await getBook(params.bookId);
 
   const hardCoverBookInfo = await processTrendingBookDetails(
-    data.booksData.books_by_pk,
+    data?.booksData.books_by_pk,
     data.seriesData
   );
 
