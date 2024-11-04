@@ -70,7 +70,9 @@ const SERIES_BY_ID_QUERY = (id: number) => gql`
     book_series {
         position
         book{
+          id
           title
+          cached_image
           dto_combined
         }
       }

@@ -5,13 +5,22 @@ import { readingStatusString } from "@/types/statusEnum";
 import { Tab, TabGroup, TabList, TabPanel } from "@headlessui/react";
 import { AddToListButton } from "../shared/AddToListButton";
 import Notes from "./_Notes";
+import { BookSeriesArray } from "@/types/apiResponse/seriesResponse";
+import Series from "./_Series";
 
 interface Props {
   hardCoverBookInfo: Book;
   dbBookInfo: Book | null;
+  hcSeriesData: BookSeriesArray;
+  seriesBooks: Book[];
 }
 
-export default function BookDetails({ hardCoverBookInfo, dbBookInfo }: Props) {
+export default function BookDetails({
+  hardCoverBookInfo,
+  dbBookInfo,
+  hcSeriesData,
+  seriesBooks,
+}: Props) {
   const addbuttonText = () => {
     var status = hardCoverBookInfo.book?.status;
 
@@ -159,7 +168,13 @@ export default function BookDetails({ hardCoverBookInfo, dbBookInfo }: Props) {
           </TabList>
           <TabPanel>{hardCoverBookInfo.book?.description}</TabPanel>
           <TabPanel> Reviews</TabPanel>
-          <TabPanel> Series</TabPanel>
+          <TabPanel>
+            <Series
+              seriesInfo={hcSeriesData}
+              authorName={hardCoverBookInfo.author?.name || ""}
+              seriesBooks={seriesBooks}
+            />
+          </TabPanel>
           <TabPanel>
             <Notes dbBookInfo={dbBookInfo} />
           </TabPanel>

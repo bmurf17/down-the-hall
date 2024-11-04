@@ -1,6 +1,8 @@
 import { getBook } from "@/actions/hardcoverActions";
 import BookDetails from "@/components/bookDetails/BookDetails";
+import { processBookSeriesDetails } from "@/helpers/convertSeriesBook";
 import { processTrendingBookDetails } from "@/helpers/convertTrendingBookToBook";
+import { BookSeriesArray } from "@/types/apiResponse/seriesResponse";
 import { Book } from "@/types/book";
 import { currentUser } from "@clerk/nextjs/server";
 
@@ -35,11 +37,19 @@ export default async function Page({ params }: { params: { bookId: string } }) {
 
   const dbBookData = await getBookData(params.bookId);
 
+  const seriesData: BookSeriesArray = data.seriesData;
+
+  const seriesBooks = await Promise.all(
+    seriesData.map((series) => processBookSeriesDetails(series, series.book.id))
+  );
+
   return (
     <div className="mx-16">
       <BookDetails
         hardCoverBookInfo={hardCoverBookInfo}
         dbBookInfo={dbBookData}
+        hcSeriesData={seriesData}
+        seriesBooks={seriesBooks}
       />
     </div>
   );
