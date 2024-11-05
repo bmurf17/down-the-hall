@@ -13,9 +13,10 @@ interface Props {
 export default function Series({ seriesInfo, authorName, seriesBooks }: Props) {
   return (
     <>
-      {seriesBooks.map((book, index) => (
-        <BookListItem key={book.book?.title || index} book={book} />
-      ))}
+      {seriesBooks.map((book, index) => {
+        book.author = { id: 1, name: authorName, image: "" };
+        return <BookListItem key={book.book?.title || index} book={book} />;
+      })}
     </>
   );
 }

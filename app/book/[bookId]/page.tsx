@@ -39,9 +39,15 @@ export default async function Page({ params }: { params: { bookId: string } }) {
 
   const seriesData: BookSeriesArray = data.seriesData;
 
-  const seriesBooks = await Promise.all(
-    seriesData.map((series) => processBookSeriesDetails(series, series.book.id))
-  );
+  console.log(seriesData);
+
+  const seriesBooks = Array.isArray(seriesData)
+    ? await Promise.all(
+        seriesData.map((series) =>
+          processBookSeriesDetails(series, series.book.id)
+        )
+      )
+    : [];
 
   return (
     <div className="mx-16">
