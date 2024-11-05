@@ -100,8 +100,6 @@ export async function handleImage(
       ? `${id}_${bookTitle}.jpeg`
       : placeholderImage;
 
-  console.log(filePath);
-
   const newImageRef = ref(storage, filePath);
 
   try {
