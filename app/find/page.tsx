@@ -30,7 +30,7 @@ async function BookResults({ searchTitle }: { searchTitle: string }) {
           <AlertCircle className="h-4 w-4" />
           <AlertTitle>No books found</AlertTitle>
           <AlertDescription>
-            We couldn't find any books matching {searchTitle};. Try adjusting
+            We couldn't find any books matching {searchTitle}. Try adjusting
             your search terms.
           </AlertDescription>
         </Alert>
