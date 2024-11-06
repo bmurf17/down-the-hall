@@ -39,8 +39,6 @@ export default async function Page({ params }: { params: { bookId: string } }) {
 
   const seriesData: BookSeriesArray = data.seriesData;
 
-  console.log(seriesData);
-
   const seriesBooks = Array.isArray(seriesData)
     ? await Promise.all(
         seriesData.map((series) =>
