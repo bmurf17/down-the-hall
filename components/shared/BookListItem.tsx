@@ -1,3 +1,5 @@
+"use client";
+
 import { deleteBook } from "@/actions/bookActions";
 import { useToast } from "@/hooks/use-toast";
 import { Book } from "@/types/book";
@@ -8,6 +10,8 @@ import { useState } from "react";
 import { AddToListButton } from "./AddToListButton";
 import StarRating from "./StarRating";
 import { SelectBook } from "@/lib/schema";
+import { SignedIn } from "@clerk/nextjs";
+import { Loader2 } from "lucide-react";
 
 interface Props {
   book: Book;
@@ -15,7 +19,7 @@ interface Props {
 
 export default function BookListItem({ book }: Props) {
   const { toast } = useToast();
-  const [rating, setRating] = useState(book.book?.rating);
+  const [isLoading, setIsLoading] = useState(false);
 
   const number = Math.floor(Math.random() * 7) + 1;
   const addbuttonText = () => {
@@ -35,9 +39,9 @@ export default function BookListItem({ book }: Props) {
     >
       <Link href={`book/${book.book?.hardcoverId}`}>
         <div className="flex flex-col md:flex-row gap-2 align-middle">
-          <div className="flex justify-center">
+          <div className="flex justify-center flex-shrink-0 ">
             <img
-              className="relative overflow-hidden group transition-all border border-gray-100/20 ring-accent hover:ring-1 hover:border-accent rounded-l-sm rounded-r-md shadow-md block"
+              className="lg:w-28 relative overflow-hidden group transition-all border border-gray-100/20 ring-accent hover:ring-1 hover:border-accent rounded-l-sm rounded-r-md shadow-md block"
               src={
                 book.book?.image ||
                 `https://hardcover.app/images/covers/cover${number}.png`
@@ -47,7 +51,7 @@ export default function BookListItem({ book }: Props) {
               width={100}
             />
           </div>
-          <div className="flex flex-col gap-2">
+          <div className="flex flex-col gap-2 flex-grow min-w-0">
             <div className=" text-black underline-offset-4 text-xl md:text-3xl font-bold  no-underline hover:underline decoration-gray-300 dark:decoration-gray-500">
               {book.book?.title}
             </div>
@@ -69,36 +73,46 @@ export default function BookListItem({ book }: Props) {
             <div className="text-text text-sm font-semibold">
               Page Count: {book.book?.pageCount}
             </div>
+
+            <div className="md:invisible visible flex justify-center">
+              {book.book && book.book.status !== null ? (
+                <StarRating book={book.book as SelectBook} />
+              ) : null}
+            </div>
           </div>
         </div>
       </Link>
 
       <div className="flex self-end gap-2">
-        <div className="flex justify-center">
+        <div className="invisible md:visible flex justify-center">
           {book.book && book.book.status !== null ? (
             <StarRating book={book.book as SelectBook} />
           ) : null}
         </div>
 
-        <AddToListButton
-          title={book.book?.title || ""}
-          author={book.author?.name || ""}
-          image={
-            book.book?.image ||
-            `https://hardcover.app/images/covers/cover${number}.png`
-          }
-          default_physical_edition_id={book.book?.defaultPhysicalEditionId || 0}
-          description={book.book?.description ?? ""}
-          hardcover_id={book.book?.hardcoverId || 0}
-          release_year={book.book?.releaseYear + ""}
-          series_length={book.book?.seriesLength || 0}
-          series_name={book.book?.seriesName || ""}
-          series_position={book.book?.seriesPosition || ""}
-          buttonText={addbuttonText()}
-          page_number={book.book?.pageCount || 0}
-          id={book.book?.id || 0}
-          rating={book.book?.rating || "0"}
-        />
+        <SignedIn>
+          <AddToListButton
+            title={book.book?.title || ""}
+            author={book.author?.name || ""}
+            image={
+              book.book?.image ||
+              `https://hardcover.app/images/covers/cover${number}.png`
+            }
+            default_physical_edition_id={
+              book.book?.defaultPhysicalEditionId || 0
+            }
+            description={book.book?.description ?? ""}
+            hardcover_id={book.book?.hardcoverId || 0}
+            release_year={book.book?.releaseYear + ""}
+            series_length={book.book?.seriesLength || 0}
+            series_name={book.book?.seriesName || ""}
+            series_position={book.book?.seriesPosition || ""}
+            buttonText={addbuttonText()}
+            page_number={book.book?.pageCount || 0}
+            id={book.book?.id || 0}
+            rating={book.book?.rating || "0"}
+          />
+        </SignedIn>
         {book.book?.status !== null ? (
           <button
             className={clsx(
@@ -106,15 +120,24 @@ export default function BookListItem({ book }: Props) {
               "focus:outline-none data-[focus]:outline-2 data-[focus]:-outline-offset-2 data-[focus]:outline-white/25"
             )}
             onClick={() => {
+              setIsLoading(true);
               deleteBook(book.book?.id ?? 0);
 
               toast({
                 title: "Successfully Deleted Book",
                 description: `${book.book?.title} was added`,
               });
+              setIsLoading(false);
             }}
           >
-            Delete
+            {isLoading ? (
+              <>
+                <Loader2 className="h-4 w-4 animate-spin" />
+                <span>Updating...</span>
+              </>
+            ) : (
+              <>Delete</>
+            )}
           </button>
         ) : null}
       </div>

@@ -10,6 +10,7 @@ import { ConnectionIcon } from "./icons/ConnectionIconIcon";
 import { ExploreIcon } from "./icons/ExploreIcon";
 import { SearchIcon } from "./icons/SearchIcon";
 import { BarChartIcon } from "./icons/BarChartIcon";
+import clsx from "clsx";
 
 export default function NavBar() {
   const [menuOpen, setMenuOpen] = useState(false);
@@ -89,60 +90,77 @@ export default function NavBar() {
                 Down The Hall
               </div>
               <div className="overflow-y-auto flex-1">
-                <div className="flex flex-col space-y-1 px-4">
-                  <button
-                    type="button"
-                    className="flex items-center gap-3 rounded-md px-3 py-2 text-sm font-medium text-gray-500 transition-colors hover:bg-gray-100 hover:text-gray-900"
-                    onClick={() => {
-                      navigateTo("/find");
-                    }}
-                  >
-                    <SearchIcon className="h-5 w-5" />
-                    Find
-                  </button>
-                  <button
-                    type="button"
-                    className="flex items-center gap-3 rounded-md px-3 py-2 text-sm font-medium text-gray-500 transition-colors hover:bg-gray-100 hover:text-gray-900"
-                    onClick={() => {
-                      navigateTo("/track");
-                    }}
-                  >
-                    <BookmarkIcon className="h-5 w-5" />
-                    <div>Track</div>
-                  </button>
-                  <button
-                    type="button"
-                    className="flex items-center gap-3 rounded-md px-3 py-2 text-sm font-medium text-gray-500 transition-colors hover:bg-gray-100 hover:text-gray-900"
-                    onClick={() => {
-                      navigateTo("/");
-                    }}
-                  >
-                    <ConnectionIcon className="h-5 w-5" />
-                    <div>Connection</div>
-                  </button>
+                <SignedIn>
+                  <div className="flex flex-col space-y-1 px-4">
+                    <button
+                      type="button"
+                      className="flex items-center gap-3 rounded-md px-3 py-2 text-sm font-medium text-gray-500 transition-colors hover:bg-gray-100 hover:text-gray-900"
+                      onClick={() => {
+                        navigateTo("/find");
+                      }}
+                    >
+                      <SearchIcon className="h-5 w-5" />
+                      Find
+                    </button>
+                    <button
+                      type="button"
+                      className="flex items-center gap-3 rounded-md px-3 py-2 text-sm font-medium text-gray-500 transition-colors hover:bg-gray-100 hover:text-gray-900"
+                      onClick={() => {
+                        navigateTo("/track");
+                      }}
+                    >
+                      <BookmarkIcon className="h-5 w-5" />
+                      <div>Track</div>
+                    </button>
+                    <button
+                      type="button"
+                      className="flex items-center gap-3 rounded-md px-3 py-2 text-sm font-medium text-gray-500 transition-colors hover:bg-gray-100 hover:text-gray-900"
+                      onClick={() => {
+                        navigateTo("/");
+                      }}
+                    >
+                      <ConnectionIcon className="h-5 w-5" />
+                      <div>Connection</div>
+                    </button>
 
-                  <button
-                    type="button"
-                    className="flex items-center gap-3 rounded-md px-3 py-2 text-sm font-medium text-gray-500 transition-colors hover:bg-gray-100 hover:text-gray-900"
-                    onClick={() => {
-                      navigateTo("/stats");
-                    }}
-                  >
-                    <BarChartIcon className="h-5 w-5" />
-                    Stats
-                  </button>
+                    <button
+                      type="button"
+                      className="flex items-center gap-3 rounded-md px-3 py-2 text-sm font-medium text-gray-500 transition-colors hover:bg-gray-100 hover:text-gray-900"
+                      onClick={() => {
+                        navigateTo("/stats");
+                      }}
+                    >
+                      <BarChartIcon className="h-5 w-5" />
+                      Stats
+                    </button>
 
-                  <button
-                    type="button"
-                    className="flex items-center gap-3 rounded-md px-3 py-2 text-sm font-medium text-gray-500 transition-colors hover:bg-gray-100 hover:text-gray-900"
-                    onClick={() => {
-                      navigateTo("/");
-                    }}
-                  >
-                    <ExploreIcon className="h-5 w-5" />
-                    Explore
-                  </button>
-                </div>
+                    <button
+                      type="button"
+                      className="flex items-center gap-3 rounded-md px-3 py-2 text-sm font-medium text-gray-500 transition-colors hover:bg-gray-100 hover:text-gray-900"
+                      onClick={() => {
+                        navigateTo("/");
+                      }}
+                    >
+                      <ExploreIcon className="h-5 w-5" />
+                      Explore
+                    </button>
+                  </div>
+                </SignedIn>
+                <SignedOut>
+                  <div className="flex flex-col space-y-1 px-4">
+                    <p>Sign in to start traking your book</p>
+                    <SignInButton>
+                      <button
+                        className={clsx(
+                          "bg-primary flex items-center justify-center p-2 rounded-lg  text-sm/6 gap-2 text-white hover:bg-green-500",
+                          "focus:outline-none data-[focus]:outline-2 data-[focus]:-outline-offset-2 data-[focus]:outline-white/25"
+                        )}
+                      >
+                        Sign In
+                      </button>
+                    </SignInButton>
+                  </div>
+                </SignedOut>
               </div>
             </div>
           </Transition>

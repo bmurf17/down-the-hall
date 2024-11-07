@@ -25,7 +25,6 @@ export const addBook = async (
   userId: string,
   date_read?: Date
 ) => {
-  // create a `Client` inside the request handler
   const pool = new Pool({ connectionString: process.env.DATABASE_URL });
   pool.on("error", (err) => console.error(err)); // deal with e.g. re-connect
   const client = await pool.connect();
@@ -75,6 +74,7 @@ export const addBook = async (
 
       revalidateTag("books");
     } catch (err) {
+      console.log(err);
       await client.query("ROLLBACK");
       throw err;
     } finally {
@@ -146,7 +146,7 @@ const insertQuery = async (
       release_year || 0,
       default_physical_edition_id,
       description,
-      series_position,
+      series_position === "" ? 0 : series_position,
       series_length,
       series_name,
       hardcover_id,
@@ -177,7 +177,6 @@ export const editBook = async (
   status: number,
   rating: string
 ) => {
-  console.log(rating);
   try {
     await db
       .update(book)

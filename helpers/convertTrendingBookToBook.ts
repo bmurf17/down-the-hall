@@ -8,7 +8,7 @@ import {
 } from "@/types/trending/trendingbookresponse";
 import { getDownloadURL, ref, uploadBytesResumable } from "firebase/storage";
 
-const placeholderImage = "placeholder.png";
+export const placeholderImage = "placeholder.png";
 
 export async function convertTrendingBookData(
   trendingData: TrendingBookData,
@@ -90,7 +90,11 @@ export const processTrendingBookDetails = async (
   return returnBook;
 };
 
-async function handleImage(id: number, bookTitle: string, imageUrl: string) {
+export async function handleImage(
+  id: number,
+  bookTitle: string,
+  imageUrl: string
+) {
   const filePath =
     imageUrl !== placeholderImage
       ? `${id}_${bookTitle}.jpeg`
