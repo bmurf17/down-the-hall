@@ -33,14 +33,8 @@ export default function BookDetails({
 
   const tabItems = [
     { value: "details", label: "Details" },
-    { value: "reviews", label: "Reviews" },
     { value: "series", label: "Series" },
-    ...(dbBookInfo
-      ? [
-          { value: "notes", label: "Notes" },
-          { value: "characters", label: "Characters" },
-        ]
-      : []),
+    ...(dbBookInfo ? [{ value: "notes", label: "Notes" }] : []),
   ];
 
   return (
@@ -167,7 +161,7 @@ export default function BookDetails({
             })}
           </TabList>
           <TabPanel>{hardCoverBookInfo.book?.description}</TabPanel>
-          <TabPanel> Reviews</TabPanel>
+
           <TabPanel>
             <Series
               seriesInfo={hcSeriesData}
@@ -178,7 +172,6 @@ export default function BookDetails({
           <TabPanel>
             <Notes dbBookInfo={dbBookInfo} />
           </TabPanel>
-          <TabPanel> Characters</TabPanel>
         </TabGroup>
       </div>
     </div>
