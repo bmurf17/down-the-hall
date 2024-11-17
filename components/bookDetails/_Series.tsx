@@ -11,8 +11,6 @@ interface Props {
 }
 
 export default function Series({ seriesInfo, authorName, seriesBooks }: Props) {
-  console.log(seriesBooks);
-
   return (
     <>
       {seriesBooks.map((book, index) => {
