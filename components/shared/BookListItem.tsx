@@ -32,12 +32,16 @@ export default function BookListItem({ book }: Props) {
     return readingStatusString[status || 0];
   };
 
+  const bookId = !book.book?.hardcoverId
+    ? book.book?.id
+    : book.book?.hardcoverId;
+
   return (
     <div
       className="flex flex-col md:flex-row justify-between p-4 border-b-2 border-gray-500 hover:bg-slate-200 hover:cursor-pointer"
       key={book.book?.title || ""}
     >
-      <Link href={`book/${book.book?.hardcoverId}`}>
+      <Link href={`/book/${bookId}`}>
         <div className="flex flex-col md:flex-row gap-2 align-middle">
           <div className="flex justify-center flex-shrink-0 ">
             <img
