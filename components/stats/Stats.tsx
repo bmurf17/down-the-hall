@@ -14,6 +14,7 @@ import {
   ChartTooltipContent,
 } from "@/components/ui/chart";
 import { BookStatsResponse } from "@/types/stats/monthlyBooksStats";
+import { TabGroup, TabList, Tab, TabPanel } from "@headlessui/react";
 import {
   Bar,
   BarChart,
@@ -31,6 +32,10 @@ export const description = "How many pages read by month";
 const chartConfig = {
   pagesRead: {
     label: "Pages Read",
+    color: "hsl(var(--chart-1))",
+  },
+  booksRead: {
+    label: "Books Read",
     color: "hsl(var(--chart-1))",
   },
 } satisfies ChartConfig;
@@ -51,7 +56,7 @@ const MONTH_NAMES = [
 ];
 
 export default function Stats({ stats }: Props) {
-  const chartData = stats.map((stat) => {
+  const pagesChartData = stats.map((stat) => {
     const [year, month] = stat.month.split("-");
     return {
       month: MONTH_NAMES[parseInt(month, 10) - 1],
@@ -59,81 +64,200 @@ export default function Stats({ stats }: Props) {
     };
   });
 
+  const booksChartData = stats.map((stat) => {
+    const [year, month] = stat.month.split("-");
+    return {
+      month: MONTH_NAMES[parseInt(month, 10) - 1],
+      booksRead: parseInt(stat.bookCount, 10),
+    };
+  });
+
+  const tabItems = [
+    { value: "details", label: "Details" },
+    { value: "book", label: "Books" },
+  ];
+
   return (
-    <div className="h-screen p-4 overflow-auto">
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-        <Card className="col-span-1 md:col-span-2 lg:col-span-3">
-          <CardHeader>
-            <CardTitle>Pages Read</CardTitle>
-            <CardDescription>
-              {chartData[0]?.month} - {chartData[chartData.length - 1]?.month}{" "}
-              2024
-            </CardDescription>
-          </CardHeader>
-          <CardContent className="h-[400px]">
-            <ChartContainer config={chartConfig} className="h-full">
-              <ResponsiveContainer width="100%" height="100%">
-                <BarChart data={chartData}>
-                  <CartesianGrid vertical={false} />
-                  <XAxis
-                    dataKey="month"
-                    tickLine={false}
-                    tickMargin={10}
-                    axisLine={false}
-                    tickFormatter={(value) => value.slice(0, 3)}
-                  />
-                  <ChartTooltip
-                    cursor={false}
-                    content={<ChartTooltipContent indicator="dashed" />}
-                  />
-                  <Bar
-                    dataKey="pagesRead"
-                    fill="var(--color-pagesRead)"
-                    radius={4}
-                  />
-                </BarChart>
-              </ResponsiveContainer>
-            </ChartContainer>
-          </CardContent>
-        </Card>
-        <Card>
-          <CardHeader>
-            <CardTitle>Total Pages</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <p className="text-4xl font-bold">
-              {chartData.reduce((sum, data) => sum + data.pagesRead, 0)}
-            </p>
-          </CardContent>
-        </Card>
-        <Card>
-          <CardHeader>
-            <CardTitle>Average Pages per Month</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <p className="text-4xl font-bold">
-              {Math.round(
-                chartData.reduce((sum, data) => sum + data.pagesRead, 0) /
-                  chartData.length
-              )}
-            </p>
-          </CardContent>
-        </Card>
-        <Card>
-          <CardHeader>
-            <CardTitle>Most Productive Month</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <p className="text-4xl font-bold">
-              {
-                chartData.reduce((max, data) =>
-                  data.pagesRead > max.pagesRead ? data : max
-                ).month
-              }
-            </p>
-          </CardContent>
-        </Card>
-      </div>
-    </div>
+    <>
+      <TabGroup>
+        <TabList className="flex gap-4 w-full sm:mx-auto overflow-x-auto overflow-y-hidden no-scrollbar ">
+          {tabItems.map((tab) => {
+            return (
+              <Tab
+                key={tab.value}
+                className="data-[selected]:border-b-4 data-[selected]:border-primary data-[hover]:border-b-4  data-[hover]:border-primary  text-lg  text-primary  p-2  data-[focus]:outline-1 data-[focus]:outline-white  "
+              >
+                {tab.label}
+              </Tab>
+            );
+          })}
+        </TabList>
+        <TabPanel>
+          <div className="h-screen p-4 overflow-auto">
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+              <Card className="col-span-1 md:col-span-2 lg:col-span-3">
+                <CardHeader>
+                  <CardTitle>Pages Read</CardTitle>
+                  <CardDescription>
+                    {pagesChartData[0]?.month} -{" "}
+                    {pagesChartData[pagesChartData.length - 1]?.month} 2024
+                  </CardDescription>
+                </CardHeader>
+                <CardContent className="h-[400px]">
+                  <ChartContainer config={chartConfig} className="h-full">
+                    <ResponsiveContainer width="100%" height="100%">
+                      <BarChart data={pagesChartData}>
+                        <CartesianGrid vertical={false} />
+                        <XAxis
+                          dataKey="month"
+                          tickLine={false}
+                          tickMargin={10}
+                          axisLine={false}
+                          tickFormatter={(value) => value.slice(0, 3)}
+                        />
+                        <ChartTooltip
+                          cursor={false}
+                          content={<ChartTooltipContent indicator="dashed" />}
+                        />
+                        <Bar
+                          dataKey="pagesRead"
+                          fill="var(--color-pagesRead)"
+                          radius={4}
+                        />
+                      </BarChart>
+                    </ResponsiveContainer>
+                  </ChartContainer>
+                </CardContent>
+              </Card>
+              <Card>
+                <CardHeader>
+                  <CardTitle>Total Pages</CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <p className="text-4xl font-bold">
+                    {pagesChartData.reduce(
+                      (sum, data) => sum + data.pagesRead,
+                      0
+                    )}
+                  </p>
+                </CardContent>
+              </Card>
+              <Card>
+                <CardHeader>
+                  <CardTitle>Average Pages per Month</CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <p className="text-4xl font-bold">
+                    {Math.round(
+                      pagesChartData.reduce(
+                        (sum, data) => sum + data.pagesRead,
+                        0
+                      ) / pagesChartData.length
+                    )}
+                  </p>
+                </CardContent>
+              </Card>
+              <Card>
+                <CardHeader>
+                  <CardTitle>Most Productive Month</CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <p className="text-4xl font-bold">
+                    {
+                      pagesChartData.reduce((max, data) =>
+                        data.pagesRead > max.pagesRead ? data : max
+                      ).month
+                    }
+                  </p>
+                </CardContent>
+              </Card>
+            </div>
+          </div>
+        </TabPanel>
+
+        <TabPanel>
+          <div className="h-screen p-4 overflow-auto">
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+              <Card className="col-span-1 md:col-span-2 lg:col-span-3">
+                <CardHeader>
+                  <CardTitle>Books Read</CardTitle>
+                  <CardDescription>
+                    {booksChartData[0]?.month} -{" "}
+                    {booksChartData[booksChartData.length - 1]?.month} 2024
+                  </CardDescription>
+                </CardHeader>
+                <CardContent className="h-[400px]">
+                  <ChartContainer config={chartConfig} className="h-full">
+                    <ResponsiveContainer width="100%" height="100%">
+                      <BarChart data={booksChartData}>
+                        <CartesianGrid vertical={false} />
+                        <XAxis
+                          dataKey="month"
+                          tickLine={false}
+                          tickMargin={10}
+                          axisLine={false}
+                          tickFormatter={(value) => value.slice(0, 3)}
+                        />
+                        <ChartTooltip
+                          cursor={false}
+                          content={<ChartTooltipContent indicator="dashed" />}
+                        />
+                        <Bar
+                          dataKey="booksRead"
+                          fill="var(--color-booksRead)"
+                          radius={4}
+                        />
+                      </BarChart>
+                    </ResponsiveContainer>
+                  </ChartContainer>
+                </CardContent>
+              </Card>
+              <Card>
+                <CardHeader>
+                  <CardTitle>Total Books</CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <p className="text-4xl font-bold">
+                    {booksChartData.reduce(
+                      (sum, data) => sum + data.booksRead,
+                      0
+                    )}
+                  </p>
+                </CardContent>
+              </Card>
+              <Card>
+                <CardHeader>
+                  <CardTitle>Average Pages per Month</CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <p className="text-4xl font-bold">
+                    {Math.round(
+                      booksChartData.reduce(
+                        (sum, data) => sum + data.booksRead,
+                        0
+                      ) / pagesChartData.length
+                    )}
+                  </p>
+                </CardContent>
+              </Card>
+              <Card>
+                <CardHeader>
+                  <CardTitle>Most Productive Month</CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <p className="text-4xl font-bold">
+                    {
+                      booksChartData.reduce((max, data) =>
+                        data.booksRead > max.booksRead ? data : max
+                      ).month
+                    }
+                  </p>
+                </CardContent>
+              </Card>
+            </div>
+          </div>
+        </TabPanel>
+      </TabGroup>
+    </>
   );
 }
