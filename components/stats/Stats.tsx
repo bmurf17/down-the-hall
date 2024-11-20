@@ -73,7 +73,7 @@ export default function Stats({ stats }: Props) {
   });
 
   const tabItems = [
-    { value: "details", label: "Details" },
+    { value: "Pages", label: "Pages" },
     { value: "book", label: "Books" },
   ];
 
@@ -93,7 +93,7 @@ export default function Stats({ stats }: Props) {
           })}
         </TabList>
         <TabPanel>
-          <div className="h-screen p-4 overflow-auto">
+          <div className="min-h-screen p-4 overflow-auto">
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
               <Card className="col-span-1 md:col-span-2 lg:col-span-3">
                 <CardHeader>
@@ -103,29 +103,30 @@ export default function Stats({ stats }: Props) {
                     {pagesChartData[pagesChartData.length - 1]?.month} 2024
                   </CardDescription>
                 </CardHeader>
-                <CardContent className="h-[400px]">
-                  <ChartContainer config={chartConfig} className="h-full">
-                    <ResponsiveContainer width="100%" height="100%">
-                      <BarChart data={pagesChartData}>
-                        <CartesianGrid vertical={false} />
-                        <XAxis
-                          dataKey="month"
-                          tickLine={false}
-                          tickMargin={10}
-                          axisLine={false}
-                          tickFormatter={(value) => value.slice(0, 3)}
-                        />
-                        <ChartTooltip
-                          cursor={false}
-                          content={<ChartTooltipContent indicator="dashed" />}
-                        />
-                        <Bar
-                          dataKey="pagesRead"
-                          fill="var(--color-pagesRead)"
-                          radius={4}
-                        />
-                      </BarChart>
-                    </ResponsiveContainer>
+                <CardContent className="h-[300px] sm:h-[400px] relative">
+                  <ChartContainer
+                    config={chartConfig}
+                    className="h-full w-full"
+                  >
+                    <BarChart data={pagesChartData}>
+                      <CartesianGrid vertical={false} />
+                      <XAxis
+                        dataKey="month"
+                        tickLine={false}
+                        tickMargin={10}
+                        axisLine={false}
+                        tickFormatter={(value) => value.slice(0, 3)}
+                      />
+                      <ChartTooltip
+                        cursor={false}
+                        content={<ChartTooltipContent indicator="dashed" />}
+                      />
+                      <Bar
+                        dataKey="pagesRead"
+                        fill="var(--color-pagesRead)"
+                        radius={4}
+                      />
+                    </BarChart>
                   </ChartContainer>
                 </CardContent>
               </Card>
@@ -176,7 +177,7 @@ export default function Stats({ stats }: Props) {
         </TabPanel>
 
         <TabPanel>
-          <div className="h-screen p-4 overflow-auto">
+          <div className="min-h-screen p-4 overflow-auto">
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
               <Card className="col-span-1 md:col-span-2 lg:col-span-3">
                 <CardHeader>
@@ -186,29 +187,30 @@ export default function Stats({ stats }: Props) {
                     {booksChartData[booksChartData.length - 1]?.month} 2024
                   </CardDescription>
                 </CardHeader>
-                <CardContent className="h-[400px]">
-                  <ChartContainer config={chartConfig} className="h-full">
-                    <ResponsiveContainer width="100%" height="100%">
-                      <BarChart data={booksChartData}>
-                        <CartesianGrid vertical={false} />
-                        <XAxis
-                          dataKey="month"
-                          tickLine={false}
-                          tickMargin={10}
-                          axisLine={false}
-                          tickFormatter={(value) => value.slice(0, 3)}
-                        />
-                        <ChartTooltip
-                          cursor={false}
-                          content={<ChartTooltipContent indicator="dashed" />}
-                        />
-                        <Bar
-                          dataKey="booksRead"
-                          fill="var(--color-booksRead)"
-                          radius={4}
-                        />
-                      </BarChart>
-                    </ResponsiveContainer>
+                <CardContent className="h-[300px] sm:h-[400px] relative">
+                  <ChartContainer
+                    config={chartConfig}
+                    className="h-full w-full"
+                  >
+                    <BarChart data={booksChartData}>
+                      <CartesianGrid vertical={false} />
+                      <XAxis
+                        dataKey="month"
+                        tickLine={false}
+                        tickMargin={10}
+                        axisLine={false}
+                        tickFormatter={(value) => value.slice(0, 3)}
+                      />
+                      <ChartTooltip
+                        cursor={false}
+                        content={<ChartTooltipContent indicator="dashed" />}
+                      />
+                      <Bar
+                        dataKey="booksRead"
+                        fill="var(--color-booksRead)"
+                        radius={4}
+                      />
+                    </BarChart>
                   </ChartContainer>
                 </CardContent>
               </Card>
