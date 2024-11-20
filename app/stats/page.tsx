@@ -1,4 +1,5 @@
 import Stats from "@/components/stats/Stats";
+import { BookStatsResponse } from "@/types/stats/monthlyBooksStats";
 import { currentUser } from "@clerk/nextjs/server";
 
 async function getMonthlyPageData(): Promise<any> {
@@ -20,11 +21,11 @@ async function getMonthlyPageData(): Promise<any> {
 }
 
 export default async function StatsPage() {
-  const data = await getMonthlyPageData();
+  const data: BookStatsResponse = await getMonthlyPageData();
 
   return (
     <div className="mx-16 ">
-      <Stats />
+      <Stats stats={data} />
     </div>
   );
 }
