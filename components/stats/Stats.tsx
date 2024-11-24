@@ -56,7 +56,7 @@ const MONTH_NAMES = [
 ];
 
 export default function Stats({ stats }: Props) {
-  const pagesChartData = stats.map((stat) => {
+  const pagesChartData = stats?.map((stat) => {
     const [year, month] = stat.month.split("-");
     return {
       month: MONTH_NAMES[parseInt(month, 10) - 1],
@@ -64,7 +64,7 @@ export default function Stats({ stats }: Props) {
     };
   });
 
-  const booksChartData = stats.map((stat) => {
+  const booksChartData = stats?.map((stat) => {
     const [year, month] = stat.month.split("-");
     return {
       month: MONTH_NAMES[parseInt(month, 10) - 1],
@@ -81,7 +81,7 @@ export default function Stats({ stats }: Props) {
     <>
       <TabGroup>
         <TabList className="flex gap-4 w-full sm:mx-auto overflow-x-auto overflow-y-hidden no-scrollbar ">
-          {tabItems.map((tab) => {
+          {tabItems?.map((tab) => {
             return (
               <Tab
                 key={tab.value}
