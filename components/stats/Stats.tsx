@@ -54,37 +54,98 @@ const MONTH_NAMES = [
   "December",
 ];
 
+// Helper function to get the absolute URL
+const getApiUrl = () => {
+  const baseUrl = process.env.NEXT_PUBLIC_API_URL;
+  // Check if we're in production (Vercel)
+  if (process.env.VERCEL_ENV === "production") {
+    return `https://${process.env.VERCEL_URL}`;
+  }
+  // Check if we have a base URL configured
+  if (baseUrl) {
+    return baseUrl;
+  }
+  // Fallback to localhost
+  return "http://localhost:3000";
+};
+
 export default function Stats({ currentUserId }: Props) {
   const [stats, setStats] = useState<BookStatsResponse | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
+  const [debugInfo, setDebugInfo] = useState<any>(null);
+
   useEffect(() => {
     const fetchStats = async () => {
+      const debug: any = {
+        timestamp: new Date().toISOString(),
+        environment: process.env.NODE_ENV,
+        vercelEnv: process.env.VERCEL_ENV,
+        vercelUrl: process.env.VERCEL_URL,
+        baseApiUrl: process.env.NEXT_PUBLIC_API_URL,
+      };
+
       try {
         setIsLoading(true);
-        const baseUrl =
-          process.env.NEXT_PUBLIC_API_URL || "http://localhost:3000";
+        const baseUrl = getApiUrl();
 
         if (!currentUserId) {
           throw new Error("User not found");
         }
 
-        const res = await fetch(`${baseUrl}/api/stats/${currentUserId}`);
+        const apiUrl = `${baseUrl}/api/stats/${currentUserId}`;
+        debug.apiUrl = apiUrl;
+        debug.userId = currentUserId;
+
+        console.log("Fetching stats with:", {
+          url: apiUrl,
+          userId: currentUserId,
+          env: process.env.NODE_ENV,
+          vercelEnv: process.env.VERCEL_ENV,
+        });
+
+        const res = await fetch(apiUrl);
+        debug.statusCode = res.status;
+        debug.statusText = res.statusText;
+
+        // Try to get response headers
+        try {
+          debug.headers = Object.fromEntries(res.headers.entries());
+        } catch (e) {
+          debug.headers = "Could not read headers";
+        }
 
         if (res.status === 404) {
           setStats(null);
+          setDebugInfo(debug);
           return;
         }
 
         if (!res.ok) {
-          throw new Error("Failed to fetch data");
+          // Try to get error message from response
+          let errorText = "Failed to fetch data";
+          try {
+            const errorData = await res.text();
+            errorText = `Failed to fetch data: ${errorData}`;
+            debug.errorResponse = errorData;
+          } catch (e) {
+            debug.errorResponse = "Could not read error response";
+          }
+          throw new Error(errorText);
         }
 
         const data = await res.json();
+        debug.dataReceived = !!data;
+        debug.dataLength = Array.isArray(data) ? data.length : "not an array";
         setStats(data);
+        setDebugInfo(debug);
       } catch (err) {
-        setError(err instanceof Error ? err.message : "An error occurred");
+        debug.error = err instanceof Error ? err.message : "An error occurred";
+        debug.errorStack = err instanceof Error ? err.stack : undefined;
+        setError(debug.error);
+        setDebugInfo(debug);
+        console.error("Stats fetch error:", debug);
       } finally {
         setIsLoading(false);
       }
@@ -95,7 +156,7 @@ export default function Stats({ currentUserId }: Props) {
 
   if (isLoading) {
     return (
-      <div className="flex items-center justify-center min-h-screen">
+      <div className="flex flex-col items-center justify-center min-h-screen">
         <p className="text-lg">Loading stats...</p>
       </div>
     );
@@ -103,16 +164,30 @@ export default function Stats({ currentUserId }: Props) {
 
   if (error) {
     return (
-      <div className="flex items-center justify-center min-h-screen">
+      <div className="flex flex-col items-center justify-center min-h-screen">
         <p className="text-lg text-red-500">Error: {error}</p>
+        {debugInfo && (
+          <div className="mt-4 p-4 bg-gray-100 rounded-lg text-sm overflow-auto max-w-2xl">
+            <pre className="whitespace-pre-wrap">
+              {JSON.stringify(debugInfo, null, 2)}
+            </pre>
+          </div>
+        )}
       </div>
     );
   }
 
   if (!stats) {
     return (
-      <div className="flex items-center justify-center min-h-screen">
+      <div className="flex flex-col items-center justify-center min-h-screen">
         <p className="text-lg">No stats available</p>
+        {debugInfo && (
+          <div className="mt-4 p-4 bg-gray-100 rounded-lg text-sm overflow-auto max-w-2xl">
+            <pre className="whitespace-pre-wrap">
+              {JSON.stringify(debugInfo, null, 2)}
+            </pre>
+          </div>
+        )}
       </div>
     );
   }
