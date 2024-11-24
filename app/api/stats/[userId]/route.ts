@@ -2,6 +2,27 @@ import { eq, sql } from "drizzle-orm";
 import { NextRequest, NextResponse } from "next/server";
 import db from "../../../../lib/db";
 import { author, book, userActivityLog } from "../../../../lib/schema";
+import { headers } from "next/headers";
+
+function corsResponse(response: NextResponse) {
+  // Get the origin from the request headers
+  const headersList = headers();
+  const origin = headersList.get("origin") || "*";
+
+  // Add CORS headers to the response
+  response.headers.set("Access-Control-Allow-Origin", origin);
+  response.headers.set(
+    "Access-Control-Allow-Methods",
+    "GET, POST, PUT, DELETE, OPTIONS"
+  );
+  response.headers.set(
+    "Access-Control-Allow-Headers",
+    "Content-Type, Authorization"
+  );
+  response.headers.set("Access-Control-Allow-Credentials", "true");
+
+  return response;
+}
 
 export async function GET(
   request: NextRequest,
@@ -27,5 +48,5 @@ export async function GET(
     .groupBy(sql`to_char(${book.dateRead}, 'YYYY-MM')`)
     .orderBy(sql`to_char(${book.dateRead}, 'YYYY-MM')`);
 
-  return NextResponse.json(data);
+  return corsResponse(NextResponse.json(data));
 }

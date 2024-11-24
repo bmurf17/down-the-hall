@@ -90,26 +90,31 @@ export default function Stats({ currentUserId }: Props) {
         setIsLoading(true);
         const baseUrl = getApiUrl();
 
-        if (!currentUserId) {
-          throw new Error("User not found");
-        }
+        console.log(currentUserId);
 
+        // Construct URL ensuring no double slashes
         const apiUrl = `${baseUrl}/api/stats/${currentUserId}`;
         debug.apiUrl = apiUrl;
         debug.userId = currentUserId;
 
-        console.log("Fetching stats with:", {
+        console.log("Attempting fetch with:", {
           url: apiUrl,
           userId: currentUserId,
           env: process.env.NODE_ENV,
           vercelEnv: process.env.VERCEL_ENV,
         });
 
-        const res = await fetch(apiUrl);
+        const res = await fetch(apiUrl, {
+          credentials: "include", // Add credentials
+          headers: {
+            Accept: "application/json",
+            "Content-Type": "application/json",
+          },
+        });
+
         debug.statusCode = res.status;
         debug.statusText = res.statusText;
 
-        // Try to get response headers
         try {
           debug.headers = Object.fromEntries(res.headers.entries());
         } catch (e) {
@@ -117,16 +122,17 @@ export default function Stats({ currentUserId }: Props) {
         }
 
         if (res.status === 404) {
+          console.log("404 Not Found for URL:", apiUrl);
           setStats(null);
           setDebugInfo(debug);
           return;
         }
 
         if (!res.ok) {
-          // Try to get error message from response
           let errorText = "Failed to fetch data";
           try {
             const errorData = await res.text();
+            console.error("Error response:", errorData);
             errorText = `Failed to fetch data: ${errorData}`;
             debug.errorResponse = errorData;
           } catch (e) {
@@ -143,9 +149,9 @@ export default function Stats({ currentUserId }: Props) {
       } catch (err) {
         debug.error = err instanceof Error ? err.message : "An error occurred";
         debug.errorStack = err instanceof Error ? err.stack : undefined;
+        console.error("Full error details:", debug);
         setError(debug.error);
         setDebugInfo(debug);
-        console.error("Stats fetch error:", debug);
       } finally {
         setIsLoading(false);
       }
