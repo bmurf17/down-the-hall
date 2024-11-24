@@ -1,16 +1,13 @@
 import { eq, sql } from "drizzle-orm";
 import { NextRequest, NextResponse } from "next/server";
 import db from "../../../../lib/db";
-import { author, book, userActivityLog } from "../../../../lib/schema";
+import { book } from "../../../../lib/schema";
 import { headers } from "next/headers";
 
-function corsResponse(response: NextResponse) {
-  // Get the origin from the request headers
-  const headersList = headers();
-  const origin = headersList.get("origin") || "*";
+function addCorsHeaders(response: NextResponse) {
+  const origin = headers().get("origin") || "*";
 
-  // Add CORS headers to the response
-  response.headers.set("Access-Control-Allow-Origin", origin);
+  response.headers.set("Access-Control-Allow-Origin", "*");
   response.headers.set(
     "Access-Control-Allow-Methods",
     "GET, POST, PUT, DELETE, OPTIONS"
@@ -24,15 +21,21 @@ function corsResponse(response: NextResponse) {
   return response;
 }
 
+export async function OPTIONS(): Promise<NextResponse> {
+  // Return a 200 response with CORS headers for preflight requests
+  const response = NextResponse.json({}, { status: 200 });
+  return addCorsHeaders(response);
+}
+
 export async function GET(
   request: NextRequest,
   { params }: { params: { userId: string } }
 ): Promise<NextResponse> {
   const { userId } = params;
   const sixMonthsAgo = new Date();
-  sixMonthsAgo.setMonth(sixMonthsAgo.getMonth() - 5); // Get last 6 months including current
+  sixMonthsAgo.setMonth(sixMonthsAgo.getMonth() - 5);
 
-  var data = await db
+  const data = await db
     .select({
       month: sql<string>`to_char(${book.dateRead}, 'YYYY-MM')`,
       totalPages: sql<number>`sum(${book.pageCount})`,
@@ -48,5 +51,6 @@ export async function GET(
     .groupBy(sql`to_char(${book.dateRead}, 'YYYY-MM')`)
     .orderBy(sql`to_char(${book.dateRead}, 'YYYY-MM')`);
 
-  return corsResponse(NextResponse.json(data));
+  const response = NextResponse.json(data);
+  return addCorsHeaders(response);
 }
