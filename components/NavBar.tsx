@@ -116,33 +116,11 @@ export default function NavBar() {
                       type="button"
                       className="flex items-center gap-3 rounded-md px-3 py-2 text-sm font-medium text-gray-500 transition-colors hover:bg-gray-100 hover:text-gray-900"
                       onClick={() => {
-                        navigateTo("/");
-                      }}
-                    >
-                      <ConnectionIcon className="h-5 w-5" />
-                      <div>Connection</div>
-                    </button>
-
-                    <button
-                      type="button"
-                      className="flex items-center gap-3 rounded-md px-3 py-2 text-sm font-medium text-gray-500 transition-colors hover:bg-gray-100 hover:text-gray-900"
-                      onClick={() => {
                         navigateTo("/stats");
                       }}
                     >
                       <BarChartIcon className="h-5 w-5" />
                       Stats
-                    </button>
-
-                    <button
-                      type="button"
-                      className="flex items-center gap-3 rounded-md px-3 py-2 text-sm font-medium text-gray-500 transition-colors hover:bg-gray-100 hover:text-gray-900"
-                      onClick={() => {
-                        navigateTo("/");
-                      }}
-                    >
-                      <ExploreIcon className="h-5 w-5" />
-                      Explore
                     </button>
                   </div>
                 </SignedIn>

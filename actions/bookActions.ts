@@ -175,17 +175,21 @@ export const editBook = async (
   id: number,
   title: string,
   status: number,
-  rating: string
+  rating: string,
+  date_read?: Date
 ) => {
   try {
-    await db
-      .update(book)
-      .set({
-        title: title,
-        status: status,
-        rating: rating,
-      })
-      .where(eq(book.id, id));
+    const updateData: any = {
+      title: title,
+      status: status,
+      rating: rating,
+    };
+
+    if (date_read !== undefined) {
+      updateData.dateRead = date_read;
+    }
+
+    await db.update(book).set(updateData).where(eq(book.id, id));
     revalidateTag("books");
   } catch (error) {
     console.error("Error editing book:", error);
