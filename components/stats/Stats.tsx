@@ -1,5 +1,6 @@
 "use client";
 
+import { useEffect, useState } from "react";
 import {
   Card,
   CardContent,
@@ -24,10 +25,8 @@ import {
 } from "recharts";
 
 interface Props {
-  stats: BookStatsResponse;
+  currentUserId: string;
 }
-
-export const description = "How many pages read by month";
 
 const chartConfig = {
   pagesRead: {
@@ -55,8 +54,68 @@ const MONTH_NAMES = [
   "December",
 ];
 
-export default function Stats({ stats }: Props) {
-  console.log(stats);
+export default function Stats({ currentUserId }: Props) {
+  const [stats, setStats] = useState<BookStatsResponse | null>(null);
+  const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+
+  useEffect(() => {
+    const fetchStats = async () => {
+      try {
+        setIsLoading(true);
+        const baseUrl =
+          process.env.NEXT_PUBLIC_API_URL || "http://localhost:3000";
+
+        if (!currentUserId) {
+          throw new Error("User not found");
+        }
+
+        const res = await fetch(`${baseUrl}/api/stats/${currentUserId}`);
+
+        if (res.status === 404) {
+          setStats(null);
+          return;
+        }
+
+        if (!res.ok) {
+          throw new Error("Failed to fetch data");
+        }
+
+        const data = await res.json();
+        setStats(data);
+      } catch (err) {
+        setError(err instanceof Error ? err.message : "An error occurred");
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    fetchStats();
+  }, []);
+
+  if (isLoading) {
+    return (
+      <div className="flex items-center justify-center min-h-screen">
+        <p className="text-lg">Loading stats...</p>
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="flex items-center justify-center min-h-screen">
+        <p className="text-lg text-red-500">Error: {error}</p>
+      </div>
+    );
+  }
+
+  if (!stats) {
+    return (
+      <div className="flex items-center justify-center min-h-screen">
+        <p className="text-lg">No stats available</p>
+      </div>
+    );
+  }
 
   const pagesChartData = stats?.map((stat) => {
     const [year, month] = stat.month.split("-");

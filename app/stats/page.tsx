@@ -23,9 +23,11 @@ async function getMonthlyPageData(): Promise<any> {
 export default async function StatsPage() {
   const data: BookStatsResponse = await getMonthlyPageData();
 
+  const userRightNow = await currentUser();
+
   return (
     <div className="mx-16 ">
-      <Stats stats={data} />
+      <Stats currentUserId={userRightNow?.id || ""} />
     </div>
   );
 }
