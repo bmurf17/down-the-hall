@@ -56,6 +56,8 @@ const MONTH_NAMES = [
 ];
 
 export default function Stats({ stats }: Props) {
+  console.log(stats);
+
   const pagesChartData = stats?.map((stat) => {
     const [year, month] = stat.month.split("-");
     return {
