@@ -1,6 +1,5 @@
 "use client";
 
-import { useEffect, useState } from "react";
 import {
   Card,
   CardContent,
@@ -14,7 +13,6 @@ import {
   ChartTooltip,
   ChartTooltipContent,
 } from "@/components/ui/chart";
-import { BookStatsResponse } from "@/types/stats/monthlyBooksStats";
 import { TabGroup, TabList, Tab, TabPanel } from "@headlessui/react";
 import {
   Bar,
@@ -23,10 +21,6 @@ import {
   XAxis,
   ResponsiveContainer,
 } from "recharts";
-
-interface Props {
-  currentUserId: string;
-}
 
 const chartConfig = {
   pagesRead: {
@@ -54,151 +48,8 @@ const MONTH_NAMES = [
   "December",
 ];
 
-// Helper function to get the absolute URL
-const getApiUrl = () => {
-  const baseUrl = process.env.NEXT_PUBLIC_API_URL;
-  // Check if we're in production (Vercel)
-  if (process.env.VERCEL_ENV === "production") {
-    return `https://${process.env.VERCEL_URL}`;
-  }
-  // Check if we have a base URL configured
-  if (baseUrl) {
-    return baseUrl;
-  }
-  // Fallback to localhost
-  return "http://localhost:3000";
-};
-
-export default function Stats({ currentUserId }: Props) {
-  const [stats, setStats] = useState<BookStatsResponse | null>(null);
-  const [isLoading, setIsLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
-
-  const [debugInfo, setDebugInfo] = useState<any>(null);
-
-  useEffect(() => {
-    const fetchStats = async () => {
-      const debug: any = {
-        timestamp: new Date().toISOString(),
-        environment: process.env.NODE_ENV,
-        vercelEnv: process.env.VERCEL_ENV,
-        vercelUrl: process.env.VERCEL_URL,
-        baseApiUrl: process.env.NEXT_PUBLIC_API_URL,
-      };
-
-      try {
-        setIsLoading(true);
-        const baseUrl = getApiUrl();
-
-        console.log(currentUserId);
-
-        // Construct URL ensuring no double slashes
-        const apiUrl = `${baseUrl}/api/stats/${currentUserId}`;
-        debug.apiUrl = apiUrl;
-        debug.userId = currentUserId;
-
-        console.log("Attempting fetch with:", {
-          url: apiUrl,
-          userId: currentUserId,
-          env: process.env.NODE_ENV,
-          vercelEnv: process.env.VERCEL_ENV,
-        });
-
-        const res = await fetch(apiUrl, {
-          credentials: "include", // Add credentials
-          headers: {
-            Accept: "application/json",
-            "Content-Type": "application/json",
-          },
-        });
-
-        debug.statusCode = res.status;
-        debug.statusText = res.statusText;
-
-        try {
-          debug.headers = Object.fromEntries(res.headers.entries());
-        } catch (e) {
-          debug.headers = "Could not read headers";
-        }
-
-        if (res.status === 404) {
-          console.log("404 Not Found for URL:", apiUrl);
-          setStats(null);
-          setDebugInfo(debug);
-          return;
-        }
-
-        if (!res.ok) {
-          let errorText = "Failed to fetch data";
-          try {
-            const errorData = await res.text();
-            console.error("Error response:", errorData);
-            errorText = `Failed to fetch data: ${errorData}`;
-            debug.errorResponse = errorData;
-          } catch (e) {
-            debug.errorResponse = "Could not read error response";
-          }
-          throw new Error(errorText);
-        }
-
-        const data = await res.json();
-        debug.dataReceived = !!data;
-        debug.dataLength = Array.isArray(data) ? data.length : "not an array";
-        setStats(data);
-        setDebugInfo(debug);
-      } catch (err) {
-        debug.error = err instanceof Error ? err.message : "An error occurred";
-        debug.errorStack = err instanceof Error ? err.stack : undefined;
-        console.error("Full error details:", debug);
-        setError(debug.error);
-        setDebugInfo(debug);
-      } finally {
-        setIsLoading(false);
-      }
-    };
-
-    fetchStats();
-  }, []);
-
-  if (isLoading) {
-    return (
-      <div className="flex flex-col items-center justify-center min-h-screen">
-        <p className="text-lg">Loading stats...</p>
-      </div>
-    );
-  }
-
-  if (error) {
-    return (
-      <div className="flex flex-col items-center justify-center min-h-screen">
-        <p className="text-lg text-red-500">Error: {error}</p>
-        {debugInfo && (
-          <div className="mt-4 p-4 bg-gray-100 rounded-lg text-sm overflow-auto max-w-2xl">
-            <pre className="whitespace-pre-wrap">
-              {JSON.stringify(debugInfo, null, 2)}
-            </pre>
-          </div>
-        )}
-      </div>
-    );
-  }
-
-  if (!stats) {
-    return (
-      <div className="flex flex-col items-center justify-center min-h-screen">
-        <p className="text-lg">No stats available</p>
-        {debugInfo && (
-          <div className="mt-4 p-4 bg-gray-100 rounded-lg text-sm overflow-auto max-w-2xl">
-            <pre className="whitespace-pre-wrap">
-              {JSON.stringify(debugInfo, null, 2)}
-            </pre>
-          </div>
-        )}
-      </div>
-    );
-  }
-
-  const pagesChartData = stats?.map((stat) => {
+export default function Stats({ stats }: { stats: any[] }) {
+  const pagesChartData = stats.map((stat) => {
     const [year, month] = stat.month.split("-");
     return {
       month: MONTH_NAMES[parseInt(month, 10) - 1],
@@ -206,7 +57,7 @@ export default function Stats({ currentUserId }: Props) {
     };
   });
 
-  const booksChartData = stats?.map((stat) => {
+  const booksChartData = stats.map((stat) => {
     const [year, month] = stat.month.split("-");
     return {
       month: MONTH_NAMES[parseInt(month, 10) - 1],
