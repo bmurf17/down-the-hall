@@ -26,8 +26,8 @@ export default async function StatsPage() {
   const stats = await response.json();
 
   return (
-    <main>
+    <div className="mx-16 ">
       <Stats stats={stats} />
-    </main>
+    </div>
   );
 }
