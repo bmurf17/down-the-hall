@@ -7,7 +7,6 @@ interface Props {
 
 export default function BookCrazyView({ book }: Props) {
   const bookObject = book.book;
-  const author = book.author;
 
   return (
     <div className="book-wrapper">
