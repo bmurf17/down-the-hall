@@ -6,7 +6,7 @@ import { Pool } from "@neondatabase/serverless";
 import db from "../lib/db";
 import { author, book, bookNote, userActivityLog } from "../lib/schema";
 import { PoolClient } from "pg";
-import { logStatusString } from "@/types/statusEnum";
+import { logStatusString } from "@/types/enums/statusEnum";
 
 export const addBook = async (
   title: string,

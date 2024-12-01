@@ -3,7 +3,7 @@
 import { deleteBook } from "@/actions/bookActions";
 import { useToast } from "@/hooks/use-toast";
 import { Book } from "@/types/book";
-import { readingStatusString } from "@/types/statusEnum";
+import { readingStatusString } from "@/types/enums/statusEnum";
 import clsx from "clsx";
 import Link from "next/link";
 import { useState } from "react";

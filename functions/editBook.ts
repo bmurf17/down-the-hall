@@ -1,7 +1,7 @@
 "use server";
 
 import { editBook } from "@/actions/bookActions";
-import { Status } from "@/types/statusEnum";
+import { Status } from "@/types/enums/statusEnum";
 
 export const editBookToList = async (
   id: number,
