@@ -67,6 +67,13 @@ export const bookNote = pgTable("book_note", {
   series: text("series"),
 });
 
+export const userGoals = pgTable("user_goal", {
+  id: serial("id").primaryKey().notNull(),
+  userId: text("user_id"),
+  timeFrame: integer("time_frame"),
+  bookCount: integer("book_count"),
+});
+
 export type SelectBook = typeof book.$inferSelect;
 export type InsertBook = typeof book.$inferInsert;
 export type SelectAuthor = typeof author.$inferSelect;
