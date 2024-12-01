@@ -32,7 +32,7 @@ export default function Goals() {
             <CardTitle>Progress</CardTitle>
           </CardHeader>
           <CardContent>
-            <ProgressTracker goal={goal} completed={completedBooks.length} />
+            <ProgressTracker goal={10} completed={7} />
           </CardContent>
         </Card>
         <Card className="md:col-span-2">
