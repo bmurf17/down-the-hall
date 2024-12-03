@@ -43,7 +43,10 @@ export function CompletedBooksList({ books }: CompletedBooksListProps) {
         >
           <CarouselContent className="-ml-2 md:-ml-4">
             {imageUrls.map((image, index) => (
-              <CarouselItem className="pl-2 md:pl-4 md:basis-1/4 basis-1/2">
+              <CarouselItem
+                key={image}
+                className="pl-2 md:pl-4 md:basis-1/4 basis-1/2"
+              >
                 <div className="p-1">
                   <img
                     src={image}
