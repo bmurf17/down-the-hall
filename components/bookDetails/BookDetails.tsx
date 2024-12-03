@@ -1,7 +1,7 @@
 "use client";
 
 import { Book } from "@/types/book";
-import { readingStatusString } from "@/types/statusEnum";
+import { readingStatusString } from "@/types/enums/statusEnum";
 import { Tab, TabGroup, TabList, TabPanel } from "@headlessui/react";
 import { AddToListButton } from "../shared/AddToListButton";
 import Notes from "./_Notes";

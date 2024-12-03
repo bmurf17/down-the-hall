@@ -2,7 +2,7 @@ import React, { useState } from "react";
 import { addBookToList } from "@/functions/addBook";
 import { editBookToList } from "@/functions/editBook";
 import { useToast } from "@/hooks/use-toast";
-import { Status } from "@/types/statusEnum";
+import { Status } from "@/types/enums/statusEnum";
 import {
   Listbox,
   ListboxButton,
