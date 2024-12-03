@@ -37,7 +37,7 @@ const queryMonthString =
 
 const TRENDING_BOOKS_QUERY = gql`
   query TrendingBooks {
-    books_trending(limit: 10, from: ${queryMonthString}, offset: 0) {
+    books_trending(limit: 10, from: "${queryMonthString}", offset: 0) {
       ids
     }
   }
