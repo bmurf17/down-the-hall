@@ -11,7 +11,11 @@ export function ProgressTracker({ goal, completed }: ProgressTrackerProps) {
   return (
     <div className="space-y-2">
       <h3 className="text-lg font-medium">Reading Progress</h3>
-      <Progress value={percentage} className="w-full" />
+      <Progress
+        value={50}
+        className="w-[60%] bg-slate-100 "
+        indicatorColor="bg-gradient-to-r from-blue-500 to-green-500"
+      />
       <p className="text-sm text-gray-500">
         {completed} of {goal} books read ({percentage.toFixed(1)}%)
       </p>

@@ -15,7 +15,6 @@ function addCorsHeaders(response: NextResponse) {
 }
 
 export async function OPTIONS(): Promise<NextResponse> {
-  // Return a 200 response with CORS headers for preflight requests
   const response = NextResponse.json({}, { status: 200 });
   return addCorsHeaders(response);
 }
@@ -26,25 +25,25 @@ export async function GET(
 ): Promise<NextResponse> {
   const { userId } = params;
 
-  const sixMonthsAgo = new Date();
-  sixMonthsAgo.setMonth(sixMonthsAgo.getMonth() - 5);
+  // Get the start of the current year
+  const currentYear = new Date().getFullYear();
+  const startOfYear = new Date(currentYear, 0, 1);
 
   const data = await db
     .select({
-      month: sql`to_char(${book.dateRead}, 'YYYY-MM')`,
-      totalPages: sql`SUM(${book.pageCount})`,
-      bookCount: sql`COUNT(*)`,
+      bookId: book.id,
+      title: book.title,
+      dateRead: book.dateRead,
+      pageCount: book.pageCount,
     })
     .from(book)
     .where(
       sql`${book.userId} = ${userId}
-        AND ${book.dateRead} >= ${sixMonthsAgo}
+        AND ${book.dateRead} >= ${startOfYear}
         AND ${book.dateRead} IS NOT NULL
-        AND ${book.pageCount} IS NOT NULL 
         AND ${book.status} = ${Status.Finished}`
     )
-    .groupBy(sql`to_char(${book.dateRead}, 'YYYY-MM')`)
-    .orderBy(sql`to_char(${book.dateRead}, 'YYYY-MM')`);
+    .orderBy(book.dateRead);
 
   const response = NextResponse.json(data);
   return addCorsHeaders(response);
