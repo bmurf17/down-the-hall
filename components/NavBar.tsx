@@ -11,6 +11,7 @@ import { ExploreIcon } from "./icons/ExploreIcon";
 import { SearchIcon } from "./icons/SearchIcon";
 import { BarChartIcon } from "./icons/BarChartIcon";
 import clsx from "clsx";
+import { GoalsIcon } from "./icons/GoalsIcon";
 
 export default function NavBar() {
   const [menuOpen, setMenuOpen] = useState(false);
@@ -121,6 +122,16 @@ export default function NavBar() {
                     >
                       <BarChartIcon className="h-5 w-5" />
                       Stats
+                    </button>
+                    <button
+                      type="button"
+                      className="flex items-center gap-3 rounded-md px-3 py-2 text-sm font-medium text-gray-500 transition-colors hover:bg-gray-100 hover:text-gray-900"
+                      onClick={() => {
+                        navigateTo("/goals");
+                      }}
+                    >
+                      <GoalsIcon className="h-5 w-5" />
+                      Goals
                     </button>
                   </div>
                 </SignedIn>
