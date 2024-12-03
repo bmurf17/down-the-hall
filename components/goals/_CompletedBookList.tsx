@@ -49,7 +49,7 @@ export function CompletedBooksList({ books }: CompletedBooksListProps) {
               >
                 <div className="p-1">
                   <img
-                    src={image}
+                    src={image + index}
                     alt={`Book ${index + 1}`}
                     height={100}
                     width={100}

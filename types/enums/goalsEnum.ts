@@ -1,4 +1,4 @@
-export enum Status {
+export enum GoalTimeFrame {
   Month,
   Year,
   Quarter,

@@ -6,13 +6,22 @@ import { useState } from "react";
 import { CompletedBooksList } from "./_CompletedBookList";
 import { ProgressTracker } from "./_ProgressTracker";
 import { ReadingGoalForm } from "./_ReadingGoalForm";
+import { addGoalAction } from "@/actions/goalsActions";
+import { InsertGoal } from "@/lib/schema";
+import { GoalTimeFrame } from "@/types/enums/goalsEnum";
+import { addGoal } from "@/functions/addGoal";
 
 export default function Goals() {
   const [goal, setGoal] = useState(0);
   const [completedBooks, setCompletedBooks] = useState<Book[]>([]);
 
-  const handleSetGoal = (newGoal: number) => {
-    setGoal(newGoal);
+  const handleSetGoal = (bookCount: number) => {
+    console.log("function");
+    const newGoal: InsertGoal = {
+      bookCount: bookCount,
+      timeFrame: GoalTimeFrame.Year,
+    };
+    addGoal(newGoal);
   };
 
   return (

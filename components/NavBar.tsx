@@ -1,17 +1,15 @@
 "use client";
 import { SignedIn, SignedOut, SignInButton, UserButton } from "@clerk/nextjs";
 import { Dialog, Transition } from "@headlessui/react";
+import clsx from "clsx";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { Fragment, useState } from "react";
+import { BarChartIcon } from "./icons/BarChartIcon";
 import { BookmarkIcon } from "./icons/BookmarkIcon";
 import { BurgerMenuIcon } from "./icons/BurgerMenuIcon";
-import { ConnectionIcon } from "./icons/ConnectionIconIcon";
-import { ExploreIcon } from "./icons/ExploreIcon";
-import { SearchIcon } from "./icons/SearchIcon";
-import { BarChartIcon } from "./icons/BarChartIcon";
-import clsx from "clsx";
 import { GoalsIcon } from "./icons/GoalsIcon";
+import { SearchIcon } from "./icons/SearchIcon";
 
 export default function NavBar() {
   const [menuOpen, setMenuOpen] = useState(false);
