@@ -31,21 +31,20 @@ export function CompletedBooksList({ books }: CompletedBooksListProps) {
   ];
 
   return (
-    <div className="space-y-4">
-      <h3 className="text-lg font-medium">Completed Books</h3>
-
+    <div className="space-y-4 ">
       {imageUrls.length > 0 ? (
         <Carousel
           opts={{
             align: "start",
             loop: true,
           }}
+          className="mx-8"
         >
           <CarouselContent className="-ml-2 md:-ml-4">
             {imageUrls.map((image, index) => (
               <CarouselItem
                 key={image}
-                className="pl-2 md:pl-4 md:basis-1/4 basis-1/2"
+                className="pl-2 md:pl-4 lg:basis-1/6 md:basis-1/4 basis-1/2"
               >
                 <div className="p-1">
                   <img

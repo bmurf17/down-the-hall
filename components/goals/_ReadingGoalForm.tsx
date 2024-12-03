@@ -37,16 +37,18 @@ export function ReadingGoalForm({ onSetGoal }: ReadingGoalFormProps) {
           min="1"
         />
       </div>
-      <Button
-        className={clsx(
-          "bg-primary flex items-center justify-center p-4 rounded-lg text-sm/6 gap-2 text-white",
-          "focus:outline-none data-[focus]:outline-2 data-[focus]:-outline-offset-2 data-[focus]:outline-white/25",
-          isLoading && "opacity-50 cursor-not-allowed"
-        )}
-        type="submit"
-      >
-        Set Goal
-      </Button>
+      <div className="flex justify-end">
+        <Button
+          className={clsx(
+            "bg-primary flex items-center justify-center p-4 rounded-lg text-sm/6 gap-2 text-white",
+            "focus:outline-none data-[focus]:outline-2 data-[focus]:-outline-offset-2 data-[focus]:outline-white/25",
+            isLoading && "opacity-50 cursor-not-allowed"
+          )}
+          type="submit"
+        >
+          Set Goal
+        </Button>
+      </div>
     </form>
   );
 }

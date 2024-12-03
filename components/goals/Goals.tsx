@@ -16,7 +16,6 @@ export default function Goals() {
   const [completedBooks, setCompletedBooks] = useState<Book[]>([]);
 
   const handleSetGoal = (bookCount: number) => {
-    console.log("function");
     const newGoal: InsertGoal = {
       bookCount: bookCount,
       timeFrame: GoalTimeFrame.Year,
