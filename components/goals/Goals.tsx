@@ -1,14 +1,13 @@
 "use client";
 
+import { addGoalAction } from "@/actions/goalsActions";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Book } from "@/types/book";
-import { useState, useOptimistic, useTransition } from "react";
+import { InsertGoal, SelectBook, SelectGoal } from "@/lib/schema";
+import { GoalTimeFrame } from "@/types/enums/goalsEnum";
+import { useOptimistic, useTransition } from "react";
 import { CompletedBooksList } from "./_CompletedBookList";
 import { ProgressTracker } from "./_ProgressTracker";
 import { ReadingGoalForm } from "./_ReadingGoalForm";
-import { InsertGoal, SelectBook, SelectGoal } from "@/lib/schema";
-import { GoalTimeFrame } from "@/types/enums/goalsEnum";
-import { addGoalAction } from "@/actions/goalsActions";
 
 interface Props {
   completedBooks: SelectBook[];
@@ -18,11 +17,9 @@ interface Props {
 export default function Goals({ completedBooks, goals }: Props) {
   const [isPending, startTransition] = useTransition();
 
-  // Use optimistic state for goals
   const [optimisticGoals, setOptimisticGoals] = useOptimistic(
     goals,
     (state, newGoal: any) => {
-      // Immediately update the UI with the new goal
       return [
         ...state.filter((g) => g.timeFrame !== newGoal.timeFrame),
         {
@@ -49,7 +46,6 @@ export default function Goals({ completedBooks, goals }: Props) {
       await addGoalAction(newGoal);
     } catch (error) {
       console.error("Failed to add goal", error);
-      // Optionally handle error (e.g., show toast)
     }
   };
 

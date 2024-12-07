@@ -26,10 +26,14 @@ export function ReadingGoalForm({
     }
   };
 
+  const currentYear = new Date().getFullYear();
+
   return (
     <form onSubmit={handleSubmit} className="space-y-4">
       <div>
-        <Label htmlFor="reading-goal">Set Reading Goal (Books per Year)</Label>
+        <Label htmlFor="reading-goal">
+          Set Reading Goal (For {currentYear})
+        </Label>
         <Input
           id="reading-goal"
           type="number"
