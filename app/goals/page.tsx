@@ -24,11 +24,11 @@ export default async function StatsPage() {
     );
   }
 
-  const booksRead: SelectBook[] = await response.json();
+  const { books, goals } = await response.json();
 
   return (
     <div className="mx-16 ">
-      <Goals completedBooks={booksRead} />
+      <Goals completedBooks={books} goals={goals} />
     </div>
   );
 }

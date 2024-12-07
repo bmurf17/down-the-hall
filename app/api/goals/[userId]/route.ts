@@ -1,7 +1,7 @@
 import { eq, sql } from "drizzle-orm";
 import { NextRequest, NextResponse } from "next/server";
 import db from "../../../../lib/db";
-import { book } from "../../../../lib/schema";
+import { book, userGoals } from "../../../../lib/schema";
 import { Status } from "@/types/enums/statusEnum";
 
 function addCorsHeaders(response: NextResponse) {
@@ -29,7 +29,8 @@ export async function GET(
   const currentYear = new Date().getFullYear();
   const startOfYear = new Date(currentYear, 0, 1);
 
-  const data = await db
+  // Fetch books data
+  const booksData = await db
     .select({
       bookId: book.id,
       title: book.title,
@@ -46,6 +47,21 @@ export async function GET(
     )
     .orderBy(book.dateRead);
 
-  const response = NextResponse.json(data);
+  // Fetch user goals data
+  const goalsData = await db
+    .select({
+      id: userGoals.id,
+      timeFrame: userGoals.timeFrame,
+      bookCount: userGoals.bookCount,
+    })
+    .from(userGoals)
+    .where(eq(userGoals.userId, userId));
+
+  // Combine and return both datasets
+  const response = NextResponse.json({
+    books: booksData,
+    goals: goalsData,
+  });
+
   return addCorsHeaders(response);
 }
