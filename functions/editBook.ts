@@ -9,9 +9,6 @@ export const editBookToList = async (
   status: number,
   ranking: string
 ) => {
-  console.log(status);
-  console.log(Status.Finished);
-
   editBook(
     id,
     title,

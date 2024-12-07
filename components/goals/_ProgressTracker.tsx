@@ -6,7 +6,6 @@ interface ProgressTrackerProps {
 }
 
 export function ProgressTracker({ goal, completed }: ProgressTrackerProps) {
-  console.log(goal);
   if (goal === 0) {
     return (
       <div className="space-y-2">
