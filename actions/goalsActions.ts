@@ -1,16 +1,29 @@
+// actions/goalsActions.ts
+"use server";
+
 import db from "@/lib/db";
 import { InsertGoal, userGoals } from "@/lib/schema";
-import { revalidateTag } from "next/cache";
+import { revalidatePath } from "next/cache";
+import { currentUser } from "@clerk/nextjs/server";
 
-export const addGoalAction = async (goal: InsertGoal) => {
-  await db.insert(userGoals).values({
-    bookCount: goal.bookCount,
-    timeFrame: goal.timeFrame,
-    userId: goal.userId,
-  });
+export async function addGoalAction(goal: Omit<InsertGoal, "id">) {
+  const userRightNow = await currentUser();
 
-  console.log("Inserted");
+  if (!userRightNow?.id) {
+    throw new Error("User not authenticated");
+  }
 
-  console.log(goal);
-  revalidateTag(`goals/${goal.userId}`);
-};
+  const newGoal = await db
+    .insert(userGoals)
+    .values({
+      bookCount: goal.bookCount,
+      timeFrame: goal.timeFrame,
+      userId: userRightNow.id,
+    })
+    .returning();
+
+  // Revalidate the entire page to ensure fresh data
+  revalidatePath("/stats");
+
+  return newGoal[0];
+}

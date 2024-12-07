@@ -2,14 +2,13 @@
 
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Book } from "@/types/book";
-import { useState } from "react";
+import { useState, useOptimistic, useTransition } from "react";
 import { CompletedBooksList } from "./_CompletedBookList";
 import { ProgressTracker } from "./_ProgressTracker";
 import { ReadingGoalForm } from "./_ReadingGoalForm";
-import { addGoalAction } from "@/actions/goalsActions";
 import { InsertGoal, SelectBook, SelectGoal } from "@/lib/schema";
 import { GoalTimeFrame } from "@/types/enums/goalsEnum";
-import { addGoal } from "@/functions/addGoal";
+import { addGoalAction } from "@/actions/goalsActions";
 
 interface Props {
   completedBooks: SelectBook[];
@@ -17,12 +16,41 @@ interface Props {
 }
 
 export default function Goals({ completedBooks, goals }: Props) {
-  const handleSetGoal = (bookCount: number) => {
-    const newGoal: InsertGoal = {
+  const [isPending, startTransition] = useTransition();
+
+  // Use optimistic state for goals
+  const [optimisticGoals, setOptimisticGoals] = useOptimistic(
+    goals,
+    (state, newGoal: any) => {
+      // Immediately update the UI with the new goal
+      return [
+        ...state.filter((g) => g.timeFrame !== newGoal.timeFrame),
+        {
+          ...newGoal,
+        },
+      ];
+    }
+  );
+
+  const handleSetGoal = async (bookCount: number) => {
+    const newGoal: Omit<InsertGoal, "id"> = {
       bookCount: bookCount,
       timeFrame: GoalTimeFrame.Year,
+      userId: undefined, // Will be set server-side
     };
-    addGoal(newGoal);
+
+    // Optimistically update the UI
+    startTransition(() => {
+      setOptimisticGoals(newGoal);
+    });
+
+    // Perform the actual server action
+    try {
+      await addGoalAction(newGoal);
+    } catch (error) {
+      console.error("Failed to add goal", error);
+      // Optionally handle error (e.g., show toast)
+    }
   };
 
   return (
@@ -34,7 +62,10 @@ export default function Goals({ completedBooks, goals }: Props) {
             <CardTitle>Set Reading Goal</CardTitle>
           </CardHeader>
           <CardContent>
-            <ReadingGoalForm onSetGoal={handleSetGoal} />
+            <ReadingGoalForm
+              onSetGoal={handleSetGoal}
+              isSubmitting={isPending}
+            />
           </CardContent>
         </Card>
         <Card>
@@ -42,14 +73,10 @@ export default function Goals({ completedBooks, goals }: Props) {
             <CardTitle>Progress</CardTitle>
           </CardHeader>
           <CardContent>
-            {goals?.length > 0 ? (
-              <ProgressTracker
-                goal={goals[0]?.bookCount || 0}
-                completed={completedBooks.length}
-              />
-            ) : (
-              <ProgressTracker goal={0} completed={completedBooks.length} />
-            )}
+            <ProgressTracker
+              goal={optimisticGoals[0]?.bookCount || 0}
+              completed={completedBooks.length}
+            />
           </CardContent>
         </Card>
         <Card className="md:col-span-2">
