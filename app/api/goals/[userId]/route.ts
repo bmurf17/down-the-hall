@@ -35,6 +35,7 @@ export async function GET(
       title: book.title,
       dateRead: book.dateRead,
       pageCount: book.pageCount,
+      image: book.image,
     })
     .from(book)
     .where(

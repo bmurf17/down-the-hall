@@ -7,13 +7,16 @@ import { CompletedBooksList } from "./_CompletedBookList";
 import { ProgressTracker } from "./_ProgressTracker";
 import { ReadingGoalForm } from "./_ReadingGoalForm";
 import { addGoalAction } from "@/actions/goalsActions";
-import { InsertGoal } from "@/lib/schema";
+import { InsertGoal, SelectBook } from "@/lib/schema";
 import { GoalTimeFrame } from "@/types/enums/goalsEnum";
 import { addGoal } from "@/functions/addGoal";
 
-export default function Goals() {
+interface Props {
+  completedBooks: SelectBook[];
+}
+
+export default function Goals({ completedBooks }: Props) {
   const [goal, setGoal] = useState(0);
-  const [completedBooks, setCompletedBooks] = useState<Book[]>([]);
 
   const handleSetGoal = (bookCount: number) => {
     const newGoal: InsertGoal = {
@@ -40,7 +43,7 @@ export default function Goals() {
             <CardTitle>Progress</CardTitle>
           </CardHeader>
           <CardContent>
-            <ProgressTracker goal={10} completed={7} />
+            <ProgressTracker goal={10} completed={completedBooks.length} />
           </CardContent>
         </Card>
         <Card className="md:col-span-2">

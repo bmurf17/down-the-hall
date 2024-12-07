@@ -1,4 +1,5 @@
 import Goals from "@/components/goals/Goals";
+import { SelectBook } from "@/lib/schema";
 import { currentUser } from "@clerk/nextjs/server";
 
 export default async function StatsPage() {
@@ -23,12 +24,11 @@ export default async function StatsPage() {
     );
   }
 
-  const booksRead = await response.json();
-  console.log(booksRead);
+  const booksRead: SelectBook[] = await response.json();
 
   return (
     <div className="mx-16 ">
-      <Goals />
+      <Goals completedBooks={booksRead} />
     </div>
   );
 }
