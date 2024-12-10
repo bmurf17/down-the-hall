@@ -1,4 +1,3 @@
-// actions/goalsActions.ts
 "use server";
 
 import db, { DB } from "@/lib/db";
