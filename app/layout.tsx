@@ -1,10 +1,10 @@
-import NavBar from "@/components/NavBar";
 import { Toaster } from "@/components/ui/toaster";
 import { ClerkProvider } from "@clerk/nextjs";
 import type { Metadata } from "next";
 import { Inter } from "next/font/google";
 import "./globals.css";
 import Template from "./template";
+import NavBar from "@/components/nav/NavBar";
 
 const inter = Inter({ subsets: ["latin"] });
 
