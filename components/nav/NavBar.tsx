@@ -53,7 +53,6 @@ export default function NavBar() {
                     },
                   },
                 }}
-                showName={true}
               />
             </SignedIn>
             <SignedOut>
