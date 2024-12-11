@@ -36,9 +36,7 @@ export default function TrackBookViewLogic({
         <>
           {selectedView === viewOptions[1] ? (
             <div className="flex flex-col gap-2">
-              {books.map((book) => {
-                return <BookListView key={book?.book?.id} book={book} />;
-              })}
+              <BookListView books={books} />
             </div>
           ) : (
             <>
