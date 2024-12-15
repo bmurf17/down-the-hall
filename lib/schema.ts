@@ -69,11 +69,29 @@ export const bookNote = pgTable("book_note", {
 
 export const userGoals = pgTable("user_goal", {
   id: serial("id").primaryKey().notNull(),
-  userId: text("user_id"),
+  userId: text("user_id").references(() => users.id), // Foreign key to users table
   timeFrame: integer("time_frame"),
   bookCount: integer("book_count"),
   goalYear: integer("goal_year"),
 });
+
+export const userGoalsRelations = relations(userGoals, ({ one }) => ({
+  user: one(users, {
+    fields: [userGoals.userId],
+    references: [users.id],
+  }),
+}));
+
+export const users = pgTable("users", {
+  id: text("id").primaryKey().notNull(),
+  image: text("image"),
+  userName: text("user_name"),
+  lastLoggedIn: timestamp("last_logged_in"),
+});
+
+export const userRelations = relations(users, ({ many }) => ({
+  goals: many(userGoals),
+}));
 
 export type SelectBook = typeof book.$inferSelect;
 export type InsertBook = typeof book.$inferInsert;
