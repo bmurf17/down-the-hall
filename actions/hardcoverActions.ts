@@ -47,7 +47,11 @@ const TRENDING_BOOKS_QUERY = gql`
 
 const FIND_BOOKS_QUERY = (title: string) => gql`
   query TrendingBooks {
-    books(where: {title: {_ilike: "%${title}%"}}, order_by: {users_count: desc}, limit: 10) {
+    books(
+      where: { title: { _eq: "This Is How You Lose the Time War" } }
+      order_by: { users_count: desc }
+      limit: 10
+    ) {
       id
     }
   }
