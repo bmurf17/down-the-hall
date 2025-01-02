@@ -1,3 +1,5 @@
+"use server";
+
 import { ApolloClient, InMemoryCache, gql } from "@apollo/client";
 
 //QUERIES
@@ -124,6 +126,7 @@ const SERIES_BY_IDS_QUERY = (seriesIds: number[]) => gql`
 
 export const getBooks = async (title: string) => {
   try {
+    console.log(title);
     if (title === "") {
       return null;
     }

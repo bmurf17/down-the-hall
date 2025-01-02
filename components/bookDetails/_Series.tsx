@@ -1,8 +1,6 @@
-import { useEffect, useState } from "react";
-import { processBookSeriesDetails } from "@/helpers/convertSeriesBook";
 import { BookSeriesArray } from "@/types/apiResponse/seriesResponse";
-import BookListItem from "../shared/BookListItem";
 import { Book } from "@/types/book";
+import BookListItem from "../shared/BookListItem";
 
 interface Props {
   seriesInfo: BookSeriesArray;

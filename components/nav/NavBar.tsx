@@ -1,16 +1,18 @@
 "use client";
+
 import { SignedIn, SignedOut, SignInButton, UserButton } from "@clerk/nextjs";
 import { Dialog, Transition } from "@headlessui/react";
+import clsx from "clsx";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { Fragment, useState } from "react";
-import { BookmarkIcon } from "./icons/BookmarkIcon";
-import { BurgerMenuIcon } from "./icons/BurgerMenuIcon";
-import { ConnectionIcon } from "./icons/ConnectionIconIcon";
-import { ExploreIcon } from "./icons/ExploreIcon";
-import { SearchIcon } from "./icons/SearchIcon";
-import { BarChartIcon } from "./icons/BarChartIcon";
-import clsx from "clsx";
+
+import { NavSearchModal } from "./NavSearchModal"; // Import the new search modal component
+import { BookmarkIcon } from "../icons/BookmarkIcon";
+import { BarChartIcon } from "../icons/BarChartIcon";
+import { SearchIcon } from "lucide-react";
+import { BurgerMenuIcon } from "../icons/BurgerMenuIcon";
+import { GoalsIcon } from "../icons/GoalsIcon";
 
 export default function NavBar() {
   const [menuOpen, setMenuOpen] = useState(false);
@@ -27,8 +29,8 @@ export default function NavBar() {
 
   return (
     <>
-      <header className="w-full  z-10">
-        <div className="bg-navbar text-white px-16 py-4 mb-4 flex gap-4 justify-between">
+      <header className="w-full z-10">
+        <div className="bg-navbar text-white px-16 py-4 mb-4 flex gap-4 justify-between items-center">
           <div className="flex gap-4 hover:cursor-pointer items-center">
             <div
               onClick={() => {
@@ -40,11 +42,9 @@ export default function NavBar() {
             <Link href="/">Down The Hall</Link>
           </div>
 
-          <div className=" inset-y-0 right-0 flex items-center pr-2 sm:static sm:inset-auto sm:ml-6 sm:pr-0 text-white">
-            <SignedOut>
-              <SignInButton />
-            </SignedOut>
+          <div className="flex items-center gap-4 pr-2 sm:static sm:inset-auto sm:ml-6 sm:pr-0 text-white">
             <SignedIn>
+              <NavSearchModal /> {/* Add the search modal component */}
               <UserButton
                 appearance={{
                   elements: {
@@ -53,9 +53,11 @@ export default function NavBar() {
                     },
                   },
                 }}
-                showName={true}
               />
             </SignedIn>
+            <SignedOut>
+              <SignInButton />
+            </SignedOut>
           </div>
         </div>
       </header>
@@ -121,6 +123,16 @@ export default function NavBar() {
                     >
                       <BarChartIcon className="h-5 w-5" />
                       Stats
+                    </button>
+                    <button
+                      type="button"
+                      className="flex items-center gap-3 rounded-md px-3 py-2 text-sm font-medium text-gray-500 transition-colors hover:bg-gray-100 hover:text-gray-900"
+                      onClick={() => {
+                        navigateTo("/goals");
+                      }}
+                    >
+                      <GoalsIcon className="h-5 w-5" />
+                      Goals
                     </button>
                   </div>
                 </SignedIn>

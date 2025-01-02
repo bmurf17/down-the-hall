@@ -1,7 +1,7 @@
 import { SelectBook, SelectAuthor } from "@/lib/schema";
 import { BookSeries } from "@/types/apiResponse/seriesResponse";
 import { Book } from "@/types/book";
-import { handleImage, placeholderImage } from "./convertTrendingBookToBook";
+import { handleImage } from "./convertTrendingBookToBook";
 
 export const processBookSeriesDetails = async (
   bookSeries: BookSeries,
@@ -12,7 +12,7 @@ export const processBookSeriesDetails = async (
   var image = await handleImage(
     bookId,
     dtoCombined.title,
-    bookSeries.book?.cached_image.url || placeholderImage
+    bookSeries.book?.cached_image.url || "placeholder.png"
   );
 
   const book: SelectBook = {

@@ -1,7 +1,7 @@
 import { eq, sql } from "drizzle-orm";
 import { NextRequest, NextResponse } from "next/server";
 import db from "../../../../lib/db";
-import { book } from "../../../../lib/schema";
+import { book, userGoals } from "../../../../lib/schema";
 import { Status } from "@/types/enums/statusEnum";
 
 function addCorsHeaders(response: NextResponse) {
@@ -15,7 +15,6 @@ function addCorsHeaders(response: NextResponse) {
 }
 
 export async function OPTIONS(): Promise<NextResponse> {
-  // Return a 200 response with CORS headers for preflight requests
   const response = NextResponse.json({}, { status: 200 });
   return addCorsHeaders(response);
 }
@@ -26,26 +25,43 @@ export async function GET(
 ): Promise<NextResponse> {
   const { userId } = params;
 
-  const sixMonthsAgo = new Date();
-  sixMonthsAgo.setMonth(sixMonthsAgo.getMonth() - 5);
+  // Get the start of the current year
+  const currentYear = new Date().getFullYear();
+  const startOfYear = new Date(currentYear, 0, 1);
 
-  const data = await db
+  // Fetch books data
+  const booksData = await db
     .select({
-      month: sql`to_char(${book.dateRead}, 'YYYY-MM')`,
-      totalPages: sql`SUM(${book.pageCount})`,
-      bookCount: sql`COUNT(*)`,
+      bookId: book.id,
+      title: book.title,
+      dateRead: book.dateRead,
+      pageCount: book.pageCount,
+      image: book.image,
     })
     .from(book)
     .where(
       sql`${book.userId} = ${userId}
-        AND ${book.dateRead} >= ${sixMonthsAgo}
+        AND ${book.dateRead} >= ${startOfYear}
         AND ${book.dateRead} IS NOT NULL
-        AND ${book.pageCount} IS NOT NULL 
         AND ${book.status} = ${Status.Finished}`
     )
-    .groupBy(sql`to_char(${book.dateRead}, 'YYYY-MM')`)
-    .orderBy(sql`to_char(${book.dateRead}, 'YYYY-MM')`);
+    .orderBy(book.dateRead);
 
-  const response = NextResponse.json(data);
+  // Fetch user goals data
+  const goalsData = await db
+    .select({
+      id: userGoals.id,
+      timeFrame: userGoals.timeFrame,
+      bookCount: userGoals.bookCount,
+    })
+    .from(userGoals)
+    .where(eq(userGoals.userId, userId));
+
+  // Combine and return both datasets
+  const response = NextResponse.json({
+    books: booksData,
+    goals: goalsData,
+  });
+
   return addCorsHeaders(response);
 }

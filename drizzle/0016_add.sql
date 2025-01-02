@@ -1,0 +1,1 @@
+ALTER TABLE "user_goal" ADD COLUMN "goal_year" integer;

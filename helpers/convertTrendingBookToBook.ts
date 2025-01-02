@@ -1,3 +1,5 @@
+"use server";
+
 import { storage } from "@/lib/firebase-config";
 import { SelectAuthor, SelectBook } from "@/lib/schema";
 import { Book } from "@/types/book";
@@ -8,7 +10,7 @@ import {
 } from "@/types/trending/trendingbookresponse";
 import { getDownloadURL, ref, uploadBytesResumable } from "firebase/storage";
 
-export const placeholderImage = "placeholder.png";
+const placeholderImage = "placeholder.png";
 
 export async function convertTrendingBookData(
   trendingData: TrendingBookData,

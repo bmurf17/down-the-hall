@@ -1,18 +1,52 @@
 "use client";
 
+import { addGoalAction } from "@/actions/goalsActions";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Book } from "@/types/book";
-import { useState } from "react";
+import { InsertGoal, SelectBook, SelectGoal } from "@/lib/schema";
+import { GoalTimeFrame } from "@/types/enums/goalsEnum";
+import { useOptimistic, useTransition } from "react";
 import { CompletedBooksList } from "./_CompletedBookList";
 import { ProgressTracker } from "./_ProgressTracker";
 import { ReadingGoalForm } from "./_ReadingGoalForm";
 
-export default function Goals() {
-  const [goal, setGoal] = useState(0);
-  const [completedBooks, setCompletedBooks] = useState<Book[]>([]);
+interface Props {
+  completedBooks: SelectBook[];
+  goals: SelectGoal[];
+}
 
-  const handleSetGoal = (newGoal: number) => {
-    setGoal(newGoal);
+export default function Goals({ completedBooks, goals }: Props) {
+  const [isPending, startTransition] = useTransition();
+
+  const [optimisticGoals, setOptimisticGoals] = useOptimistic(
+    goals,
+    (state, newGoal: any) => {
+      return [
+        ...state.filter((g) => g.timeFrame !== newGoal.timeFrame),
+        {
+          ...newGoal,
+        },
+      ];
+    }
+  );
+
+  const handleSetGoal = async (bookCount: number) => {
+    const newGoal: Omit<InsertGoal, "id"> = {
+      bookCount: bookCount,
+      timeFrame: GoalTimeFrame.Year,
+      userId: undefined, // Will be set server-side
+    };
+
+    // Optimistically update the UI
+    startTransition(() => {
+      setOptimisticGoals(newGoal);
+    });
+
+    // Perform the actual server action
+    try {
+      await addGoalAction(newGoal);
+    } catch (error) {
+      console.error("Failed to add goal", error);
+    }
   };
 
   return (
@@ -24,7 +58,10 @@ export default function Goals() {
             <CardTitle>Set Reading Goal</CardTitle>
           </CardHeader>
           <CardContent>
-            <ReadingGoalForm onSetGoal={handleSetGoal} />
+            <ReadingGoalForm
+              onSetGoal={handleSetGoal}
+              isSubmitting={isPending}
+            />
           </CardContent>
         </Card>
         <Card>
@@ -32,7 +69,10 @@ export default function Goals() {
             <CardTitle>Progress</CardTitle>
           </CardHeader>
           <CardContent>
-            <ProgressTracker goal={10} completed={7} />
+            <ProgressTracker
+              goal={optimisticGoals[0]?.bookCount || 0}
+              completed={completedBooks.length}
+            />
           </CardContent>
         </Card>
         <Card className="md:col-span-2">

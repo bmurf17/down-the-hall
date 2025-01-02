@@ -7,6 +7,7 @@ import { AddToListButton } from "../shared/AddToListButton";
 import Notes from "./_Notes";
 import { BookSeriesArray } from "@/types/apiResponse/seriesResponse";
 import Series from "./_Series";
+import "./BookDetails.css";
 
 interface Props {
   hardCoverBookInfo: Book;
@@ -38,8 +39,8 @@ export default function BookDetails({
   ];
 
   return (
-    <div style={{ minHeight: "calc(100vh - 101px)" }}>
-      <div
+    <div>
+      {/* <div
         className="relative h-80"
         style={{ marginTop: "-64px", paddingTop: "64px" }}
       >
@@ -58,17 +59,7 @@ export default function BookDetails({
             <div className="relative px-2 lg:px-0 lg:pt-8 mt-[180px] lg:mt-[80px]">
               <div className="mx-auto px-2 lg:px-0 my-2 max-w-3xl lg:h-0">
                 <div className="flex flex-row">
-                  <div className="hidden lg:block mr-4 flex-none">
-                    <div className=" relative overflow-hidden group transition-all rounded-l-sm rounded-r-md border border-secondary ">
-                      <img
-                        src={hardCoverBookInfo?.book?.image || ""}
-                        alt={hardCoverBookInfo?.book?.title}
-                        width="180"
-                        height="271"
-                        loading="lazy"
-                      />
-                    </div>
-                  </div>
+
 
                   <div className="flex-grow flex flex-col justify-between">
                     <div>
@@ -144,9 +135,28 @@ export default function BookDetails({
             </div>
           </div>
         </div>
+      </div> */}
+
+      <div className="outside">
+        <div className="book-wrapper">
+          <div className="card">
+            <div className="cover shadow">
+              <img
+                src={hardCoverBookInfo?.book?.image || ""}
+                alt={hardCoverBookInfo?.book?.title}
+              />
+            </div>
+            <div className="content">
+              <h3 className="text-2xl font-bold">
+                {hardCoverBookInfo?.book?.title}
+              </h3>
+              {/* <p>{hardCoverBookInfo.book?.description}</p> */}
+            </div>
+          </div>
+        </div>
       </div>
 
-      <div className="mx-auto px-2 py-8 lg:px-0 my-4 max-w-3xl lg:mt-80">
+      <div className="mx-auto px-2 lg:px-0 max-w-3xl ">
         <TabGroup>
           <TabList className="flex gap-4 w-full sm:mx-auto overflow-x-auto overflow-y-hidden no-scrollbar ">
             {tabItems.map((tab) => {

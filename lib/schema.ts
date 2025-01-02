@@ -72,6 +72,7 @@ export const userGoals = pgTable("user_goal", {
   userId: text("user_id"),
   timeFrame: integer("time_frame"),
   bookCount: integer("book_count"),
+  goalYear: integer("goal_year"),
 });
 
 export type SelectBook = typeof book.$inferSelect;
@@ -82,3 +83,5 @@ export type SelectUserActivityLog = typeof userActivityLog.$inferSelect;
 export type InsertUserActivityLog = typeof userActivityLog.$inferInsert;
 export type SelectBookNote = typeof bookNote.$inferSelect;
 export type InsertBookNote = typeof bookNote.$inferInsert;
+export type SelectGoal = typeof userGoals.$inferSelect;
+export type InsertGoal = typeof userGoals.$inferInsert;
