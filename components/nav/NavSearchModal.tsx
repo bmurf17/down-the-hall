@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useCallback, useEffect } from "react";
-import { getBooks } from "@/actions/hardcoverActions";
+
 import { convertTrendingBookData } from "@/helpers/convertTrendingBookToBook";
 import { Book } from "@/types/book";
 import { TrendingData } from "@/types/trending/trendingbookresponse";
@@ -41,7 +41,6 @@ export function NavSearchModal() {
       const hardcoverBooks: TrendingData | null = await fetchBooks(query);
       let convertedData: Book[] = [];
 
-      console.log(convertedData);
       if (hardcoverBooks !== null) {
         convertedData = await convertTrendingBookData(
           hardcoverBooks.bookData,
