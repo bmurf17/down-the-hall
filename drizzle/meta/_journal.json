@@ -127,6 +127,13 @@
       "when": 1734300538022,
       "tag": "0017_adding",
       "breakpoints": true
+    },
+    {
+      "idx": 18,
+      "version": "6",
+      "when": 1734302168468,
+      "tag": "0018_using_user_id_fk",
+      "breakpoints": true
     }
   ]
 }
