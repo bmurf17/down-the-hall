@@ -1,5 +1,6 @@
 import { SelectBook, SelectUser } from "@/lib/schema";
-import Image from "next/image";
+import { Card } from "@/components/ui/card";
+import { ChevronLeft, ChevronRight, User as UserIcon } from "lucide-react";
 
 export interface GridUsers {
   user: SelectUser;
@@ -12,32 +13,43 @@ interface UserGridProps {
 
 export default function UserGrid({ users }: UserGridProps) {
   return (
-    <div className="container mx-auto px-4 py-8">
-      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
+    <div className="container mx-auto px-4 py-8 ">
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
         {users.map((user) => (
-          <div
-            key={user.user.id}
-            className="bg-white rounded-lg shadow-md overflow-hidden transition-transform duration-300 ease-in-out hover:scale-105"
-          >
-            <div className="relative h-48">
+          <Card key={user.user.id} className="p-6 bg-card text-card-foreground">
+            <div className="flex items-center gap-2 mb-4">
               <img
                 src={user.user.image || ""}
-                alt={`${user.user.userName}'s photo`}
-                className="transition-opacity duration-300 ease-in-out hover:opacity-90 object-cover w-full h-full"
+                alt={user.user.userName + ""}
+                className="w-8 h-8 rounded-md"
               />
+              <span className="text-xl">{user.user.userName}</span>
             </div>
-            <div className="p-4">
-              <h2 className="text-xl font-semibold text-gray-800 mb-2">
-                {user.user.userName}
-              </h2>
-              <p className="text-sm text-gray-600">
-                Currently reading:{" "}
-                <span className="font-medium text-indigo-600">
+
+            <p className="text mb-4 text-center">Currently Reading</p>
+
+            <div className="relative">
+              <button className="absolute left-0 top-1/2 -translate-y-1/2 rounded-full border border-black p-2">
+                <ChevronLeft className="w-4 h-4" />
+              </button>
+
+              <div className="mx-12">
+                <img
+                  src="https://firebasestorage.googleapis.com/v0/b/booksite-2aa2a.appspot.com/o/427945_Dawnshard.jpeg?alt=media&token=85dc90d4-6360-49b3-91d6-3683f5213ecc"
+                  alt={user.currentlyReading.title + ""}
+                  className="aspect-[4/3] rounded  flex items-center justify-center mb-2 object-contain"
+                ></img>
+
+                <h3 className="text-center font-medium">
                   {user.currentlyReading.title}
-                </span>
-              </p>
+                </h3>
+              </div>
+
+              <button className="absolute right-0 top-1/2 -translate-y-1/2 rounded-full border border-black p-2">
+                <ChevronRight className="w-4 h-4" />
+              </button>
             </div>
-          </div>
+          </Card>
         ))}
       </div>
     </div>
