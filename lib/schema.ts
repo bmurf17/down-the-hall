@@ -135,3 +135,5 @@ export type SelectBookNote = typeof bookNote.$inferSelect;
 export type InsertBookNote = typeof bookNote.$inferInsert;
 export type SelectGoal = typeof userGoals.$inferSelect;
 export type InsertGoal = typeof userGoals.$inferInsert;
+export type SelectUser = typeof users.$inferSelect;
+export type InsertUser = typeof users.$inferInsert;
