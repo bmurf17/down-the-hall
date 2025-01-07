@@ -48,13 +48,27 @@ const TRENDING_BOOKS_QUERY = gql`
 const FIND_BOOKS_QUERY = (title: string) => gql`
   query TrendingBooks {
     books(
-      where: { title: { _eq: "This Is How You Lose the Time War" } }
+      where: { title: { _eq: "${title}" } }
       order_by: { users_count: desc }
       limit: 10
     ) {
       id
     }
   }
+`;
+
+const FIND_BOOKS_BY_ISBN_QUERY = (isbns: string[]) => gql`
+query BooksByIsbns {
+ editions(
+   where: {isbn_13: {_in: [${isbns.map((isbn) => `"${isbn}"`).join(", ")}]}}
+   order_by: {book: {user_books_aggregate: {count: desc}}}
+ ) {
+   book {
+     title 
+     id
+   }
+ }
+}
 `;
 
 const GET_SIGNED_BOOK_URL = (url: string) => gql`
@@ -130,7 +144,6 @@ const SERIES_BY_IDS_QUERY = (seriesIds: number[]) => gql`
 
 export const getBooks = async (title: string) => {
   try {
-    console.log(title);
     if (title === "") {
       return null;
     }
@@ -312,3 +325,53 @@ export async function getSignedUrl(url: string) {
     return url; // Return the original URL if signing fails
   }
 }
+
+export const getBooksByIsbn = async (isbns: string[]) => {
+  try {
+    if (isbns.length === 0) {
+      return null;
+    }
+
+    // Fetch trending book IDs
+    const trendingBooksResponse = await client.query({
+      query: FIND_BOOKS_BY_ISBN_QUERY(isbns),
+    });
+    let ids: number[] = Array.from(
+      new Set(
+        trendingBooksResponse.data.editions.map(
+          (x: { book: { id: any } }) => x.book.id
+        )
+      )
+    );
+
+    ids = ids.slice(0, 10);
+
+    if (ids.length === 0) {
+      return null;
+    }
+
+    // Fetch book details
+    const booksResponse = await client.query({
+      query: BOOKS_BY_IDS_QUERY(ids),
+    });
+
+    const seriesIds = Object.values(booksResponse.data)
+      .filter(
+        (book: any) =>
+          book.dto_combined.series?.length > 0 && book.dto_combined.series
+      )
+      .map((book: any) => book.dto_combined.series[0].series_id);
+
+    const seriesResponse = await client.query({
+      query: SERIES_BY_IDS_QUERY(seriesIds),
+    });
+
+    return {
+      bookData: booksResponse.data,
+      seriesData: seriesResponse.data,
+    };
+  } catch (error) {
+    console.error("Error fetching data:", error);
+    throw error;
+  }
+};

@@ -7,12 +7,13 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { Fragment, useState } from "react";
 
-import { NavSearchModal } from "./NavSearchModal"; // Import the new search modal component
+import { NavSearchModal } from "./NavSearchModal";
 import { BookmarkIcon } from "../icons/BookmarkIcon";
 import { BarChartIcon } from "../icons/BarChartIcon";
 import { SearchIcon } from "lucide-react";
 import { BurgerMenuIcon } from "../icons/BurgerMenuIcon";
 import { GoalsIcon } from "../icons/GoalsIcon";
+import { PersonIcon } from "@radix-ui/react-icons";
 
 export default function NavBar() {
   const [menuOpen, setMenuOpen] = useState(false);
@@ -133,6 +134,17 @@ export default function NavBar() {
                     >
                       <GoalsIcon className="h-5 w-5" />
                       Goals
+                    </button>
+
+                    <button
+                      type="button"
+                      className="flex items-center gap-3 rounded-md px-3 py-2 text-sm font-medium text-gray-500 transition-colors hover:bg-gray-100 hover:text-gray-900"
+                      onClick={() => {
+                        navigateTo("/users");
+                      }}
+                    >
+                      <PersonIcon className="h-5 w-5" />
+                      Users
                     </button>
                   </div>
                 </SignedIn>

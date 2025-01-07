@@ -1,4 +1,5 @@
-import { getBooks } from "@/actions/hardcoverActions";
+import { getBooksByIsbn } from "@/actions/hardcoverActions";
+import { searchBooks } from "@/actions/openLibraryActions";
 import Find from "@/components/find/Find";
 import BookListItem from "@/components/shared/BookListItem";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
@@ -14,14 +15,29 @@ interface Props {
 
 async function BookResults({ searchTitle }: { searchTitle: string }) {
   try {
-    const hardcoverBooks: TrendingData | null = await getBooks(searchTitle);
-    let convertedData: Book[] = [];
+    const openLibraryBooks = await searchBooks(searchTitle);
 
-    if (hardcoverBooks !== null) {
-      convertedData = await convertTrendingBookData(
-        hardcoverBooks.bookData,
-        hardcoverBooks.seriesData
+    const isbn13Regex = /\b97[89]-?\d{1,5}-?\d{1,7}-?\d{1,7}-?\d\b/;
+    const allValidIsbns: string[] = Array.from(
+      new Set(
+        openLibraryBooks?.flatMap(
+          (x) => x?.isbn?.filter((isbn) => isbn13Regex.test(isbn)) || []
+        )
+      )
+    );
+
+    let convertedData: Book[] = [];
+    if (allValidIsbns !== null) {
+      const hardcoverBooks: TrendingData | null = await getBooksByIsbn(
+        allValidIsbns || []
       );
+
+      if (hardcoverBooks !== null) {
+        convertedData = await convertTrendingBookData(
+          hardcoverBooks.bookData,
+          hardcoverBooks.seriesData
+        );
+      }
     }
 
     if (convertedData.length === 0 && searchTitle) {
@@ -49,6 +65,7 @@ async function BookResults({ searchTitle }: { searchTitle: string }) {
       </div>
     );
   } catch (error) {
+    console.log(error);
     return (
       <Alert variant="destructive" className="mt-4">
         <AlertCircle className="h-4 w-4" />

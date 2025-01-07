@@ -15,7 +15,7 @@ export default function Find({ children }: Props) {
 
   const [searchTerm, setSearchTerm] = useState(searchParams.get("title") || "");
 
-  const debounceDelay = 100;
+  const debounceDelay = 500;
 
   const createQueryString = useCallback(
     (name: string, value: string) => {
@@ -29,7 +29,7 @@ export default function Find({ children }: Props) {
 
   useEffect(() => {
     const handler = setTimeout(() => {
-      if (searchTerm) {
+      if (searchTerm && searchTerm.length >= 4) {
         router.push(pathname + "?" + createQueryString("title", searchTerm));
       } else {
         router.push(pathname);
