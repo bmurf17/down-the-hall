@@ -4,9 +4,10 @@ import { revalidatePath, revalidateTag } from "next/cache";
 
 import { Pool } from "@neondatabase/serverless";
 import db from "../lib/db";
-import { author, book, bookNote, userActivityLog } from "../lib/schema";
+import { author, book, bookNote, userActivityLog, users } from "../lib/schema";
 import { PoolClient } from "pg";
 import { logStatusString } from "@/types/enums/statusEnum";
+import { User } from "@clerk/nextjs/server";
 
 export const addBook = async (
   title: string,
@@ -22,9 +23,24 @@ export const addBook = async (
   series_name: string,
   hardcover_id: number,
   page_count: number,
-  userId: string,
+  user: User | null,
   date_read?: Date
 ) => {
+  const userData = await db
+    .select()
+    .from(users)
+    .where(eq(users.id, user?.id || ""));
+
+  if (userData.length === 0) {
+    console.log("Adding user");
+    await db.insert(users).values({
+      id: user?.id || "",
+      image: user?.imageUrl,
+      lastLoggedIn: new Date(),
+      userName: user?.fullName,
+    });
+  }
+
   const pool = new Pool({ connectionString: process.env.DATABASE_URL });
   pool.on("error", (err) => console.error(err)); // deal with e.g. re-connect
   const client = await pool.connect();
@@ -59,7 +75,7 @@ export const addBook = async (
         series_name,
         hardcover_id,
         page_count,
-        userId,
+        user?.id || "",
         date_read
       );
 
@@ -69,7 +85,7 @@ export const addBook = async (
         bookId: book_id,
         updatedDate: new Date(),
         action: logStatusString[status],
-        userId: userId,
+        userId: user?.id || "",
       });
 
       revalidateTag("books");
@@ -98,7 +114,7 @@ export const addBook = async (
       series_name,
       hardcover_id,
       page_count,
-      userId,
+      user?.id || "",
       date_read
     );
 
@@ -106,7 +122,7 @@ export const addBook = async (
       bookId: book_id,
       updatedDate: new Date(),
       action: logStatusString[status],
-      userId: userId,
+      userId: user?.id || "",
     });
   } catch (err) {
     console.log(err);
