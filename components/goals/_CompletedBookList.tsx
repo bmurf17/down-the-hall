@@ -34,7 +34,7 @@ export function CompletedBooksList({ books }: CompletedBooksListProps) {
                   <img
                     src={book?.image || ""}
                     alt={`Book ${index + 1}`}
-                    className="lg:w-28 relative overflow-hidden group transition-all border border-gray-100/20 ring-accent hover:ring-1 hover:border-accent rounded-l-sm rounded-r-md shadow-md block"
+                    className="relative overflow-hidden group transition-all border border-gray-100/20 ring-accent hover:ring-1 hover:border-accent rounded-l-sm rounded-r-md shadow-md block"
                   />
                 </div>
               </CarouselItem>
@@ -44,7 +44,7 @@ export function CompletedBooksList({ books }: CompletedBooksListProps) {
           <CarouselNext />
         </Carousel>
       ) : (
-        <p className="text-sm text-gray-500">No images completed yet.</p>
+        <p className="text-sm text-gray-500">No books completed yet.</p>
       )}
     </div>
   );

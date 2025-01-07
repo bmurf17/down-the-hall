@@ -1,54 +1,86 @@
-import { SelectBook, SelectUser } from "@/lib/schema";
 import { Card } from "@/components/ui/card";
-import { ChevronLeft, ChevronRight, User as UserIcon } from "lucide-react";
-
-export interface GridUsers {
-  user: SelectUser;
-  currentlyReading: SelectBook;
-}
+import { User as UserIcon } from "lucide-react";
+import {
+  Carousel,
+  CarouselContent,
+  CarouselItem,
+  CarouselPrevious,
+  CarouselNext,
+} from "../ui/carousel";
+import { userGridResponse } from "@/types/apiResponse/usersgridResponse";
 
 interface UserGridProps {
-  users: GridUsers[];
+  users: userGridResponse[];
 }
-
 export default function UserGrid({ users }: UserGridProps) {
   return (
-    <div className="container mx-auto px-4 py-8 ">
+    <div className="container mx-auto px-4 py-8">
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-        {users.map((user) => (
-          <Card key={user.user.id} className="p-6 bg-card text-card-foreground">
+        {users.map((userData) => (
+          <Card
+            key={userData.user.id}
+            className="p-6 bg-card text-card-foreground"
+          >
             <div className="flex items-center gap-2 mb-4">
-              <img
-                src={user.user.image || ""}
-                alt={user.user.userName + ""}
-                className="w-8 h-8 rounded-md"
-              />
-              <span className="text-xl">{user.user.userName}</span>
+              {userData.user.image ? (
+                <img
+                  src={userData.user.image}
+                  alt={userData.user.userName || "User"}
+                  className="w-8 h-8 rounded-md"
+                />
+              ) : (
+                <UserIcon className="w-8 h-8" />
+              )}
+              <span className="text-xl">
+                {userData.user.userName || "Anonymous User"}
+              </span>
             </div>
 
             <p className="text mb-4 text-center">Currently Reading</p>
 
-            <div className="relative">
-              <button className="absolute left-0 top-1/2 -translate-y-1/2 rounded-full border border-black p-2">
-                <ChevronLeft className="w-4 h-4" />
-              </button>
-
-              <div className="mx-12">
-                <img
-                  src="https://firebasestorage.googleapis.com/v0/b/booksite-2aa2a.appspot.com/o/427945_Dawnshard.jpeg?alt=media&token=85dc90d4-6360-49b3-91d6-3683f5213ecc"
-                  alt={user.currentlyReading.title + ""}
-                  className="aspect-[4/3] rounded  flex items-center justify-center mb-2 object-contain"
-                ></img>
-
-                <h3 className="text-center font-medium">
-                  {user.currentlyReading.title}
-                </h3>
+            {userData.books.length > 0 ? (
+              <div className="relative w-full">
+                <Carousel
+                  opts={{
+                    align: "center",
+                    loop: true,
+                  }}
+                  className="w-full"
+                >
+                  <CarouselContent>
+                    {userData.books.map((book) => (
+                      <CarouselItem
+                        key={book.id}
+                        className="basis-full flex justify-center items-center"
+                      >
+                        <div className="flex flex-col items-center">
+                          <img
+                            src={book.image || "/api/placeholder/200/300"}
+                            alt={book.title}
+                            className="h-64 w-auto object-contain rounded-md shadow-md"
+                          />
+                          <div className="mt-2 text-sm text-center">
+                            <p className="font-medium truncate max-w-[12rem]">
+                              {book.title}
+                            </p>
+                          </div>
+                        </div>
+                      </CarouselItem>
+                    ))}
+                  </CarouselContent>
+                  {userData.books.length > 1 && (
+                    <>
+                      <CarouselPrevious className="left-2" />
+                      <CarouselNext className="right-2" />
+                    </>
+                  )}
+                </Carousel>
               </div>
-
-              <button className="absolute right-0 top-1/2 -translate-y-1/2 rounded-full border border-black p-2">
-                <ChevronRight className="w-4 h-4" />
-              </button>
-            </div>
+            ) : (
+              <div className="text-center text-muted-foreground">
+                No books currently being read
+              </div>
+            )}
           </Card>
         ))}
       </div>
