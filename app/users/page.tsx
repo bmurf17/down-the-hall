@@ -1,7 +1,7 @@
 import Users, { GridUsers } from "@/components/users/Users";
 import { currentUser } from "@clerk/nextjs/server";
 
-export const tempGridUsers: GridUsers[] = [
+const tempGridUsers: GridUsers[] = [
   {
     user: {
       id: "user1",
