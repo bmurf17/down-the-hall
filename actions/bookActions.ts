@@ -32,7 +32,6 @@ export const addBook = async (
     .where(eq(users.id, user?.id || ""));
 
   if (userData.length === 0) {
-    console.log("Adding user");
     await db.insert(users).values({
       id: user?.id || "",
       image: user?.imageUrl,

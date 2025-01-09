@@ -5,6 +5,11 @@ import { users, book, author } from "../../../lib/schema";
 import { Status } from "@/types/enums/statusEnum";
 
 export async function GET(request: NextRequest) {
+  const headers = new Headers({
+    "Cache-Control": "no-store, must-revalidate",
+    Pragma: "no-cache",
+  });
+
   const data = await db
     .select({
       user: {
@@ -47,5 +52,7 @@ export async function GET(request: NextRequest) {
   // Convert the grouped data back to an array
   const finalData = Object.values(processedData);
 
-  return NextResponse.json(finalData);
+  console.log(finalData);
+
+  return NextResponse.json(finalData, { headers });
 }

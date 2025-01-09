@@ -13,7 +13,10 @@ export default async function StatsPage() {
     );
   }
 
-  const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/users`);
+  const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/users`, {
+    cache: "no-store",
+    next: { revalidate: 0 },
+  });
 
   if (!response.ok) {
     return (
