@@ -52,7 +52,5 @@ export async function GET(request: NextRequest) {
   // Convert the grouped data back to an array
   const finalData = Object.values(processedData);
 
-  console.log(finalData);
-
   return NextResponse.json(finalData, { headers });
 }
