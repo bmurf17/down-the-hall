@@ -31,10 +31,6 @@ export default function ActivityLog({ activityLog }: Props) {
                   <div className="text-md">By: {data.authorDetails.name}</div>
                 </div>
               </div>
-              <div className="flex flex-col gap-2 justify-center">
-                <div>{"First Book this month"}</div>
-                <div>{"First Book this month"}</div>
-              </div>
             </div>
           );
         })}
