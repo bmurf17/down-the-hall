@@ -1,7 +1,8 @@
+// app/api/users/route.ts
 import { eq, and } from "drizzle-orm";
 import { NextRequest, NextResponse } from "next/server";
-import db from "../../../lib/db";
-import { users, book, author } from "../../../lib/schema";
+import db from "@/lib/db";
+import { users, book, author } from "@/lib/schema";
 import { Status } from "@/types/enums/statusEnum";
 
 export async function GET(request: NextRequest) {
@@ -12,9 +13,6 @@ export async function GET(request: NextRequest) {
       "Cache-Control": "no-store, must-revalidate",
       Pragma: "no-cache",
     });
-
-    // Log database connection status
-    console.log("Database connection:", !!db);
 
     const data = await db
       .select({
@@ -40,7 +38,6 @@ export async function GET(request: NextRequest) {
 
     console.log("Raw data length:", data.length);
 
-    // Group books by user and handle null books
     const processedData = data.reduce<Record<string, any>>((acc, row) => {
       if (!acc[row.user.id]) {
         acc[row.user.id] = {
@@ -49,7 +46,6 @@ export async function GET(request: NextRequest) {
         };
       }
 
-      // Only add the book if it exists (not null)
       if (row.books?.id) {
         acc[row.user.id].books.push(row.books);
       }
@@ -57,9 +53,7 @@ export async function GET(request: NextRequest) {
       return acc;
     }, {});
 
-    // Convert the grouped data back to an array
     const finalData = Object.values(processedData);
-    console.log("Final processed data length:", finalData.length);
 
     return NextResponse.json(finalData, { headers });
   } catch (error) {

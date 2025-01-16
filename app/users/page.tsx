@@ -2,7 +2,7 @@ import Users from "@/components/users/Users";
 import { userGridResponse } from "@/types/apiResponse/usersgridResponse";
 import { currentUser } from "@clerk/nextjs/server";
 
-export default async function UsersPage() {
+export default async function UserPage() {
   try {
     const user = await currentUser();
     console.log("Current user:", user?.id);
@@ -19,9 +19,9 @@ export default async function UsersPage() {
     const apiUrl = `${process.env.NEXT_PUBLIC_API_URL}/api/users`;
     console.log("Fetching from:", apiUrl);
 
+    // Remove the conflicting cache options
     const response = await fetch(apiUrl, {
-      cache: "no-store",
-      next: { revalidate: 0 },
+      cache: "no-store", // Remove the revalidate option since we're using no-store
     });
 
     console.log("Response status:", response.status);
@@ -42,7 +42,7 @@ export default async function UsersPage() {
     console.log("Received users:", userGridResponse.length);
 
     return (
-      <div className="mx-16 ">
+      <div className="mx-16">
         <Users users={userGridResponse} />
       </div>
     );
