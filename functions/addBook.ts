@@ -35,7 +35,7 @@ export const addBookToList = async (
     series_name,
     hardcover_id,
     page_count,
-    userRightNow?.id || "",
+    userRightNow,
     status == Status.Finished ? new Date() : undefined
   );
 };

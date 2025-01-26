@@ -1,6 +1,12 @@
 "use client";
 
-import { SignedIn, SignedOut, SignInButton, UserButton } from "@clerk/nextjs";
+import {
+  SignedIn,
+  SignedOut,
+  SignInButton,
+  UserButton,
+  SignIn,
+} from "@clerk/nextjs";
 import { Dialog, Transition } from "@headlessui/react";
 import clsx from "clsx";
 import Link from "next/link";
@@ -45,7 +51,7 @@ export default function NavBar() {
 
           <div className="flex items-center gap-4 pr-2 sm:static sm:inset-auto sm:ml-6 sm:pr-0 text-white">
             <SignedIn>
-              <NavSearchModal /> {/* Add the search modal component */}
+              <NavSearchModal />
               <UserButton
                 appearance={{
                   elements: {
