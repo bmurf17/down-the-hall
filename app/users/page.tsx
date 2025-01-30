@@ -5,10 +5,8 @@ import { currentUser } from "@clerk/nextjs/server";
 export default async function UserPage() {
   try {
     const user = await currentUser();
-    console.log("Current user:", user?.id);
 
     if (!user || !user.id) {
-      console.log("No user found");
       return (
         <div className="min-h-screen flex items-center justify-center">
           <p className="text-lg">User not logged in</p>
@@ -17,18 +15,14 @@ export default async function UserPage() {
     }
 
     const apiUrl = `${process.env.NEXT_PUBLIC_API_URL}/api/users`;
-    console.log("Fetching from:", apiUrl);
 
     // Remove the conflicting cache options
     const response = await fetch(apiUrl, {
       cache: "no-store", // Remove the revalidate option since we're using no-store
     });
 
-    console.log("Response status:", response.status);
-
     if (!response.ok) {
       const errorText = await response.text();
-      console.error("API Error:", errorText);
       return (
         <div className="min-h-screen flex items-center justify-center">
           <p className="text-lg text-red-500">
