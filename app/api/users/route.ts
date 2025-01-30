@@ -7,8 +7,6 @@ import { Status } from "@/types/enums/statusEnum";
 
 export async function GET(request: NextRequest) {
   try {
-    console.log("API Route: Starting user fetch");
-
     const headers = new Headers({
       "Cache-Control": "no-store, must-revalidate",
       Pragma: "no-cache",
@@ -35,8 +33,6 @@ export async function GET(request: NextRequest) {
         book,
         and(eq(book.userId, users.id), eq(book.status, Status.InProgress))
       );
-
-    console.log("Raw data length:", data.length);
 
     const processedData = data.reduce<Record<string, any>>((acc, row) => {
       if (!acc[row.user.id]) {

@@ -17,6 +17,10 @@ async function BookResults({ searchTitle }: { searchTitle: string }) {
   try {
     const openLibraryBooks = await searchBooks(searchTitle);
 
+    const ias = openLibraryBooks?.map((x) => x.ia).flat();
+    const otherIsbns = ias
+      ?.filter((x) => x && x.startsWith("isbn_"))
+      .map((x) => x.replace(/^isbn_/, ""));
     const isbn13Regex = /\b97[89]-?\d{1,5}-?\d{1,7}-?\d{1,7}-?\d\b/;
     const allValidIsbns: string[] = Array.from(
       new Set(
@@ -26,10 +30,18 @@ async function BookResults({ searchTitle }: { searchTitle: string }) {
       )
     );
 
+    const allValidIsbns2: string[] | undefined = otherIsbns?.filter((x) =>
+      isbn13Regex.test(x)
+    );
+
+    const uniqueIsbns: string[] = Array.from(
+      new Set([...allValidIsbns, ...(allValidIsbns2 || [])])
+    );
+
     let convertedData: Book[] = [];
-    if (allValidIsbns !== null) {
+    if (uniqueIsbns !== null) {
       const hardcoverBooks: TrendingData | null = await getBooksByIsbn(
-        allValidIsbns || []
+        uniqueIsbns || []
       );
 
       if (hardcoverBooks !== null) {

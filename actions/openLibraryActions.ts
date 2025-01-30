@@ -5,6 +5,7 @@ export interface OpenLibraryBook {
   first_publish_year?: number;
   cover_i?: number;
   isbn: string[];
+  ia: string[];
 }
 
 export async function searchBooks(
