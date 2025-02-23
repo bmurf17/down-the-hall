@@ -68,6 +68,7 @@ export function AddToListButton({
         await editBookToList(id, title, e.id, rating);
         router.refresh();
       } else {
+        console.log("HERE");
         await addBookToList(
           title,
           author,

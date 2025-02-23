@@ -33,7 +33,6 @@ export default async function UserPage() {
     }
 
     const userGridResponse: userGridResponse[] = await response.json();
-    console.log("Received users:", userGridResponse.length);
 
     return (
       <div className="mx-16">
