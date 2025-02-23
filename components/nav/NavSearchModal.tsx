@@ -38,17 +38,11 @@ export function NavSearchModal() {
     setError(null);
 
     try {
-      const hardcoverBooks: TrendingData | null = await fetchBooks(query);
-      let convertedData: Book[] = [];
+      const theBooks: Book[] | undefined = await fetchBooks(query);
 
-      if (hardcoverBooks !== null) {
-        convertedData = await convertTrendingBookData(
-          hardcoverBooks.bookData,
-          hardcoverBooks.seriesData
-        );
+      if (theBooks !== null && theBooks !== undefined) {
+        setSearchResults(theBooks);
       }
-
-      setSearchResults(convertedData);
     } catch (err) {
       setError("Failed to fetch books. Please try again.");
       console.error(err);

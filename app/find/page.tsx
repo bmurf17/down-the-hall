@@ -1,11 +1,8 @@
-import { getBooksByIsbn } from "@/actions/hardcoverActions";
 import { searchBooks } from "@/actions/openLibraryActions";
 import Find from "@/components/find/Find";
 import BookListItem from "@/components/shared/BookListItem";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
-import { convertTrendingBookData } from "@/helpers/convertTrendingBookToBook";
-import { Book } from "@/types/book";
-import { TrendingData } from "@/types/trending/trendingbookresponse";
+import { convertOpenLibraryBookData } from "@/helpers/convertOpenLibrary";
 import { AlertCircle } from "lucide-react";
 import { Suspense } from "react";
 
@@ -15,44 +12,16 @@ interface Props {
 
 async function BookResults({ searchTitle }: { searchTitle: string }) {
   try {
-    const openLibraryBooks = await searchBooks(searchTitle);
+    const openLibraryBooks = await searchBooks({
+      title: searchTitle,
+      limit: 10,
+    });
 
-    const ias = openLibraryBooks?.map((x) => x.ia).flat();
-    const otherIsbns = ias
-      ?.filter((x) => x && x.startsWith("isbn_"))
-      .map((x) => x.replace(/^isbn_/, ""));
-    const isbn13Regex = /\b97[89]-?\d{1,5}-?\d{1,7}-?\d{1,7}-?\d\b/;
-    const allValidIsbns: string[] = Array.from(
-      new Set(
-        openLibraryBooks?.flatMap(
-          (x) => x?.isbn?.filter((isbn) => isbn13Regex.test(isbn)) || []
-        )
-      )
+    const convertedData = openLibraryBooks?.map((book) =>
+      convertOpenLibraryBookData(book)
     );
 
-    const allValidIsbns2: string[] | undefined = otherIsbns?.filter((x) =>
-      isbn13Regex.test(x)
-    );
-
-    const uniqueIsbns: string[] = Array.from(
-      new Set([...allValidIsbns, ...(allValidIsbns2 || [])])
-    );
-
-    let convertedData: Book[] = [];
-    if (uniqueIsbns !== null) {
-      const hardcoverBooks: TrendingData | null = await getBooksByIsbn(
-        uniqueIsbns || []
-      );
-
-      if (hardcoverBooks !== null) {
-        convertedData = await convertTrendingBookData(
-          hardcoverBooks.bookData,
-          hardcoverBooks.seriesData
-        );
-      }
-    }
-
-    if (convertedData.length === 0 && searchTitle) {
+    if (convertedData?.length === 0 && searchTitle) {
       return (
         <Alert variant="default" className="mt-4">
           <AlertCircle className="h-4 w-4" />
@@ -65,19 +34,20 @@ async function BookResults({ searchTitle }: { searchTitle: string }) {
       );
     }
 
-    return (
-      <div className="flex flex-col gap-4">
-        {convertedData.length > 0 && (
-          <div className="rounded-xl bg-gray-300 p-3 animate-fade-in-grow ring-white/60 ring-offset-2 ring-offset-blue-400 focus:outline-none focus:ring-2">
-            {convertedData.map((book) => (
-              <BookListItem book={book} key={book.book?.hardcoverId} />
-            ))}
-          </div>
-        )}
-      </div>
-    );
+    if (convertedData != null) {
+      return (
+        <div className="flex flex-col gap-4">
+          {convertedData?.length > 0 && (
+            <div className="rounded-xl bg-gray-300 p-3 animate-fade-in-grow ring-white/60 ring-offset-2 ring-offset-blue-400 focus:outline-none focus:ring-2">
+              {convertedData?.map((book) => (
+                <BookListItem book={book} key={book.book?.hardcoverId} />
+              ))}
+            </div>
+          )}
+        </div>
+      );
+    }
   } catch (error) {
-    console.log(error);
     return (
       <Alert variant="destructive" className="mt-4">
         <AlertCircle className="h-4 w-4" />
