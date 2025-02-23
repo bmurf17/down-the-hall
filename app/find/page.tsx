@@ -1,12 +1,8 @@
-import { getBooksByIsbn } from "@/actions/hardcoverActions";
 import { searchBooks } from "@/actions/openLibraryActions";
 import Find from "@/components/find/Find";
 import BookListItem from "@/components/shared/BookListItem";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { convertOpenLibraryBookData } from "@/helpers/convertOpenLibrary";
-import { convertTrendingBookData } from "@/helpers/convertTrendingBookToBook";
-import { Book } from "@/types/book";
-import { TrendingData } from "@/types/trending/trendingbookresponse";
 import { AlertCircle } from "lucide-react";
 import { Suspense } from "react";
 
@@ -18,7 +14,7 @@ async function BookResults({ searchTitle }: { searchTitle: string }) {
   try {
     const openLibraryBooks = await searchBooks({
       title: searchTitle,
-      limit: 5,
+      limit: 10,
     });
 
     const convertedData = openLibraryBooks?.map((book) =>
