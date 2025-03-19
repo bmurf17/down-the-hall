@@ -1,17 +1,17 @@
 "use server";
 
-import { searchBooks } from "@/actions/openLibraryActions";
-import { convertOpenLibraryBookData } from "@/helpers/convertOpenLibrary";
+import { enhancedSearchBooks } from "@/actions/openLibraryActions";
 
 export const fetchBooks = async (query: string) => {
-  const openLibraryBooks = await searchBooks({
+  const convertedData = await enhancedSearchBooks({
     title: query,
     limit: 5,
   });
 
-  const convertedData = openLibraryBooks?.map((book) =>
-    convertOpenLibraryBookData(book)
+  return convertedData?.filter(
+    (book) =>
+      book.book?.image &&
+      book.book.image !== "" &&
+      !book.book.image.toLowerCase().includes("hardcover")
   );
-
-  return convertedData;
 };
