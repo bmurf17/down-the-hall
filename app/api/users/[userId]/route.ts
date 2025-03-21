@@ -1,12 +1,16 @@
-// app/api/users/route.ts
 import { eq, and } from "drizzle-orm";
 import { NextRequest, NextResponse } from "next/server";
 import db from "@/lib/db";
 import { users, book } from "@/lib/schema";
 import { Status } from "@/types/enums/statusEnum";
 
-export async function GET(request: NextRequest) {
+export async function GET(
+  request: NextRequest,
+  { params }: { params: { userId: string } }
+) {
   try {
+    const userId = params.userId;
+
     const headers = new Headers({
       "Cache-Control": "no-store, must-revalidate",
       Pragma: "no-cache",
@@ -29,29 +33,27 @@ export async function GET(request: NextRequest) {
         },
       })
       .from(users)
+      .where(eq(users.id, userId))
       .leftJoin(
         book,
         and(eq(book.userId, users.id), eq(book.status, Status.InProgress))
       );
 
-    const processedData = data.reduce<Record<string, any>>((acc, row) => {
-      if (!acc[row.user.id]) {
-        acc[row.user.id] = {
-          user: row.user,
-          books: [],
-        };
-      }
+    // If no user is found
+    if (data.length === 0) {
+      return NextResponse.json(
+        { error: "User not found" },
+        { status: 404, headers }
+      );
+    }
 
-      if (row.books?.id) {
-        acc[row.user.id].books.push(row.books);
-      }
+    // Process the data similar to the all users route
+    const processedData = {
+      user: data[0].user,
+      books: data.filter((row) => row.books?.id).map((row) => row.books),
+    };
 
-      return acc;
-    }, {});
-
-    const finalData = Object.values(processedData);
-
-    return NextResponse.json(finalData, { headers });
+    return NextResponse.json(processedData, { headers });
   } catch (error) {
     console.error("API Route Error:", error);
     return NextResponse.json(

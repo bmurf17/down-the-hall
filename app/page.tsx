@@ -1,6 +1,7 @@
 import { fetchTrendingData } from "@/actions/hardcoverActions";
 import CentralDisplay from "@/components/home/CentralDisplay";
 import { getUserActivityLogData } from "@/functions/getactivtyLog";
+import { getCurrentUser } from "@/functions/getCurrentUser";
 import { convertTrendingBookData } from "@/helpers/convertTrendingBookToBook";
 import { UserActivityLogList } from "@/types/apiResponse/UseLogResponse";
 import { Book } from "@/types/book";
@@ -29,9 +30,21 @@ export default async function Home() {
   const userActivityLog: UserActivityLogList = await getUserActivityLogData(
     userRightNow?.id
   );
+
+  var userReading;
+  try {
+    userReading = await getCurrentUser(userRightNow?.id);
+  } catch (ex) {
+    console.log("user probably not logged in");
+  }
+
   return (
-    <div className="mx-16 ">
-      <CentralDisplay books={convertedData} userActivityLog={userActivityLog} />
+    <div className="mx-16">
+      <CentralDisplay
+        books={convertedData}
+        userActivityLog={userActivityLog}
+        currentlyReading={userReading}
+      />
     </div>
   );
 }
