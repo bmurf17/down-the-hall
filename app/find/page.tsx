@@ -1,8 +1,8 @@
-import { searchBooks } from "@/actions/openLibraryActions";
+import { enhancedSearchBooks, searchBooks } from "@/actions/openLibraryActions";
 import Find from "@/components/find/Find";
 import BookListItem from "@/components/shared/BookListItem";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
-import { convertOpenLibraryBookData } from "@/helpers/convertOpenLibrary";
+import { Book } from "@/types/book";
 import { AlertCircle } from "lucide-react";
 import { Suspense } from "react";
 
@@ -12,14 +12,12 @@ interface Props {
 
 async function BookResults({ searchTitle }: { searchTitle: string }) {
   try {
-    const openLibraryBooks = await searchBooks({
-      title: searchTitle,
-      limit: 10,
-    });
+    var convertedData: Book[] | null | undefined = [];
 
-    const convertedData = openLibraryBooks?.map((book) =>
-      convertOpenLibraryBookData(book)
-    );
+    convertedData = await enhancedSearchBooks({
+      title: searchTitle,
+      limit: 5,
+    });
 
     if (convertedData?.length === 0 && searchTitle) {
       return (
@@ -39,9 +37,16 @@ async function BookResults({ searchTitle }: { searchTitle: string }) {
         <div className="flex flex-col gap-4">
           {convertedData?.length > 0 && (
             <div className="rounded-xl bg-gray-300 p-3 animate-fade-in-grow ring-white/60 ring-offset-2 ring-offset-blue-400 focus:outline-none focus:ring-2">
-              {convertedData?.map((book) => (
-                <BookListItem book={book} key={book.book?.hardcoverId} />
-              ))}
+              {convertedData
+                ?.filter(
+                  (book) =>
+                    book.book?.image &&
+                    book.book.image !== "" &&
+                    !book.book.image.toLowerCase().includes("hardcover")
+                )
+                .map((book) => (
+                  <BookListItem book={book} key={book.book?.hardcoverId} />
+                ))}
             </div>
           )}
         </div>

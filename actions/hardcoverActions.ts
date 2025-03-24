@@ -38,8 +38,8 @@ const queryMonthString =
     : monthString; // Otherwise, use the current month
 
 const TRENDING_BOOKS_QUERY = gql`
-  query TrendingBooks {
-    books_trending(limit: 10, from: "${queryMonthString}", offset: 0) {
+  query MyQuery {
+    books_trending(from: "", limit: 10, offset: 10, to: "") {
       ids
     }
   }
