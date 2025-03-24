@@ -38,12 +38,31 @@ export default async function Home() {
     console.log("user probably not logged in");
   }
 
+  var userGoals;
+  var completedBooks = [];
+  try {
+    if (userRightNow) {
+      const response = await fetch(
+        `${process.env.NEXT_PUBLIC_API_URL}/api/goals/${userRightNow.id}`
+      );
+
+      const { books, goals } = await response.json();
+
+      completedBooks = books;
+      userGoals = goals;
+    }
+  } catch (ex) {
+    console.log("user probably not logged in");
+  }
+
   return (
     <div className="mx-16">
       <CentralDisplay
         books={convertedData}
         userActivityLog={userActivityLog}
         currentlyReading={userReading}
+        goals={userGoals}
+        completedBooksLength={completedBooks.length}
       />
     </div>
   );

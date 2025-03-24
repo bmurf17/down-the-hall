@@ -10,12 +10,14 @@ import { ScrollArea } from "@/components/ui/scroll-area";
 import CurrentlyReadingCard from "./_CurrentlyReadingCard";
 import { ProgressTracker } from "../goals/_ProgressTracker";
 import { userGridResponse } from "@/types/apiResponse/usersgridResponse";
+import { SelectGoal } from "@/lib/schema";
 
 interface Props {
   books: Book[];
   userActivityLog: UserActivityLogList;
-  currentlyReading?: userGridResponse; // Add this prop for the currently reading book
-  goals?: any[]; // Add this prop for goals data
+  currentlyReading?: userGridResponse;
+  goals?: SelectGoal[];
+  completedBooksLength?: number;
 }
 
 function classNames(...classes: string[]) {
@@ -27,6 +29,7 @@ export default function CentralDisplay({
   userActivityLog,
   currentlyReading,
   goals = [],
+  completedBooksLength,
 }: Props) {
   const [tabs] = useState({
     Trending: [
@@ -82,7 +85,10 @@ export default function CentralDisplay({
           {/* Goals Section */}
           <div className="bg-card rounded-xl p-4">
             <h2 className="text-xl font-medium mb-3">Goals</h2>
-            <ProgressTracker goal={10} completed={6} />
+            <ProgressTracker
+              goal={goals[0]?.bookCount || 0}
+              completed={completedBooksLength || 0}
+            />
           </div>
         </div>
 
