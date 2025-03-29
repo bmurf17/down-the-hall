@@ -21,6 +21,7 @@ import {
   XAxis,
   ResponsiveContainer,
 } from "recharts";
+import D3BarChart from "./_BarChart";
 
 const chartConfig = {
   pagesRead: {
@@ -48,6 +49,21 @@ const MONTH_NAMES = [
   "December",
 ];
 
+const COLORS = [
+  "fill-green-400",
+  "fill-amber-400",
+  "fill-teal-400",
+  "fill-fuchsia-400",
+  "fill-fuchsia-400",
+  "fill-fuchsia-400",
+  "fill-fuchsia-400",
+  "fill-fuchsia-400",
+  "fill-fuchsia-400",
+  "fill-fuchsia-400",
+  "fill-fuchsia-400",
+  "fill-fuchsia-400",
+];
+
 export default function Stats({ stats }: { stats: any[] }) {
   const pagesChartData = stats.map((stat) => {
     const [year, month] = stat.month.split("-");
@@ -68,7 +84,16 @@ export default function Stats({ stats }: { stats: any[] }) {
   const tabItems = [
     { value: "Pages", label: "Pages" },
     { value: "book", label: "Books" },
+    { value: "D3", label: "D3" },
   ];
+
+  const bookData = stats.map((x) => {
+    return {
+      label: MONTH_NAMES[parseInt(x.month.split("-")[1], 10) - 1],
+      value: +x.totalPages,
+      fill: COLORS[parseInt(x.month.split("-")[1], 10) - 1],
+    };
+  });
 
   return (
     <>
@@ -250,6 +275,12 @@ export default function Stats({ stats }: { stats: any[] }) {
                 </CardContent>
               </Card>
             </div>
+          </div>
+        </TabPanel>
+
+        <TabPanel>
+          <div className="min-h-screen p-4 overflow-auto">
+            <D3BarChart data={bookData} />
           </div>
         </TabPanel>
       </TabGroup>
