@@ -6,12 +6,42 @@ import {
   CarouselNext,
   CarouselPrevious,
 } from "../ui/carousel";
+import { useEffect } from "react";
+import useEmblaCarousel from "embla-carousel-react";
 
 interface Props {
   userData: userGridResponse;
+  onSlideChange?: (index: number) => void;
+  activeIndex?: number;
 }
 
-export default function CardCarousel({ userData }: Props) {
+export default function CardCarousel({
+  userData,
+  onSlideChange,
+  activeIndex = 0,
+}: Props) {
+  const [emblaRef, emblaApi] = useEmblaCarousel({
+    align: "center",
+    loop: true,
+  });
+
+  useEffect(() => {
+    if (!emblaApi || !onSlideChange) return;
+
+    const onSelect = () => {
+      onSlideChange(emblaApi.selectedScrollSnap());
+    };
+
+    emblaApi.on("select", onSelect);
+
+    // Set initial active slide
+    onSlideChange(emblaApi.selectedScrollSnap());
+
+    return () => {
+      emblaApi.off("select", onSelect);
+    };
+  }, [emblaApi, onSlideChange]);
+
   return (
     <Carousel
       opts={{
@@ -20,7 +50,7 @@ export default function CardCarousel({ userData }: Props) {
       }}
       className="w-full"
     >
-      <CarouselContent>
+      <CarouselContent ref={emblaRef}>
         {userData.books.map((book) => (
           <CarouselItem
             key={book.id}

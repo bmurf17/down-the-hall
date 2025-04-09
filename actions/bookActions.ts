@@ -204,6 +204,9 @@ export const editBook = async (
       updateData.dateRead = date_read;
     }
 
+    console.log(updateData);
+    console.log(book.id);
+
     await db.update(book).set(updateData).where(eq(book.id, id));
     revalidateTag("books");
   } catch (error) {
