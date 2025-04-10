@@ -8,7 +8,6 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 
-// Define column types
 const ALL_COLUMNS = [
   { key: "image", label: "Image" },
   { key: "title", label: "Title" },
@@ -23,15 +22,12 @@ const ALL_COLUMNS = [
   { key: "dateRead", label: "Date Read" },
 ];
 
-// Initial default columns
 const DEFAULT_COLUMNS = ["image", "title", "author", "pageCount"];
 
 export default function BookListView({ books }: { books: Book[] }) {
-  // State to manage selected columns
   const [selectedColumns, setSelectedColumns] =
     useState<string[]>(DEFAULT_COLUMNS);
 
-  // Render column based on its key
   const renderColumn = (book: Book, columnKey: string) => {
     switch (columnKey) {
       case "image":
@@ -71,12 +67,10 @@ export default function BookListView({ books }: { books: Book[] }) {
 
   return (
     <div className="w-full">
-      {/* Column Selection Dropdown */}
       <div className="mb-4 flex items-center space-x-2">
         <label className="text-sm font-medium">Select Columns:</label>
         <Select
           onValueChange={(value) => {
-            // Explicitly create a new array instead of using Set
             const newColumns = Array.from(
               new Set([
                 ...DEFAULT_COLUMNS,
@@ -86,7 +80,6 @@ export default function BookListView({ books }: { books: Book[] }) {
             setSelectedColumns(newColumns);
           }}
           value={selectedColumns.join(",")}
-          // multiple
         >
           <SelectTrigger className="w-[300px]">
             <SelectValue placeholder="Select columns to display" />
