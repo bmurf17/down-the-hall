@@ -191,7 +191,8 @@ export const editBook = async (
   title: string,
   status: number,
   rating: string,
-  date_read?: Date
+  date_read?: Date,
+  page_count?: number
 ) => {
   try {
     const updateData: any = {
@@ -203,6 +204,14 @@ export const editBook = async (
     if (date_read !== undefined) {
       updateData.dateRead = date_read;
     }
+
+    if (page_count !== null && page_count !== undefined) {
+      //  updateData.page_count = page_count;
+      updateData.pageCount = page_count;
+    }
+
+    //console.log(updateData.page_count);
+    console.log(updateData.pageCount);
 
     await db.update(book).set(updateData).where(eq(book.id, id));
     revalidateTag("books");

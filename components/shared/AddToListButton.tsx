@@ -108,7 +108,7 @@ export function AddToListButton({
     >
       <ListboxButton
         className={clsx(
-          "bg-primary flex items-center justify-center p-4 rounded-lg text-sm/6 gap-2 text-white",
+          "bg-primary flex items-center justify-center p-4 rounded-lg text-sm/6 gap-2 text-white hover:bg-opacity-40",
           "focus:outline-none data-[focus]:outline-2 data-[focus]:-outline-offset-2 data-[focus]:outline-white/25",
           isLoading && "opacity-50 cursor-not-allowed"
         )}

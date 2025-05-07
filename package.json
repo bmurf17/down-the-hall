@@ -22,6 +22,7 @@
     "@radix-ui/react-toast": "^1.2.2",
     "class-variance-authority": "^0.7.0",
     "clsx": "^2.1.1",
+    "d3": "^7.9.0",
     "drizzle-orm": "^0.30.10",
     "embla-carousel-react": "^8.5.1",
     "firebase": "^10.13.0",
@@ -37,6 +38,7 @@
     "tailwindcss-animate": "^1.0.7"
   },
   "devDependencies": {
+    "@types/d3": "^7.4.3",
     "@types/node": "^20",
     "@types/pg": "^8.11.6",
     "@types/react": "^18",

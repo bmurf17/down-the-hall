@@ -68,12 +68,8 @@ export default function CentralDisplay({
 
   return (
     <div className="w-full px-2 py-2 sm:px-0">
-      {/* Main grid layout - on desktop: left column for Currently Reading and Goals, right column for Trending */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-        {/* Left column - stacks on mobile */}
         <div className="flex flex-col gap-4 order-1 md:order-1">
-          {/* Currently Reading Section */}
-
           {currentlyReading ? (
             <CurrentlyReadingCard userData={currentlyReading} />
           ) : (
