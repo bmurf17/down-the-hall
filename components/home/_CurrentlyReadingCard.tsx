@@ -74,7 +74,7 @@ export default function CurrentlyReadingCard({ userData }: Props) {
       <div className="flex items-center mt-8 gap-4 justify-center">
         <Button
           className="text-white"
-          onClick={() => updateBook(2)}
+          onClick={() => updateBook(1)}
           disabled={localUserData.books.length === 0}
         >
           Finished
