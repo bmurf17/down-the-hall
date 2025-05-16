@@ -149,6 +149,7 @@ const insertQuery = async (
   user_id: string,
   date_read?: Date
 ) => {
+  console.log(series_position);
   const {
     rows: [{ id: book_id }],
   } = await client.query(
@@ -161,7 +162,7 @@ const insertQuery = async (
       release_year || 0,
       default_physical_edition_id,
       description,
-      series_position === "" ? 0 : series_position,
+      series_position === "" || "null" || null ? 0 : series_position,
       series_length,
       series_name,
       hardcover_id,

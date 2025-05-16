@@ -1,13 +1,11 @@
 import { userGridResponse } from "@/types/apiResponse/usersgridResponse";
+import { useCallback, useEffect, useState } from "react";
 import {
   Carousel,
   CarouselContent,
   CarouselItem,
-  CarouselNext,
-  CarouselPrevious,
   type CarouselApi,
 } from "../ui/carousel";
-import { useEffect, useState, useCallback } from "react";
 
 interface Props {
   userData: userGridResponse;
