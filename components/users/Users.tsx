@@ -1,15 +1,8 @@
 "use client";
 
 import { Card } from "@/components/ui/card";
-import { User as UserIcon } from "lucide-react";
-import {
-  Carousel,
-  CarouselContent,
-  CarouselItem,
-  CarouselPrevious,
-  CarouselNext,
-} from "../ui/carousel";
 import { userGridResponse } from "@/types/apiResponse/usersgridResponse";
+import { User as UserIcon } from "lucide-react";
 import { useRouter } from "next/navigation";
 import CardCarousel from "../shared/CardCarousel";
 
@@ -21,13 +14,18 @@ export default function UserGrid({ users }: UserGridProps) {
   const router = useRouter();
 
   const handleCardClick = (e: React.MouseEvent, userId: string) => {
-    const isCarouselControl = (e.target as Element).closest(
-      ".carousel-control"
-    );
+    const target = e.target as Element;
 
-    if (!isCarouselControl) {
-      router.push(`/useractivitylog/${userId}`);
+    let currentElement: Element | null = target;
+    while (currentElement) {
+      if (currentElement.tagName === "BUTTON") {
+        e.stopPropagation();
+        return;
+      }
+      currentElement = currentElement.parentElement;
     }
+
+    router.push(`/useractivitylog/${userId}`);
   };
 
   return (
