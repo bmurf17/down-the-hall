@@ -9,9 +9,6 @@ export const editBookToList = async (
   status: number,
   ranking: string
 ) => {
-  console.log("HERE");
-  console.log(id);
-
   editBook(
     id,
     title,

@@ -1,17 +1,15 @@
 "use client";
 
-import { useState, useCallback, useEffect } from "react";
+import { useCallback, useEffect, useState } from "react";
 
-import { convertTrendingBookData } from "@/helpers/convertTrendingBookToBook";
 import { Book } from "@/types/book";
-import { TrendingData } from "@/types/trending/trendingbookresponse";
 import { Dialog, Transition } from "@headlessui/react";
 import { Fragment } from "react";
 
-import { Loader2, SearchIcon, X } from "lucide-react";
-import { SignedIn } from "@clerk/nextjs";
-import { AddToListButton } from "../shared/AddToListButton";
 import { fetchBooks } from "@/functions/fetchBook";
+import { SignedIn } from "@clerk/nextjs";
+import { Loader2, SearchIcon, X } from "lucide-react";
+import { AddToListButton } from "../shared/AddToListButton";
 
 export function NavSearchModal() {
   const [isOpen, setIsOpen] = useState(false);
@@ -38,7 +36,7 @@ export function NavSearchModal() {
     setError(null);
 
     try {
-      const theBooks: Book[] | undefined = await fetchBooks(query);
+      const theBooks: Book[] | undefined | null = await fetchBooks(query);
 
       if (theBooks !== null && theBooks !== undefined) {
         setSearchResults(theBooks);
@@ -57,7 +55,7 @@ export function NavSearchModal() {
       if (searchTerm) {
         fetchSearchResults(searchTerm);
       }
-    }, 300);
+    }, 555);
 
     return () => clearTimeout(handler);
   }, [searchTerm, fetchSearchResults]);
@@ -158,18 +156,16 @@ export function NavSearchModal() {
 
                   {searchResults.length > 0 && (
                     <div className="max-h-[500px] overflow-y-auto">
-                      {searchResults.map((book) => (
+                      {searchResults.map((book, index) => (
                         <div
-                          key={book.book?.hardcoverId}
+                          key={book?.book?.hardcoverId + " " + index}
                           className="flex justify-between items-center p-4 border-b hover:bg-gray-100"
                         >
                           <div className="flex items-center space-x-4">
                             <img
                               src={
                                 book.book?.image ||
-                                `/images/covers/cover${
-                                  Math.floor(Math.random() * 7) + 1
-                                }.png`
+                                `https://firebasestorage.googleapis.com/v0/b/booksite-2aa2a.appspot.com/o/placeholder.png?alt=media&token=27d06441-e35b-478b-9ca6-014884920848`
                               }
                               alt={book.book?.title}
                               className="w-16 h-24 object-cover rounded"

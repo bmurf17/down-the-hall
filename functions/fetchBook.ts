@@ -1,17 +1,12 @@
 "use server";
 
-import { enhancedSearchBooks } from "@/actions/openLibraryActions";
+import { searchBooksWithGoogleBooks } from "@/actions/openLibraryActions";
 
 export const fetchBooks = async (query: string) => {
-  const convertedData = await enhancedSearchBooks({
+  const results = await searchBooksWithGoogleBooks({
     title: query,
-    limit: 5,
+    limit: 10,
   });
 
-  return convertedData?.filter(
-    (book) =>
-      book.book?.image &&
-      book.book.image !== "" &&
-      !book.book.image.toLowerCase().includes("hardcover")
-  );
+  return results;
 };

@@ -3,6 +3,7 @@
 import { addBook } from "@/actions/bookActions";
 import { Status } from "@/types/enums/statusEnum";
 import { currentUser } from "@clerk/nextjs/server";
+import { revalidateTag } from "next/cache";
 
 export const addBookToList = async (
   title: string,
@@ -38,4 +39,6 @@ export const addBookToList = async (
     userRightNow,
     status == Status.Finished ? new Date() : undefined
   );
+
+  revalidateTag(`user-${userRightNow?.id}`);
 };
