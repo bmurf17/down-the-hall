@@ -55,7 +55,7 @@ export function NavSearchModal() {
       if (searchTerm) {
         fetchSearchResults(searchTerm);
       }
-    }, 500);
+    }, 555);
 
     return () => clearTimeout(handler);
   }, [searchTerm, fetchSearchResults]);
@@ -165,9 +165,7 @@ export function NavSearchModal() {
                             <img
                               src={
                                 book.book?.image ||
-                                `/images/covers/cover${
-                                  Math.floor(Math.random() * 7) + 1
-                                }.png`
+                                `https://firebasestorage.googleapis.com/v0/b/booksite-2aa2a.appspot.com/o/placeholder.png?alt=media&token=27d06441-e35b-478b-9ca6-014884920848`
                               }
                               alt={book.book?.title}
                               className="w-16 h-24 object-cover rounded"
