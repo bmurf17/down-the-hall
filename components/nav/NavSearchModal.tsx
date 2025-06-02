@@ -1,17 +1,15 @@
 "use client";
 
-import { useState, useCallback, useEffect } from "react";
+import { useCallback, useEffect, useState } from "react";
 
-import { convertTrendingBookData } from "@/helpers/convertTrendingBookToBook";
 import { Book } from "@/types/book";
-import { TrendingData } from "@/types/trending/trendingbookresponse";
 import { Dialog, Transition } from "@headlessui/react";
 import { Fragment } from "react";
 
-import { Loader2, SearchIcon, X } from "lucide-react";
-import { SignedIn } from "@clerk/nextjs";
-import { AddToListButton } from "../shared/AddToListButton";
 import { fetchBooks } from "@/functions/fetchBook";
+import { SignedIn } from "@clerk/nextjs";
+import { Loader2, SearchIcon, X } from "lucide-react";
+import { AddToListButton } from "../shared/AddToListButton";
 
 export function NavSearchModal() {
   const [isOpen, setIsOpen] = useState(false);
@@ -38,7 +36,7 @@ export function NavSearchModal() {
     setError(null);
 
     try {
-      const theBooks: Book[] | undefined = await fetchBooks(query);
+      const theBooks: Book[] | undefined | null = await fetchBooks(query);
 
       if (theBooks !== null && theBooks !== undefined) {
         setSearchResults(theBooks);
@@ -57,7 +55,7 @@ export function NavSearchModal() {
       if (searchTerm) {
         fetchSearchResults(searchTerm);
       }
-    }, 300);
+    }, 500);
 
     return () => clearTimeout(handler);
   }, [searchTerm, fetchSearchResults]);
@@ -158,9 +156,9 @@ export function NavSearchModal() {
 
                   {searchResults.length > 0 && (
                     <div className="max-h-[500px] overflow-y-auto">
-                      {searchResults.map((book) => (
+                      {searchResults.map((book, index) => (
                         <div
-                          key={book.book?.hardcoverId}
+                          key={book?.book?.hardcoverId + " " + index}
                           className="flex justify-between items-center p-4 border-b hover:bg-gray-100"
                         >
                           <div className="flex items-center space-x-4">

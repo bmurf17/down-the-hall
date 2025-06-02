@@ -149,7 +149,6 @@ const insertQuery = async (
   user_id: string,
   date_read?: Date
 ) => {
-  console.log(series_position);
   const {
     rows: [{ id: book_id }],
   } = await client.query(
@@ -207,12 +206,8 @@ export const editBook = async (
     }
 
     if (page_count !== null && page_count !== undefined) {
-      //  updateData.page_count = page_count;
       updateData.pageCount = page_count;
     }
-
-    //console.log(updateData.page_count);
-    console.log(updateData.pageCount);
 
     await db.update(book).set(updateData).where(eq(book.id, id));
     revalidateTag("books");

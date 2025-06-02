@@ -40,9 +40,6 @@ export default function BookListItem({ book }: Props) {
     : book.book?.hardcoverId;
 
   const submit = () => {
-    console.log("Title: " + title);
-    console.log("Page Count: " + pageCount);
-
     editBook(
       book.book?.id || 0,
       title || "",
