@@ -154,9 +154,7 @@ export default function BookListItem({ book }: Props) {
         </Link>
       )}
 
-      {/* Button area - inline on desktop, stacked on mobile */}
       <div className="flex flex-col md:flex-row md:items-end gap-2 mt-4 md:mt-0 flex-shrink-0">
-        {/* Desktop star rating */}
         <div className="hidden md:flex justify-center items-end">
           {book.book && book.book.status !== null ? (
             <StarRating book={book.book as SelectBook} />
