@@ -25,11 +25,9 @@ export async function GET(
 ): Promise<NextResponse> {
   const { userId } = params;
 
-  // Get the start of the current year
   const currentYear = new Date().getFullYear();
   const startOfYear = new Date(currentYear, 0, 1);
 
-  // Fetch books data
   const booksData = await db
     .select({
       bookId: book.id,
@@ -47,7 +45,6 @@ export async function GET(
     )
     .orderBy(book.dateRead);
 
-  // Fetch user goals data
   const goalsData = await db
     .select({
       id: userGoals.id,
@@ -57,7 +54,6 @@ export async function GET(
     .from(userGoals)
     .where(eq(userGoals.userId, userId));
 
-  // Combine and return both datasets
   const response = NextResponse.json({
     books: booksData,
     goals: goalsData,
