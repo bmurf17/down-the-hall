@@ -7,11 +7,6 @@ import { Status } from "@/types/enums/statusEnum";
 
 export async function GET(request: NextRequest) {
   try {
-    const headers = new Headers({
-      "Cache-Control": "no-store, must-revalidate",
-      Pragma: "no-cache",
-    });
-
     const data = await db
       .select({
         user: {
@@ -51,7 +46,7 @@ export async function GET(request: NextRequest) {
 
     const finalData = Object.values(processedData);
 
-    return NextResponse.json(finalData, { headers });
+    return NextResponse.json(finalData);
   } catch (error) {
     console.error("API Route Error:", error);
     return NextResponse.json(

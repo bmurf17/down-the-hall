@@ -1,4 +1,5 @@
 import Users from "@/components/users/Users";
+import { getUsers } from "@/functions/getUsers";
 import { userGridResponse } from "@/types/apiResponse/usersgridResponse";
 import { currentUser } from "@clerk/nextjs/server";
 
@@ -14,25 +15,9 @@ export default async function UserPage() {
       );
     }
 
-    const apiUrl = `${process.env.NEXT_PUBLIC_API_URL}/api/users`;
+    const response = await getUsers();
 
-    // Remove the conflicting cache options
-    const response = await fetch(apiUrl, {
-      cache: "no-store", // Remove the revalidate option since we're using no-store
-    });
-
-    if (!response.ok) {
-      const errorText = await response.text();
-      return (
-        <div className="min-h-screen flex items-center justify-center">
-          <p className="text-lg text-red-500">
-            Failed to load users: {response.status} {errorText}
-          </p>
-        </div>
-      );
-    }
-
-    const userGridResponse: userGridResponse[] = await response.json();
+    const userGridResponse: userGridResponse[] = response;
 
     return (
       <div className="mx-16">

@@ -41,4 +41,5 @@ export const addBookToList = async (
   );
 
   revalidateTag(`user-${userRightNow?.id}`);
+  revalidateTag(`user-data`);
 };
