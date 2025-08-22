@@ -286,7 +286,10 @@ export async function fetchTrendingData() {
     });
 
     const seriesIds = Object.values(booksResponse.data)
-      .filter((book: any) => book.dto_combined.series.length > 0)
+      .filter(
+        (book: any) =>
+          book.dto_combined.series && book.dto_combined.series.length > 0
+      )
       .map((book: any) => book.dto_combined.series[0].series_id);
 
     const seriesResponse = await client.query({
