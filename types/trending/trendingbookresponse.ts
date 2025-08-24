@@ -33,6 +33,21 @@ export type TrendingBookDetails = {
   default_physical_edition_id: number;
   cached_image: CachedImageResponse;
   cached_contributors: CachedContributors;
+  title: string;
+  pages: number;
+  genres: string[];
+  book_series: {
+    series_id: number;
+    details: string;
+    position: number;
+    featured: boolean;
+  }[];
+  release_year: number;
+  description: string;
+  contributions: {
+    author_id: number;
+    contribution: string | null;
+  }[];
   dto_combined: {
     // Define the structure of dto_combined if needed, based on the [Object] placeholder
     alternative_titles: string[];

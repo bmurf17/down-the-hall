@@ -28,43 +28,40 @@ export const processTrendingBookDetails = async (
   seriesData: SeriesListResponse
 ): Promise<Book> => {
   var series = seriesData?.series?.filter((series) => {
-    if (trendingBookDetails.dto_combined?.series?.length > 0) {
-      return (
-        series.id === trendingBookDetails.dto_combined.series[0]?.series_id
-      );
+    if (trendingBookDetails?.book_series?.length > 0) {
+      return series.id === trendingBookDetails.book_series[0]?.series_id;
     }
   });
 
   var image = await handleImage(
     trendingBookDetails.id,
-    trendingBookDetails.dto_combined.title,
+    trendingBookDetails.title,
     trendingBookDetails.cached_image.url || placeholderImage
   );
 
   const book: SelectBook = {
     id: 0,
-    title: trendingBookDetails.dto_combined.title,
+    title: trendingBookDetails.title,
     authorId:
-      trendingBookDetails.dto_combined.contributions?.length > 0
-        ? trendingBookDetails.dto_combined.contributions[0]?.author_id || null
+      trendingBookDetails.contributions?.length > 0
+        ? trendingBookDetails.contributions[0]?.author_id || null
         : 0,
     image: image,
     status: null,
-    releaseYear: trendingBookDetails.dto_combined.release_year,
+    releaseYear: trendingBookDetails.release_year,
     defaultPhysicalEditionId: trendingBookDetails.default_physical_edition_id,
-    description: trendingBookDetails.dto_combined.description,
+    description: trendingBookDetails.description,
     seriesPosition:
-      trendingBookDetails.dto_combined.series?.length > 0
-        ? trendingBookDetails.dto_combined.series[0]?.position?.toString() ||
-          null
+      trendingBookDetails.book_series?.length > 0
+        ? trendingBookDetails.book_series[0]?.position?.toString() || null
         : null,
-    seriesLength: trendingBookDetails.dto_combined.series?.length
-      ? trendingBookDetails.dto_combined.series.length || null
+    seriesLength: trendingBookDetails.book_series?.length
+      ? trendingBookDetails.book_series.length || null
       : null,
     seriesName: series?.length > 0 ? series[0].name : "",
     hardcoverId: trendingBookDetails.id,
-    pageCount: trendingBookDetails.dto_combined.page_count,
-    genres: trendingBookDetails.dto_combined.genres,
+    pageCount: trendingBookDetails.pages,
+    genres: trendingBookDetails.genres,
     dateRead: Date.now().toString(),
     updatedDate: Date.now().toString(),
     userId: "",
@@ -73,8 +70,8 @@ export const processTrendingBookDetails = async (
 
   const author: SelectAuthor = {
     id:
-      trendingBookDetails.dto_combined.contributions?.length > 0
-        ? trendingBookDetails.dto_combined.contributions[0].author_id
+      trendingBookDetails.contributions?.length > 0
+        ? trendingBookDetails.contributions[0].author_id
         : 0,
     name:
       trendingBookDetails.cached_contributors?.length > 0
