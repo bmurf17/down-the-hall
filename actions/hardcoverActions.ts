@@ -1,5 +1,6 @@
 "use server";
 
+import { book } from "@/lib/schema";
 import { ApolloClient, InMemoryCache, gql } from "@apollo/client";
 
 //QUERIES
@@ -120,11 +121,21 @@ const BOOKS_BY_IDS_QUERY = (ids: number[]) => gql`
         (id, index) => `
         book${index}: books_by_pk(id: ${id}) {
           id
+          title
+          pages
+           book_series {
+            series_id
+            details
+            position
+            featured
+          }
           default_physical_edition_id
           users_count
           users_read_count      
           dto_combined
           cached_image
+          release_year
+          description
           cached_contributors
         }
       `
@@ -165,7 +176,6 @@ export const getBooks = async (title: string) => {
     const booksResponse = await client.query({
       query: BOOKS_BY_IDS_QUERY(ids),
     });
-
     const seriesIds = Object.values(booksResponse.data)
       .filter(
         (book: any) =>
@@ -273,24 +283,19 @@ const client = new ApolloClient({
 
 export async function fetchTrendingData() {
   try {
-    // Fetch trending book IDs
     const trendingBooksResponse = await client.query({
       query: TRENDING_BOOKS_QUERY,
       variables: { from: monthString },
     });
     const ids = trendingBooksResponse.data.books_trending.ids;
 
-    // Fetch book details
     const booksResponse = await client.query({
       query: BOOKS_BY_IDS_QUERY(ids),
     });
 
     const seriesIds = Object.values(booksResponse.data)
-      .filter(
-        (book: any) =>
-          book.dto_combined.series && book.dto_combined.series.length > 0
-      )
-      .map((book: any) => book.dto_combined.series[0].series_id);
+      .filter((book: any) => book.book_series)
+      .map((book: any) => book.book_series[0].series_id);
 
     const seriesResponse = await client.query({
       query: SERIES_BY_IDS_QUERY(seriesIds),

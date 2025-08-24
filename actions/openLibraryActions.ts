@@ -114,7 +114,7 @@ export interface OpenLibraryBook {
   series_name?: string;
   series_position?: number;
   series_length?: number;
-  page_count?: number;
+  pages?: number;
   genres?: string[];
   rating?: number;
   want_to_read_count: number;
@@ -291,7 +291,7 @@ function convertGoogleBookToOpenLibrary(
     isbn: isbns,
     ia: [],
     description: item.volumeInfo.description,
-    page_count: item.volumeInfo.pageCount,
+    pages: item.volumeInfo.pageCount,
     genres: item.volumeInfo.categories?.map((cat) => cat.toLowerCase()),
     rating: item.volumeInfo.averageRating,
     want_to_read_count: item.volumeInfo.ratingsCount || 0,
@@ -456,7 +456,7 @@ export async function searchBooks(
                 ? workData.description
                 : workData.description?.value;
 
-            book.page_count = workData.number_of_pages || undefined;
+            book.pages = workData.number_of_pages || undefined;
 
             if (workData.subjects) {
               book.genres = workData.subjects.map((subject: string) =>

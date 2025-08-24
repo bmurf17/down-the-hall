@@ -27,6 +27,8 @@ interface HardcoverBookData {
     default_physical_edition_id: number;
     users_count: number;
     users_read_count: number;
+    title: string;
+    pages: number;
     dto_combined: {
       description?: string;
       page_count?: number;
@@ -87,7 +89,7 @@ export async function convertBookData(
   let bookTitle = openLibraryBook.title;
   let bookDescription = openLibraryBook.description || "";
   let releaseYear = openLibraryBook.first_publish_year || 0;
-  let pageCount = openLibraryBook.page_count || 0;
+  let pageCount = openLibraryBook.pages || 0;
   let genres = openLibraryBook.genres || [];
   let seriesName = openLibraryBook.series_name || "";
   let seriesPosition = openLibraryBook.series_position || null;
@@ -169,14 +171,12 @@ export async function convertBookData(
         bookDescription = book0.dto_combined.description;
       }
 
-      // Use Hardcover image if available
       if (book0.cached_image?.url) {
         bookImage = book0.cached_image.url;
       }
 
-      // Use Hardcover page count if available
-      if (book0.dto_combined.page_count) {
-        pageCount = book0.dto_combined.page_count;
+      if (book0.pages) {
+        pageCount = book0.pages;
       }
 
       // Use Hardcover genres if available
