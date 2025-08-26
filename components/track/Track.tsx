@@ -12,6 +12,7 @@ import FilterTrack from "./_FilterTracking";
 import TrackBookViewLogic from "./_TrackBookViewLogic";
 
 const options = [
+  { name: "Updated Date" },
   { name: "Book Length" },
   { name: "Book Title" },
   { name: "Last Read" },
