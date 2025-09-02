@@ -7,7 +7,7 @@ export const processBookSeriesDetails = async (
   bookSeries: BookSeries,
   bookId: number
 ): Promise<Book> => {
-  const dtoCombined = bookSeries.book.dto_combined;
+  const dtoCombined = bookSeries.book;
 
   var image = await handleImage(
     bookId,
@@ -15,13 +15,16 @@ export const processBookSeriesDetails = async (
     bookSeries.book?.cached_image.url || "placeholder.png"
   );
 
+  var authorId = dtoCombined.contributions
+    ? dtoCombined.contributions?.length > 0
+      ? dtoCombined.contributions[0]?.author?.id || 0
+      : 0
+    : 0;
+
   const book: SelectBook = {
     id: bookId,
     title: dtoCombined.title,
-    authorId:
-      dtoCombined.contributions?.length > 0
-        ? dtoCombined.contributions[0]?.author_id || 0
-        : 0,
+    authorId: authorId,
     image: image,
     status: null,
     releaseYear: dtoCombined.release_year,
@@ -40,10 +43,7 @@ export const processBookSeriesDetails = async (
   };
 
   const author: SelectAuthor = {
-    id:
-      dtoCombined.contributions?.length > 0
-        ? dtoCombined.contributions[0].author_id
-        : 0,
+    id: authorId,
     name: "",
     image: "",
   };
