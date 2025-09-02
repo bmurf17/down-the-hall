@@ -25,19 +25,6 @@ function getMonthString(date: Date): string {
 const date = new Date();
 const monthString = getMonthString(date);
 
-// Function to get the last month's string representation
-function getLastMonthString(currentDate: Date) {
-  const lastMonth = new Date(currentDate);
-  lastMonth.setMonth(currentDate.getMonth() - 1);
-  return getMonthString(lastMonth);
-}
-
-// Determine which month to use based on the current date
-const queryMonthString =
-  date.getDate() === 1
-    ? getLastMonthString(date) // If it's the first of the month, use last month
-    : monthString; // Otherwise, use the current month
-
 const TRENDING_BOOKS_QUERY = gql`
   query MyQuery {
     books_trending(from: "", limit: 10, offset: 10, to: "") {
@@ -89,7 +76,6 @@ const BOOK_BY_ID_QUERY = (id: string) => gql`
       default_physical_edition_id
       users_count
       users_read_count      
-      dto_combined
       cached_image
       cached_contributors
     }
@@ -107,7 +93,6 @@ const SERIES_BY_ID_QUERY = (id: number) => gql`
           id
           title
           cached_image
-          dto_combined
         }
       }
     }
@@ -132,7 +117,6 @@ const BOOKS_BY_IDS_QUERY = (ids: number[]) => gql`
           default_physical_edition_id
           users_count
           users_read_count      
-          dto_combined
           cached_image
           release_year
           description
@@ -177,11 +161,8 @@ export const getBooks = async (title: string) => {
       query: BOOKS_BY_IDS_QUERY(ids),
     });
     const seriesIds = Object.values(booksResponse.data)
-      .filter(
-        (book: any) =>
-          book.dto_combined.series?.length > 0 && book.dto_combined.series
-      )
-      .map((book: any) => book.dto_combined.series[0].series_id);
+      .filter((book: any) => book.series?.length > 0 && book.series)
+      .map((book: any) => book.series[0].series_id);
 
     const seriesResponse = await client.query({
       query: SERIES_BY_IDS_QUERY(seriesIds),
@@ -204,10 +185,10 @@ export const getBook = async (id: string) => {
     });
 
     var seriesResponse =
-      booksResponse.data.books_by_pk?.dto_combined?.series?.length > 0
+      booksResponse.data.books_by_pk?.series?.length > 0
         ? await client.query({
             query: SERIES_BY_ID_QUERY(
-              booksResponse.data.books_by_pk?.dto_combined?.series[0].series_id
+              booksResponse.data.books_by_pk?.series[0].series_id
             ),
           })
         : null;
@@ -218,8 +199,8 @@ export const getBook = async (id: string) => {
           ...book,
           book_series: book.book_series.filter(
             (x: any) =>
-              x.book.dto_combined.country_id === 1 &&
-              !x.book.dto_combined.contributions.some(
+              x.book.country_id === 1 &&
+              !x.book.contributions.some(
                 (contribution: any) =>
                   contribution.contribution === "Translator"
               )
@@ -364,11 +345,8 @@ export const getBooksByIsbn = async (isbns: string[]) => {
     });
 
     const seriesIds = Object.values(booksResponse.data)
-      .filter(
-        (book: any) =>
-          book.dto_combined.series?.length > 0 && book.dto_combined.series
-      )
-      .map((book: any) => book.dto_combined.series[0].series_id);
+      .filter((book: any) => book.series?.length > 0 && book.series)
+      .map((book: any) => book.series[0].series_id);
 
     const seriesResponse = await client.query({
       query: SERIES_BY_IDS_QUERY(seriesIds),

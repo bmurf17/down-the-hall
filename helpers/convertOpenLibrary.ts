@@ -29,23 +29,18 @@ interface HardcoverBookData {
     users_read_count: number;
     title: string;
     pages: number;
-    dto_combined: {
-      description?: string;
-      page_count?: number;
-      genres?: string[];
-      release_year?: number;
-      title: string;
-      subtitle?: string;
-      series?: Array<{
-        series_id: number;
-        details?: string;
-        position?: number;
-        featured?: boolean;
-      }>;
-    };
     cached_image?: {
       url?: string;
     };
+    description: string;
+    genres: string[];
+    series: {
+      series_id: number;
+      details: string;
+      position: number;
+      featured: boolean;
+    }[];
+    release_year: number;
     cached_contributors?: Array<{
       author?: {
         name: string;
@@ -164,11 +159,10 @@ export async function convertBookData(
 
       // Use Hardcover description if available and better quality
       if (
-        book0.dto_combined.description &&
-        (!bookDescription ||
-          book0.dto_combined.description.length > bookDescription.length)
+        book0.description &&
+        (!bookDescription || book0.description.length > bookDescription.length)
       ) {
-        bookDescription = book0.dto_combined.description;
+        bookDescription = book0.description;
       }
 
       if (book0.cached_image?.url) {
@@ -180,8 +174,8 @@ export async function convertBookData(
       }
 
       // Use Hardcover genres if available
-      if (book0.dto_combined.genres?.length) {
-        const hardcoverGenres = book0.dto_combined.genres;
+      if (book0.genres?.length) {
+        const hardcoverGenres = book0.genres;
 
         // Merge and deduplicate genres manually
         hardcoverGenres.forEach((genre) => {
@@ -192,8 +186,8 @@ export async function convertBookData(
       }
 
       // Use Hardcover release year if available
-      if (book0.dto_combined.release_year) {
-        releaseYear = book0.dto_combined.release_year;
+      if (book0.release_year) {
+        releaseYear = book0.release_year;
       }
 
       // Use Hardcover author information if available
@@ -205,11 +199,8 @@ export async function convertBookData(
       }
 
       // Use Hardcover series information if available
-      if (
-        book0.dto_combined.series?.length &&
-        hardcoverData.seriesData?.series?.length
-      ) {
-        const seriesEntry = book0.dto_combined.series.find((s) => s.featured);
+      if (book0.series?.length && hardcoverData.seriesData?.series?.length) {
+        const seriesEntry = book0.series.find((s) => s.featured);
         if (seriesEntry) {
           const seriesInfo = hardcoverData.seriesData.series.find(
             (s) => s.id === seriesEntry.series_id

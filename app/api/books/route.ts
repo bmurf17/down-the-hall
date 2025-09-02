@@ -17,7 +17,8 @@ export async function GET(request: NextRequest) {
   }
 
   const orderColumn = getOrderColumn(order || "");
-  const orderDirection = isDesc ? desc : asc;
+  const orderDirection = desc;
+  console.log(orderDirection);
 
   let query = db
     .select()
