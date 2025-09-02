@@ -3,7 +3,7 @@
 import { Book } from "@/types/book";
 import { Tab, TabGroup, TabList, TabPanel, TabPanels } from "@headlessui/react";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
-import { useCallback, useMemo, useState } from "react";
+import { useCallback, useState, useMemo } from "react";
 import IconButton from "../basicUI/IconButton";
 import { CardIcon } from "../icons/CardIcon";
 import { ListIcon } from "../icons/ListIcon";
@@ -28,38 +28,65 @@ const pageOptions = [
 
 interface Props {
   books: Book[];
+  totalCount?: number;
 }
 
 function SanitizeOrderByParam(str: string): string {
   return str.replace(/\s/g, "").toLocaleLowerCase();
 }
 
-export default function Track({ books }: Props) {
-  const switchView = (toolName: string) =>
-    setSelectedView(viewOptions.find((tool) => tool === toolName));
-  const [selected, setSelected] = useState(options[0]);
-  const [selectedPageSize, setSelectedPageSize] = useState(pageOptions[1]);
-  const viewOptions = ["Card", "List", "Shelf", "CrazyView"];
-  const [selectedView, setSelectedView] = useState<string | undefined>(
-    viewOptions[0]
-  );
+export default function Track({ books, totalCount }: Props) {
+  const router = useRouter();
+  const pathname = usePathname();
   const searchParams = useSearchParams();
 
   const currentPage = parseInt(searchParams.get("page") || "1");
   const urlPageSize = searchParams.get("pageSize") || "25";
 
-  const router = useRouter();
-  const pathname = usePathname();
+  const switchView = (toolName: string) =>
+    setSelectedView(viewOptions.find((tool) => tool === toolName));
+
+  const [selected, setSelected] = useState(options[0]);
+  const [selectedPageSize, setSelectedPageSize] = useState(
+    pageOptions.find((option) => option.name === urlPageSize) || pageOptions[1]
+  );
+
+  const viewOptions = ["Card", "List", "Shelf", "CrazyView"];
+  const [selectedView, setSelectedView] = useState<string | undefined>(
+    viewOptions[0]
+  );
+
+  const createQueryString = useCallback(
+    (name: string, value: string) => {
+      const params = new URLSearchParams(searchParams.toString());
+      params.set(name, value);
+      return params.toString();
+    },
+    [searchParams]
+  );
+
+  const updateMultipleParams = useCallback(
+    (updates: Record<string, string>) => {
+      const params = new URLSearchParams(searchParams.toString());
+      Object.entries(updates).forEach(([key, value]) => {
+        if (value === "") {
+          params.delete(key);
+        } else {
+          params.set(key, value);
+        }
+      });
+      return params.toString();
+    },
+    [searchParams]
+  );
 
   const pageSize = parseInt(selectedPageSize.name);
-  const totalBooks = books.length;
+  const totalBooks = totalCount || books.length;
   const totalPages = Math.ceil(totalBooks / pageSize);
-  const startIndex = pageSize * (currentPage - 1);
-  const endIndex = startIndex + pageSize;
+  const startIndex = (currentPage - 1) * pageSize;
+  const endIndex = startIndex + books.length;
 
-  const paginatedBooks = useMemo(() => {
-    return books.slice(startIndex, endIndex);
-  }, [books, startIndex, endIndex]);
+  const paginatedBooks = books;
 
   const getPageNumbers = () => {
     const pages = [];
@@ -116,29 +143,58 @@ export default function Track({ books }: Props) {
     }
   };
 
-  const updateMultipleParams = useCallback(
-    (updates: Record<string, string>) => {
-      const params = new URLSearchParams(searchParams.toString());
-      Object.entries(updates).forEach(([key, value]) => {
-        if (value === "") {
-          params.delete(key);
-        } else {
-          params.set(key, value);
-        }
-      });
-      return params.toString();
-    },
-    [searchParams]
-  );
+  const PaginationControls = () => (
+    <div className="flex flex-col sm:flex-row gap-4 items-center justify-between mt-6 p-4 bg-card rounded-lg">
+      <div className="flex items-center gap-4 text-sm text-gray-600">
+        <span>
+          Showing {startIndex + 1}-{Math.min(endIndex, totalBooks)} of{" "}
+          {totalBooks} books
+        </span>
+      </div>
 
-  const createQueryString = useCallback(
-    (name: string, value: string) => {
-      const params = new URLSearchParams(searchParams.toString());
-      params.set(name, value);
+      <div className="flex items-center gap-2">
+        <button
+          onClick={() => goToPage(currentPage - 1)}
+          disabled={currentPage === 1}
+          className="px-3 py-2 text-sm rounded-md border border-gray-300 hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
+        >
+          Previous
+        </button>
 
-      return params.toString();
-    },
-    [searchParams]
+        <div className="flex gap-1">
+          {getPageNumbers().map((pageNum) => (
+            <button
+              key={pageNum}
+              onClick={() => goToPage(pageNum)}
+              className={`px-3 py-2 text-sm rounded-md border ${
+                pageNum === currentPage
+                  ? "bg-primary text-white border-primary"
+                  : "border-gray-300 hover:bg-gray-50"
+              }`}
+            >
+              {pageNum}
+            </button>
+          ))}
+        </div>
+
+        <button
+          onClick={() => goToPage(currentPage + 1)}
+          disabled={currentPage === totalPages}
+          className="px-3 py-2 text-sm rounded-md border border-gray-300 hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
+        >
+          Next
+        </button>
+      </div>
+
+      <div className="flex items-center gap-2">
+        <label className="text-sm text-gray-600">Page size:</label>
+        <FilterTrack
+          options={pageOptions}
+          selected={selectedPageSize}
+          setSelected={setPaginationSelection}
+        />
+      </div>
+    </div>
   );
 
   return (
@@ -149,7 +205,11 @@ export default function Track({ books }: Props) {
             <Tab
               className="data-[selected]:bg-primary text-white rounded-xl p-4 data-[hover]:bg-primary data-[selected]:data-[hover]:bg-primary data-[focus]:outline-1 data-[focus]:outline-white  bg-card"
               onClick={() => {
-                router.push(pathname + "?" + createQueryString("status", ""));
+                router.push(
+                  pathname +
+                    "?" +
+                    updateMultipleParams({ status: "", page: "1" })
+                );
               }}
             >
               All
@@ -157,7 +217,11 @@ export default function Track({ books }: Props) {
             <Tab
               className="data-[selected]:bg-primary text-white rounded-xl p-4 data-[hover]:bg-primary data-[selected]:data-[hover]:bg-primary data-[focus]:outline-1 data-[focus]:outline-white  bg-slate-400"
               onClick={() => {
-                router.push(pathname + "?" + createQueryString("status", "0"));
+                router.push(
+                  pathname +
+                    "?" +
+                    updateMultipleParams({ status: "0", page: "1" })
+                );
               }}
             >
               Currently Reading
@@ -165,7 +229,11 @@ export default function Track({ books }: Props) {
             <Tab
               className="data-[selected]:bg-primary text-white rounded-xl p-4 data-[hover]:bg-primary data-[selected]:data-[hover]:bg-primary data-[focus]:outline-1 data-[focus]:outline-white  bg-slate-400"
               onClick={() => {
-                router.push(pathname + "?" + createQueryString("status", "1"));
+                router.push(
+                  pathname +
+                    "?" +
+                    updateMultipleParams({ status: "1", page: "1" })
+                );
               }}
             >
               Read
@@ -173,7 +241,11 @@ export default function Track({ books }: Props) {
             <Tab
               className="data-[selected]:bg-primary text-white rounded-xl p-4 data-[hover]:bg-primary data-[selected]:data-[hover]:bg-primary data-[focus]:outline-1 data-[focus]:outline-white  bg-slate-400"
               onClick={() => {
-                router.push(pathname + "?" + createQueryString("status", "2"));
+                router.push(
+                  pathname +
+                    "?" +
+                    updateMultipleParams({ status: "2", page: "1" })
+                );
               }}
             >
               Want To Read
@@ -181,7 +253,11 @@ export default function Track({ books }: Props) {
             <Tab
               className="data-[selected]:bg-primary text-white rounded-xl p-4 data-[hover]:bg-primary data-[selected]:data-[hover]:bg-primary data-[focus]:outline-1 data-[focus]:outline-white  bg-slate-400"
               onClick={() => {
-                router.push(pathname + "?" + createQueryString("status", "3"));
+                router.push(
+                  pathname +
+                    "?" +
+                    updateMultipleParams({ status: "3", page: "1" })
+                );
               }}
             >
               Did Not Finish
@@ -196,7 +272,6 @@ export default function Track({ books }: Props) {
                 setSelected={setFilterSelection}
               />
             </div>
-
             <div className="flex gap-4">
               <IconButton
                 icon={<CardIcon />}
@@ -237,90 +312,41 @@ export default function Track({ books }: Props) {
               />
             </div>
           </div>
-          <div className="flex flex-col sm:flex-row gap-4 items-center justify-between mt-6 p-4 bg-card rounded-lg">
-            <div className="flex items-center gap-4 text-sm text-gray-600">
-              <span>
-                Showing {startIndex + 1}-{Math.min(endIndex, totalBooks)} of{" "}
-                {totalBooks} books
-              </span>
-            </div>
-
-            <div className="flex items-center gap-2">
-              <button
-                onClick={() => goToPage(currentPage - 1)}
-                disabled={currentPage === 1}
-                className="px-3 py-2 text-sm rounded-md border border-gray-300 hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
-              >
-                Previous
-              </button>
-
-              <div className="flex gap-1">
-                {getPageNumbers().map((pageNum) => (
-                  <button
-                    key={pageNum}
-                    onClick={() => goToPage(pageNum)}
-                    className={`px-3 py-2 text-sm rounded-md border ${
-                      pageNum === currentPage
-                        ? "bg-primary text-white border-primary"
-                        : "border-gray-300 hover:bg-gray-50"
-                    }`}
-                  >
-                    {pageNum}
-                  </button>
-                ))}
-              </div>
-
-              <button
-                onClick={() => goToPage(currentPage + 1)}
-                disabled={currentPage === totalPages}
-                className="px-3 py-2 text-sm rounded-md border border-gray-300 hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
-              >
-                Next
-              </button>
-            </div>
-
-            <div className="flex items-center gap-2">
-              <label className="text-sm text-gray-600">Page size:</label>
-              <FilterTrack
-                options={pageOptions}
-                selected={selectedPageSize}
-                setSelected={setPaginationSelection}
-              />
-            </div>
-          </div>
+          <PaginationControls />
           <TabPanels className="mb-4">
             <TabPanel>
               <TrackBookViewLogic
                 selectedView={selectedView}
-                books={books}
+                books={paginatedBooks}
                 viewOptions={viewOptions}
               />
             </TabPanel>
             <TabPanel>
               <TrackBookViewLogic
                 selectedView={selectedView}
-                books={books}
+                books={paginatedBooks}
+                viewOptions={viewOptions}
+              />
+              <PaginationControls />
+            </TabPanel>
+            <TabPanel>
+              <TrackBookViewLogic
+                selectedView={selectedView}
+                books={paginatedBooks}
                 viewOptions={viewOptions}
               />
             </TabPanel>
             <TabPanel>
               <TrackBookViewLogic
                 selectedView={selectedView}
-                books={books}
+                books={paginatedBooks}
                 viewOptions={viewOptions}
               />
             </TabPanel>
             <TabPanel>
               <TrackBookViewLogic
                 selectedView={selectedView}
-                books={books}
-                viewOptions={viewOptions}
-              />
-            </TabPanel>
-            <TabPanel>
-              <TrackBookViewLogic
-                selectedView={selectedView}
-                books={books}
+                books={paginatedBooks}
                 viewOptions={viewOptions}
               />
             </TabPanel>
