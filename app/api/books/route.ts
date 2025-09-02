@@ -47,8 +47,6 @@ export async function GET(request: NextRequest) {
       .limit(validatedPageSize)
       .offset(offset);
 
-    console.log(orderColumn);
-
     const books = await dataQuery;
 
     const totalPages = Math.ceil(totalCount / validatedPageSize);

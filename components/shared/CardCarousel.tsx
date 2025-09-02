@@ -10,17 +10,11 @@ import {
 interface Props {
   userData: userGridResponse;
   onSlideChange?: (index: number) => void;
-  activeIndex?: number;
 }
 
-export default function CardCarousel({
-  userData,
-  onSlideChange,
-  activeIndex = 0,
-}: Props) {
+export default function CardCarousel({ userData, onSlideChange }: Props) {
   const [api, setApi] = useState<CarouselApi>();
 
-  // Function to manually handle carousel navigation
   const handleNavigate = useCallback(
     (direction: "prev" | "next") => {
       if (!api) return;
@@ -31,7 +25,6 @@ export default function CardCarousel({
         api.scrollNext();
       }
 
-      // Need to wait for the scroll to complete before getting the new index
       setTimeout(() => {
         if (onSlideChange) {
           onSlideChange(api.selectedScrollSnap());
@@ -44,7 +37,6 @@ export default function CardCarousel({
   useEffect(() => {
     if (!api || !onSlideChange) return;
 
-    // Set initial active slide
     onSlideChange(api.selectedScrollSnap());
 
     const onSelect = () => {
@@ -75,9 +67,9 @@ export default function CardCarousel({
           >
             <div className="flex flex-col items-center">
               <img
-                src={book.image || "/api/placeholder/200/300"}
+                src={book.image || ""}
                 alt={book.title}
-                className="h-64 w-auto object-contain rounded-md shadow-md"
+                className="h-80 w-auto object-contain rounded-md shadow-md"
               />
               <div className="mt-2 text-sm text-center">
                 <p className="font-medium truncate max-w-48">{book.title}</p>
