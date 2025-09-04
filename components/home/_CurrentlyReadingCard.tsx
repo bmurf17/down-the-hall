@@ -52,7 +52,7 @@ export default function CurrentlyReadingCard({ userData }: Props) {
   return (
     <Card
       key={localUserData.user.id}
-      className="p-6 bg-card text-card-foreground cursor-pointer h-full"
+      className="p-6 bg-card text-card-foreground cursor-pointer"
     >
       <div className="flex items-center gap-2 mb-4">Currently Reading </div>
 
@@ -61,7 +61,6 @@ export default function CurrentlyReadingCard({ userData }: Props) {
           <CardCarousel
             userData={localUserData}
             onSlideChange={setActiveBookIndex}
-            activeIndex={activeBookIndex}
           />
         </div>
       ) : (

@@ -1,12 +1,6 @@
 "use client";
 
-import {
-  SignedIn,
-  SignedOut,
-  SignInButton,
-  UserButton,
-  SignIn,
-} from "@clerk/nextjs";
+import { SignedIn, SignedOut, SignInButton, UserButton } from "@clerk/nextjs";
 import { Dialog, Transition } from "@headlessui/react";
 import clsx from "clsx";
 import Link from "next/link";
@@ -95,7 +89,7 @@ export default function NavBar() {
               >
                 X
               </button>
-              <div className="py-4 px-6 font-bold text-blue-600">
+              <div className="py-4 px-6 font-bold text-lg text-primary">
                 Down The Hall
               </div>
               <div className="overflow-y-auto flex-1">
@@ -103,7 +97,7 @@ export default function NavBar() {
                   <div className="flex flex-col space-y-1 px-4">
                     <button
                       type="button"
-                      className="flex items-center gap-3 rounded-md px-3 py-2 text-sm font-medium text-gray-500 transition-colors hover:bg-gray-100 hover:text-gray-900"
+                      className="flex items-center gap-3 rounded-md px-3 py-2 text-lg font-medium text-gray-500 transition-colors hover:bg-gray-100 hover:text-gray-900"
                       onClick={() => {
                         navigateTo("/find");
                       }}
@@ -113,7 +107,7 @@ export default function NavBar() {
                     </button>
                     <button
                       type="button"
-                      className="flex items-center gap-3 rounded-md px-3 py-2 text-sm font-medium text-gray-500 transition-colors hover:bg-gray-100 hover:text-gray-900"
+                      className="flex items-center gap-3 rounded-md px-3 py-2 text-xl font-medium text-gray-500 transition-colors hover:bg-gray-100 hover:text-gray-900"
                       onClick={() => {
                         navigateTo("/track");
                       }}
@@ -123,7 +117,7 @@ export default function NavBar() {
                     </button>
                     <button
                       type="button"
-                      className="flex items-center gap-3 rounded-md px-3 py-2 text-sm font-medium text-gray-500 transition-colors hover:bg-gray-100 hover:text-gray-900"
+                      className="flex items-center gap-3 rounded-md px-3 py-2 text-lg font-medium text-gray-500 transition-colors hover:bg-gray-100 hover:text-gray-900"
                       onClick={() => {
                         navigateTo("/stats");
                       }}
@@ -133,7 +127,7 @@ export default function NavBar() {
                     </button>
                     <button
                       type="button"
-                      className="flex items-center gap-3 rounded-md px-3 py-2 text-sm font-medium text-gray-500 transition-colors hover:bg-gray-100 hover:text-gray-900"
+                      className="flex items-center gap-3 rounded-md px-3 py-2 text-lg font-medium text-gray-500 transition-colors hover:bg-gray-100 hover:text-gray-900"
                       onClick={() => {
                         navigateTo("/goals");
                       }}
@@ -144,7 +138,7 @@ export default function NavBar() {
 
                     <button
                       type="button"
-                      className="flex items-center gap-3 rounded-md px-3 py-2 text-sm font-medium text-gray-500 transition-colors hover:bg-gray-100 hover:text-gray-900"
+                      className="flex items-center gap-3 rounded-md px-3 py-2 text-lg font-medium text-gray-500 transition-colors hover:bg-gray-100 hover:text-gray-900"
                       onClick={() => {
                         navigateTo("/users");
                       }}
@@ -156,11 +150,11 @@ export default function NavBar() {
                 </SignedIn>
                 <SignedOut>
                   <div className="flex flex-col space-y-1 px-4">
-                    <p>Sign in to start traking your book</p>
+                    <p>Sign in to start tracking your book</p>
                     <SignInButton>
                       <button
                         className={clsx(
-                          "bg-primary flex items-center justify-center p-2 rounded-lg  text-sm/6 gap-2 text-white hover:bg-green-500",
+                          "bg-primary flex items-center justify-center p-2 rounded-lg  text-lg/6 gap-2 text-white hover:bg-green-500",
                           "focus:outline-none data-[focus]:outline-2 data-[focus]:-outline-offset-2 data-[focus]:outline-white/25"
                         )}
                       >

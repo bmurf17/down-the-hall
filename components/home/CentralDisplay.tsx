@@ -78,7 +78,6 @@ export default function CentralDisplay({
             </div>
           )}
 
-          {/* Goals Section */}
           <div className="bg-card rounded-xl p-4">
             <h2 className="text-xl font-medium mb-3">Goals</h2>
             <ProgressTracker
@@ -88,7 +87,6 @@ export default function CentralDisplay({
           </div>
         </div>
 
-        {/* Right column - Trending section with tabs */}
         <div className="md:h-[calc(100vh-150px)] order-3 md:order-2 col-span-2">
           <TabGroup>
             <TabList className="flex space-x-1 rounded-xl bg-card p-1">
