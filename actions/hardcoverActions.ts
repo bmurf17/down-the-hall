@@ -162,7 +162,7 @@ export const getBooks = async (title: string) => {
     });
     const seriesIds = Object.values(booksResponse.data)
       .filter((book: any) => book.series?.length > 0 && book.series)
-      .map((book: any) => book.series[0].series_id);
+      .map((book: any) => book.series[0]?.series_id);
 
     const seriesResponse = await client.query({
       query: SERIES_BY_IDS_QUERY(seriesIds),
@@ -188,7 +188,7 @@ export const getBook = async (id: string) => {
       booksResponse.data.books_by_pk?.series?.length > 0
         ? await client.query({
             query: SERIES_BY_ID_QUERY(
-              booksResponse.data.books_by_pk?.series[0].series_id
+              booksResponse.data.books_by_pk?.series[0]?.series_id
             ),
           })
         : null;
@@ -276,7 +276,7 @@ export async function fetchTrendingData() {
 
     const seriesIds = Object.values(booksResponse.data)
       .filter((book: any) => book.book_series)
-      .map((book: any) => book.book_series[0].series_id);
+      .map((book: any) => book.book_series[0]?.series_id);
 
     const seriesResponse = await client.query({
       query: SERIES_BY_IDS_QUERY(seriesIds),
@@ -346,7 +346,7 @@ export const getBooksByIsbn = async (isbns: string[]) => {
 
     const seriesIds = Object.values(booksResponse.data)
       .filter((book: any) => book.series?.length > 0 && book.series)
-      .map((book: any) => book.series[0].series_id);
+      .map((book: any) => book.series[0]?.series_id);
 
     const seriesResponse = await client.query({
       query: SERIES_BY_IDS_QUERY(seriesIds),
