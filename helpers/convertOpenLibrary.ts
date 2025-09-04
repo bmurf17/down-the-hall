@@ -203,7 +203,7 @@ export async function convertBookData(
         const seriesEntry = book0.series.find((s) => s.featured);
         if (seriesEntry) {
           const seriesInfo = hardcoverData.seriesData.series.find(
-            (s) => s.id === seriesEntry.series_id
+            (s) => s.id === seriesEntry?.series_id
           );
           if (seriesInfo) {
             var sp =
