@@ -327,7 +327,6 @@ export default function Track({ books, totalCount }: Props) {
                 books={paginatedBooks}
                 viewOptions={viewOptions}
               />
-              <PaginationControls />
             </TabPanel>
             <TabPanel>
               <TrackBookViewLogic
