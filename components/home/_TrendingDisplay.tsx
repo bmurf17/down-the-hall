@@ -29,7 +29,7 @@ export default function TrendingDisplay({ books }: Props) {
           No Trending Books Available
         </h3>
         <p className="text-sm text-muted-foreground max-w-md">
-          We're having trouble loading trending books right now. Please try
+          We are having trouble loading trending books right now. Please try
           refreshing the page or check back later.
         </p>
         <button
