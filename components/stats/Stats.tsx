@@ -61,8 +61,15 @@ const COLORS = [
   "fill-fuchsia-400",
 ];
 
+
+function addMonths(date: Date, months: number) {
+  date.setMonth(date.getMonth() + months);
+  date.setDate(1)
+  return date;
+}
+
 export default function Stats({ stats }: { stats: any[] }) {
-  const [startDate, setStartDate] = useState<Date>();
+  const [startDate, setStartDate] = useState<Date>(addMonths(new Date(), -6));
   const [endDate, setEndDate] = useState<Date>();
   const pathname = usePathname();
   const searchParams = useSearchParams();
@@ -118,7 +125,7 @@ export default function Stats({ stats }: { stats: any[] }) {
   date: Date | undefined
 ) => {
   if (dateType === "start") {
-    setStartDate(date);
+    setStartDate(date || new Date());
   } else {
     setEndDate(date);
   }
@@ -136,17 +143,6 @@ export default function Stats({ stats }: { stats: any[] }) {
 
   router.push(newUrl);
 };
-
-  const handleQuery = () => {
-    if (startDate && endDate) {
-      pathname +
-        "?" +
-        updateMultipleParams({
-          start: startDate?.toISOString().split("T")[0] || "",
-          end: endDate?.toISOString().split("T")[0] || "",
-        });
-    }
-  };
 
   return (
     <>
@@ -169,7 +165,6 @@ export default function Stats({ stats }: { stats: any[] }) {
             <DatePicker
               date={startDate}
               onDateSelect={(date) => handleDateChange("start", date)}
-              placeholder="Pick start date"
             />{" "}
             End Date:
             <DatePicker
