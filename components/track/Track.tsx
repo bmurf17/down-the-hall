@@ -119,7 +119,7 @@ export default function Track({ books, totalCount }: Props) {
         "?" +
         updateMultipleParams({
           order: SanitizeOrderByParam(e.name),
-          page: "1", // Reset to first page when filtering
+          page: "1", 
         })
     );
     setSelected(e);
@@ -131,7 +131,7 @@ export default function Track({ books, totalCount }: Props) {
         "?" +
         updateMultipleParams({
           pageSize: e.name,
-          page: "1", // Reset to first page when changing page size
+          page: "1",
         })
     );
     setSelectedPageSize(e);

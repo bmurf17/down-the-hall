@@ -14,14 +14,11 @@ import {
   ChartTooltipContent,
 } from "@/components/ui/chart";
 import { TabGroup, TabList, Tab, TabPanel } from "@headlessui/react";
-import {
-  Bar,
-  BarChart,
-  CartesianGrid,
-  XAxis,
-  ResponsiveContainer,
-} from "recharts";
+import { Bar, BarChart, CartesianGrid, XAxis } from "recharts";
 import D3BarChart from "./_BarChart";
+import { DatePicker } from "../shared/DatePicker";
+import { useCallback, useState } from "react";
+import { usePathname, useRouter, useSearchParams } from "next/navigation";
 
 const chartConfig = {
   pagesRead: {
@@ -65,6 +62,27 @@ const COLORS = [
 ];
 
 export default function Stats({ stats }: { stats: any[] }) {
+  const [startDate, setStartDate] = useState<Date>();
+  const [endDate, setEndDate] = useState<Date>();
+  const pathname = usePathname();
+  const searchParams = useSearchParams();
+  const router = useRouter();
+
+  const updateMultipleParams = useCallback(
+    (updates: Record<string, string>) => {
+      const params = new URLSearchParams(searchParams.toString());
+      Object.entries(updates).forEach(([key, value]) => {
+        if (value === "") {
+          params.delete(key);
+        } else {
+          params.set(key, value);
+        }
+      });
+      return params.toString();
+    },
+    [searchParams]
+  );
+
   const pagesChartData = stats.map((stat) => {
     const [year, month] = stat.month.split("-");
     return {
@@ -95,10 +113,45 @@ export default function Stats({ stats }: { stats: any[] }) {
     };
   });
 
+  const handleDateChange = (
+  dateType: "start" | "end",
+  date: Date | undefined
+) => {
+  if (dateType === "start") {
+    setStartDate(date);
+  } else {
+    setEndDate(date);
+  }
+
+  const updatedStartDate = dateType === "start" ? date : startDate;
+  const updatedEndDate = dateType === "end" ? date : endDate;
+
+  const newUrl =
+    pathname +
+    "?" +
+    updateMultipleParams({
+      start: updatedStartDate?.toISOString().split("T")[0] || "",
+      end: updatedEndDate?.toISOString().split("T")[0] || "",
+    });
+
+  router.push(newUrl);
+};
+
+  const handleQuery = () => {
+    if (startDate && endDate) {
+      pathname +
+        "?" +
+        updateMultipleParams({
+          start: startDate?.toISOString().split("T")[0] || "",
+          end: endDate?.toISOString().split("T")[0] || "",
+        });
+    }
+  };
+
   return (
     <>
       <TabGroup>
-        <TabList className="flex gap-4 w-full sm:mx-auto overflow-x-auto overflow-y-hidden no-scrollbar ">
+        <TabList className="flex gap-4 w-full sm:mx-auto overflow-x-auto overflow-y-hidden no-scrollbar p-4 pb-0">
           {tabItems?.map((tab) => {
             return (
               <Tab
@@ -110,6 +163,22 @@ export default function Stats({ stats }: { stats: any[] }) {
             );
           })}
         </TabList>
+        <div className="p-4 pb-0">
+          <div className="bg-card gap-4 p-2 rounded-xl">
+            Start Date:{" "}
+            <DatePicker
+              date={startDate}
+              onDateSelect={(date) => handleDateChange("start", date)}
+              placeholder="Pick start date"
+            />{" "}
+            End Date:
+            <DatePicker
+              date={endDate}
+              onDateSelect={(date) => handleDateChange("end", date)}
+            />
+          </div>
+        </div>
+
         <TabPanel>
           <div className="min-h-screen p-4 overflow-auto">
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">

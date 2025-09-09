@@ -15,7 +15,6 @@ function addCorsHeaders(response: NextResponse) {
 }
 
 export async function OPTIONS(): Promise<NextResponse> {
-  // Return a 200 response with CORS headers for preflight requests
   const response = NextResponse.json({}, { status: 200 });
   return addCorsHeaders(response);
 }
