@@ -17,7 +17,7 @@ import { TabGroup, TabList, Tab, TabPanel } from "@headlessui/react";
 import { Bar, BarChart, CartesianGrid, XAxis } from "recharts";
 import D3BarChart from "./_BarChart";
 import { DatePicker } from "../shared/DatePicker";
-import { useCallback, useState } from "react";
+import { useCallback, useState, useEffect } from "react";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 
 const chartConfig = {
@@ -61,19 +61,51 @@ const COLORS = [
   "fill-fuchsia-400",
 ];
 
-
 function addMonths(date: Date, months: number) {
-  date.setMonth(date.getMonth() + months);
-  date.setDate(1)
-  return date;
+  const newDate = new Date(date);
+  newDate.setMonth(newDate.getMonth() + months);
+  newDate.setDate(1);
+  return newDate;
 }
 
 export default function Stats({ stats }: { stats: any[] }) {
-  const [startDate, setStartDate] = useState<Date>(addMonths(new Date(), -6));
-  const [endDate, setEndDate] = useState<Date>();
+  console.log(stats)
   const pathname = usePathname();
   const searchParams = useSearchParams();
   const router = useRouter();
+
+  const [startDate, setStartDate] = useState<Date>(() => {
+    const startParam = searchParams.get("start");
+    if (startParam) {
+      return new Date(startParam);
+    }
+    return addMonths(new Date(), -6);
+  });
+
+  const [endDate, setEndDate] = useState<Date | undefined>(() => {
+    const endParam = searchParams.get("end");
+    if (endParam) {
+      return new Date(endParam);
+    }
+    return undefined;
+  });
+
+  useEffect(() => {
+    const startParam = searchParams.get("start");
+    const endParam = searchParams.get("end");
+
+    if (startParam) {
+      setStartDate(new Date(startParam));
+    } else {
+      setStartDate(addMonths(new Date(), -6));
+    }
+
+    if (endParam) {
+      setEndDate(new Date(endParam));
+    } else {
+      setEndDate(undefined);
+    }
+  }, [searchParams]);
 
   const updateMultipleParams = useCallback(
     (updates: Record<string, string>) => {
@@ -89,6 +121,31 @@ export default function Stats({ stats }: { stats: any[] }) {
     },
     [searchParams]
   );
+
+  const handleDateChange = (
+    dateType: "start" | "end",
+    date: Date | undefined
+  ) => {
+    if (dateType === "start") {
+      setStartDate(date || new Date());
+    } else {
+      setEndDate(date);
+    }
+
+    const updatedStartDate = dateType === "start" ? date : startDate;
+    const updatedEndDate = dateType === "end" ? date : endDate;
+
+    const newUrl =
+      pathname +
+      "?" +
+      updateMultipleParams({
+        start: updatedStartDate?.toISOString().split("T")[0] || "",
+        end: updatedEndDate?.toISOString().split("T")[0] || "",
+      });
+
+    router.push(newUrl);
+    router.refresh();
+  };
 
   const pagesChartData = stats.map((stat) => {
     const [year, month] = stat.month.split("-");
@@ -119,30 +176,6 @@ export default function Stats({ stats }: { stats: any[] }) {
       fill: COLORS[parseInt(x.month.split("-")[1], 10) - 1],
     };
   });
-
-  const handleDateChange = (
-  dateType: "start" | "end",
-  date: Date | undefined
-) => {
-  if (dateType === "start") {
-    setStartDate(date || new Date());
-  } else {
-    setEndDate(date);
-  }
-
-  const updatedStartDate = dateType === "start" ? date : startDate;
-  const updatedEndDate = dateType === "end" ? date : endDate;
-
-  const newUrl =
-    pathname +
-    "?" +
-    updateMultipleParams({
-      start: updatedStartDate?.toISOString().split("T")[0] || "",
-      end: updatedEndDate?.toISOString().split("T")[0] || "",
-    });
-
-  router.push(newUrl);
-};
 
   return (
     <>

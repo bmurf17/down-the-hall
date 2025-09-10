@@ -1,7 +1,17 @@
 import Stats from "@/components/stats/Stats";
 import { currentUser } from "@clerk/nextjs/server";
 
-export default async function StatsPage() {
+interface Props {
+  searchParams?: {
+    start?: string;
+    end?: string;
+  };
+}
+
+export const dynamic = 'force-dynamic'
+export const revalidate = 0
+
+export default async function StatsPage({ searchParams }: Props) {
   const user = await currentUser();
 
   if (!user || !user.id) {
@@ -12,9 +22,21 @@ export default async function StatsPage() {
     );
   }
 
+  const apiParams = new URLSearchParams({
+    ...(searchParams?.start && { start: searchParams.start }),
+    ...(searchParams?.end && { end: searchParams.end }),
+  });
+
+
   const response = await fetch(
-    `${process.env.NEXT_PUBLIC_API_URL}/api/stats/${user.id}`
+    `${process.env.NEXT_PUBLIC_API_URL}/api/stats/${
+      user.id
+    }?${apiParams.toString()}`
   );
+
+  console.log("Fetching from URL:", `${process.env.NEXT_PUBLIC_API_URL}/api/stats/${user.id}?${apiParams.toString()}`);
+
+
   if (!response.ok) {
     return (
       <div className="min-h-screen flex items-center justify-center">
