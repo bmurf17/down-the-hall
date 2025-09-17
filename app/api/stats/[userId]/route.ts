@@ -23,15 +23,12 @@ export async function GET(
   const startParam = request.nextUrl.searchParams.get("start");
   const endParam = request.nextUrl.searchParams.get("end");
 
-  // Default to 6 months ago if no start date provided
   const defaultStartDate = new Date();
   defaultStartDate.setMonth(defaultStartDate.getMonth() - 6);
 
-  // Parse start and end dates, with fallbacks
   const startDate = startParam ? new Date(startParam) : defaultStartDate;
   const endDate = endParam ? new Date(endParam) : new Date();
 
-  // Validate dates
   if (startParam && isNaN(startDate.getTime())) {
     return NextResponse.json(
       { error: "Invalid start date format. Use YYYY-MM-DD format." },

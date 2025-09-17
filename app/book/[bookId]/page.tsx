@@ -34,6 +34,7 @@ export default async function Page({ params }: { params: { bookId: string } }) {
     data?.booksData.books_by_pk,
     data.seriesData
   );
+  console.log(hardCoverBookInfo);
 
   const dbBookData = await getBookData(params.bookId);
 

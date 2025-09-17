@@ -78,6 +78,9 @@ const BOOK_BY_ID_QUERY = (id: string) => gql`
       users_read_count      
       cached_image
       cached_contributors
+      description
+      release_year
+      title
     }
   }
 `;
@@ -184,6 +187,8 @@ export const getBook = async (id: string) => {
       query: BOOK_BY_ID_QUERY(id),
     });
 
+    console.log("Book data correct")
+    console.log()
     var seriesResponse =
       booksResponse.data.books_by_pk?.series?.length > 0
         ? await client.query({
