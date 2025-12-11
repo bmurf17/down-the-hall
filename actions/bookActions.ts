@@ -61,6 +61,7 @@ export const addBook = async (
       );
 
       var book_id = await insertQuery(
+        //@ts-ignore
         client,
         title,
         authorId,
@@ -100,6 +101,7 @@ export const addBook = async (
 
   try {
     var book_id = await insertQuery(
+      //@ts-ignore
       client,
       title,
       authorData[0].id,
@@ -130,6 +132,8 @@ export const addBook = async (
   }
 
   revalidateTag("books");
+  revalidatePath("user-data")
+  revalidatePath("user")
 };
 
 const insertQuery = async (

@@ -346,8 +346,6 @@ export async function searchBooksWithFallback(
     }
   }
 
-  // Strategy 3: Fallback to original OpenLibrary method
-  console.log("All Google Books strategies failed, using OpenLibrary fallback");
   return await enhancedSearchBooks(params);
 }
 

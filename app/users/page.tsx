@@ -1,7 +1,14 @@
 import Users from "@/components/users/Users";
-import { getUsers } from "@/functions/getUsers";
 import { userGridResponse } from "@/types/apiResponse/usersgridResponse";
 import { currentUser } from "@clerk/nextjs/server";
+import db from "@/lib/db";
+import { users, book } from "@/lib/schema";
+import { Status } from "@/types/enums/statusEnum";
+import { eq, and } from "drizzle-orm";
+
+// Force dynamic rendering
+export const dynamic = 'force-dynamic';
+export const revalidate = 0;
 
 export default async function UserPage() {
   try {
@@ -15,9 +22,49 @@ export default async function UserPage() {
       );
     }
 
-    const response = await getUsers();
+    // Query database directly instead of going through API route
+    console.log('QUERYING DATABASE AT:', new Date().toISOString());
+    
+    const data = await db
+      .select({
+        user: {
+          id: users.id,
+          userName: users.userName,
+          image: users.image,
+          lastLoggedIn: users.lastLoggedIn,
+        },
+        books: {
+          id: book.id,
+          title: book.title,
+          image: book.image,
+          dateRead: book.dateRead,
+          rating: book.rating,
+        },
+      })
+      .from(users)
+      .leftJoin(
+        book,
+        and(eq(book.userId, users.id), eq(book.status, Status.InProgress))
+      );
 
-    const userGridResponse: userGridResponse[] = response;
+    const processedData = data.reduce<Record<string, any>>((acc, row) => {
+      if (!acc[row.user.id]) {
+        acc[row.user.id] = {
+          user: row.user,
+          books: [],
+        };
+      }
+
+      if (row.books?.id) {
+        acc[row.user.id].books.push(row.books);
+      }
+
+      return acc;
+    }, {});
+
+    const userGridResponse: userGridResponse[] = Object.values(processedData);
+
+    console.log('GOT USERS:', userGridResponse.length, 'at', new Date().toISOString());
 
     return (
       <div className="mx-16">
@@ -35,4 +82,4 @@ export default async function UserPage() {
       </div>
     );
   }
-}
+} 
