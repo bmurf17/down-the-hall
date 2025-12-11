@@ -1,13 +1,20 @@
 import { fetchTrendingData } from "@/actions/hardcoverActions";
 import CentralDisplay from "@/components/home/CentralDisplay";
 import { getUserActivityLogData } from "@/functions/getactivtyLog";
-import { getCurrentUser } from "@/functions/getCurrentUser";
 import { convertTrendingBookData } from "@/helpers/convertTrendingBookToBook";
 import { UserActivityLogList } from "@/types/apiResponse/UseLogResponse";
 import { Book } from "@/types/book";
 import { TrendingData } from "@/types/trending/trendingbookresponse";
 import { UserActivityLog } from "@/types/userActivityLog";
 import { currentUser } from "@clerk/nextjs/server";
+import db from "@/lib/db";
+import { users, book, userGoals } from "@/lib/schema";
+import { Status } from "@/types/enums/statusEnum";
+import { eq, and, sql } from "drizzle-orm";
+
+// Force dynamic rendering
+export const dynamic = 'force-dynamic';
+export const revalidate = 0;
 
 export interface UserActivityLogReturnType {
   user_activity_log: UserActivityLog;
@@ -52,22 +59,92 @@ async function fetchUserActivityLogSafely(
   }
 }
 
-async function fetchUserGoalsSafely(userId: string, apiUrl: string) {
+// Direct DB query for currently reading books
+async function getCurrentUserReading(userId?: string) {
   try {
-    const response = await fetch(`${apiUrl}/api/goals/${userId}`, {
-      next: { revalidate: 300 },
-    });
-
-    if (!response.ok) {
-      throw new Error(`Goals API returned ${response.status}`);
+    if (!userId) {
+      return undefined;
     }
 
-    const data = await response.json();
+    const data = await db
+      .select({
+        user: {
+          id: users.id,
+          userName: users.userName,
+          image: users.image,
+          lastLoggedIn: users.lastLoggedIn,
+        },
+        books: {
+          id: book.id,
+          title: book.title,
+          image: book.image,
+          dateRead: book.dateRead,
+          rating: book.rating,
+        },
+      })
+      .from(users)
+      .where(eq(users.id, userId))
+      .leftJoin(
+        book,
+        and(eq(book.userId, users.id), eq(book.status, Status.InProgress))
+      );
+
+    if (data.length === 0) {
+      return undefined;
+    }
+
     return {
-      books: data.books || [],
-      goals: data.goals || [],
+      user: data[0].user,
+      books: data.filter((row) => row.books?.id).map((row) => row.books),
     };
   } catch (error) {
+    console.error("Current reading fetch failed:", error);
+    return undefined;
+  }
+}
+
+// Direct DB query for user goals
+async function fetchUserGoalsSafely(userId?: string) {
+  try {
+    if (!userId) {
+      return { books: [], goals: [] };
+    }
+
+    const currentYear = new Date().getFullYear();
+    const startOfYear = new Date(currentYear, 0, 1);
+
+    const booksData = await db
+      .select({
+        bookId: book.id,
+        title: book.title,
+        dateRead: book.dateRead,
+        pageCount: book.pageCount,
+        image: book.image,
+      })
+      .from(book)
+      .where(
+        sql`${book.userId} = ${userId}
+          AND ${book.dateRead} >= ${startOfYear}
+          AND ${book.dateRead} IS NOT NULL
+          AND ${book.status} = ${Status.Finished}`
+      )
+      .orderBy(book.dateRead);
+
+    const goalsData = await db
+      .select({
+        id: userGoals.id,
+        timeFrame: userGoals.timeFrame,
+        bookCount: userGoals.bookCount,
+      })
+      .from(userGoals)
+      .where(eq(userGoals.userId, userId));
+
+    return {
+      books: booksData,
+      goals: goalsData,
+    };
+  } catch (error) {
+    console.error("User goals fetch failed:", error);
     return {
       books: [],
       goals: [],
@@ -76,32 +153,14 @@ async function fetchUserGoalsSafely(userId: string, apiUrl: string) {
 }
 
 export default async function Home() {
-  if (!process.env.NEXT_PUBLIC_API_URL) {
-    console.error("NEXT_PUBLIC_API_URL is not configured");
-    return (
-      <div className="mx-16">
-        <div className="text-center p-8">
-          <h2 className="text-xl font-semibold mb-2">Configuration Error</h2>
-          <p className="text-muted-foreground">
-            API URL is not configured. Please check your environment variables.
-          </p>
-        </div>
-      </div>
-    );
-  }
-
   const userRightNow = await currentUser();
 
   const [convertedTrendingData, userActivityLog, userReading, userGoalsData] =
     await Promise.allSettled([
       fetchTrendingDataSafely(),
       fetchUserActivityLogSafely(userRightNow?.id),
-      getCurrentUser(userRightNow?.id).catch((error) => {
-        return undefined;
-      }),
-      userRightNow
-        ? fetchUserGoalsSafely(userRightNow.id, process.env.NEXT_PUBLIC_API_URL)
-        : Promise.resolve({ books: [], goals: [] }),
+      getCurrentUserReading(userRightNow?.id),
+      fetchUserGoalsSafely(userRightNow?.id),
     ]);
 
   const trendingBooks =
@@ -140,7 +199,9 @@ export default async function Home() {
       <CentralDisplay
         books={trendingBooks}
         userActivityLog={activityLog}
+        //@ts-ignore
         currentlyReading={currentlyReading}
+        //@ts-ignore
         goals={goalsData.goals}
         completedBooksLength={goalsData.books.length}
       />

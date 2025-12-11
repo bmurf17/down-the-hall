@@ -78,6 +78,9 @@ const BOOK_BY_ID_QUERY = (id: string) => gql`
       users_read_count      
       cached_image
       cached_contributors
+      description
+      release_year
+      title
     }
   }
 `;

@@ -88,6 +88,8 @@ export function AddToListButton({
           title: "Successfully Added Book",
           description: `${title} was added`,
         });
+
+        router.refresh();
       }
     } catch (error) {
       toast({

@@ -27,6 +27,7 @@ export const processTrendingBookDetails = async (
   trendingBookDetails: TrendingBookDetails,
   seriesData: SeriesListResponse
 ): Promise<Book> => {
+
   var series = seriesData?.series?.filter((series) => {
     if (trendingBookDetails?.book_series?.length > 0) {
       return series.id === trendingBookDetails.book_series[0]?.series_id;

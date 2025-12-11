@@ -34,7 +34,6 @@ export default async function Page({ params }: { params: { bookId: string } }) {
     data?.booksData.books_by_pk,
     data.seriesData
   );
-
   const dbBookData = await getBookData(params.bookId);
 
   const seriesData: BookSeriesArray = data.seriesData;

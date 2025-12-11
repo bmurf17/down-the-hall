@@ -14,20 +14,34 @@ function addCorsHeaders(response: NextResponse) {
   return response;
 }
 
-export async function OPTIONS(): Promise<NextResponse> {
-  // Return a 200 response with CORS headers for preflight requests
-  const response = NextResponse.json({}, { status: 200 });
-  return addCorsHeaders(response);
-}
-
 export async function GET(
   request: NextRequest,
   { params }: { params: { userId: string } }
 ): Promise<NextResponse> {
   const { userId } = params;
 
-  const sixMonthsAgo = new Date();
-  sixMonthsAgo.setMonth(sixMonthsAgo.getMonth() - 5);
+  const startParam = request.nextUrl.searchParams.get("start");
+  const endParam = request.nextUrl.searchParams.get("end");
+
+  const defaultStartDate = new Date();
+  defaultStartDate.setMonth(defaultStartDate.getMonth() - 6);
+
+  const startDate = startParam ? new Date(startParam) : defaultStartDate;
+  const endDate = endParam ? new Date(endParam) : new Date();
+
+  if (startParam && isNaN(startDate.getTime())) {
+    return NextResponse.json(
+      { error: "Invalid start date format. Use YYYY-MM-DD format." },
+      { status: 400 }
+    );
+  }
+
+  if (endParam && isNaN(endDate.getTime())) {
+    return NextResponse.json(
+      { error: "Invalid end date format. Use YYYY-MM-DD format." },
+      { status: 400 }
+    );
+  }
 
   const data = await db
     .select({
@@ -38,7 +52,8 @@ export async function GET(
     .from(book)
     .where(
       sql`${book.userId} = ${userId}
-        AND ${book.dateRead} >= ${sixMonthsAgo}
+        AND ${book.dateRead} >= ${startDate.toISOString().split("T")[0]}
+        AND ${book.dateRead} <= ${endDate.toISOString().split("T")[0]}
         AND ${book.dateRead} IS NOT NULL
         AND ${book.pageCount} IS NOT NULL 
         AND ${book.status} = ${Status.Finished}`
@@ -47,5 +62,15 @@ export async function GET(
     .orderBy(sql`to_char(${book.dateRead}, 'YYYY-MM')`);
 
   const response = NextResponse.json(data);
+
+  // Add no-cache headers
+  response.headers.set(
+    "Cache-Control",
+    "no-store, no-cache, must-revalidate, proxy-revalidate"
+  );
+  response.headers.set("Pragma", "no-cache");
+  response.headers.set("Expires", "0");
+  response.headers.set("Surrogate-Control", "no-store");
+
   return addCorsHeaders(response);
 }

@@ -5,7 +5,13 @@ import db from "@/lib/db";
 import { users, book } from "@/lib/schema";
 import { Status } from "@/types/enums/statusEnum";
 
+// app/api/users/route.ts
+export const dynamic = 'force-dynamic';
+export const revalidate = 0;
+
 export async function GET(request: NextRequest) {
+  console.log('API CALLED AT:', new Date().toISOString());
+  
   try {
     const data = await db
       .select({
@@ -38,13 +44,15 @@ export async function GET(request: NextRequest) {
       }
 
       if (row.books?.id) {
-        acc[row.user.id].books.push(row.books);
+        acc[row.books.id].books.push(row.books);
       }
 
       return acc;
     }, {});
 
     const finalData = Object.values(processedData);
+
+    console.log('API RETURNING:', finalData.length, 'users at', new Date().toISOString());
 
     return NextResponse.json(finalData);
   } catch (error) {
