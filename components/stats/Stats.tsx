@@ -80,7 +80,7 @@ export default function Stats() {
   const pathname = usePathname();
   const searchParams = useSearchParams();
   const router = useRouter();
-  
+
   const [stats, setStats] = useState<StatData[]>([]);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -101,32 +101,37 @@ export default function Stats() {
     return undefined;
   });
 
-  const fetchStats = useCallback(async (start?: Date, end?: Date) => {
-    if (!user?.id) return;
-    
-    setIsLoading(true);
-    setError(null);
-    
-    try {
-      const params = new URLSearchParams();
-      if (start) params.set('start', start.toISOString().split('T')[0]);
-      if (end) params.set('end', end.toISOString().split('T')[0]);
-      
-      const response = await fetch(`/api/stats/${user.id}?${params.toString()}`);
-      
-      if (!response.ok) {
-        throw new Error(`Failed to fetch stats: ${response.statusText}`);
+  const fetchStats = useCallback(
+    async (start?: Date, end?: Date) => {
+      if (!user?.id) return;
+
+      setIsLoading(true);
+      setError(null);
+
+      try {
+        const params = new URLSearchParams();
+        if (start) params.set("start", start.toISOString().split("T")[0]);
+        if (end) params.set("end", end.toISOString().split("T")[0]);
+
+        const response = await fetch(
+          `/api/stats/${user.id}?${params.toString()}`
+        );
+
+        if (!response.ok) {
+          throw new Error(`Failed to fetch stats: ${response.statusText}`);
+        }
+
+        const newStats = await response.json();
+        setStats(newStats);
+      } catch (err) {
+        setError(err instanceof Error ? err.message : "Failed to fetch stats");
+        console.error("Error fetching stats:", err);
+      } finally {
+        setIsLoading(false);
       }
-      
-      const newStats = await response.json();
-      setStats(newStats);
-    } catch (err) {
-      setError(err instanceof Error ? err.message : 'Failed to fetch stats');
-      console.error('Error fetching stats:', err);
-    } finally {
-      setIsLoading(false);
-    }
-  }, [user?.id]);
+    },
+    [user?.id]
+  );
 
   // Fetch data on mount and when dates change
   useEffect(() => {
@@ -138,7 +143,9 @@ export default function Stats() {
     const startParam = searchParams.get("start");
     const endParam = searchParams.get("end");
 
-    const newStartDate = startParam ? new Date(startParam) : addMonths(new Date(), -6);
+    const newStartDate = startParam
+      ? new Date(startParam)
+      : addMonths(new Date(), -6);
     const newEndDate = endParam ? new Date(endParam) : undefined;
 
     setStartDate(newStartDate);
@@ -213,7 +220,9 @@ export default function Stats() {
           </div>
         </div>
         <div className="flex items-center justify-center mt-8">
-          <p className="text-lg">No reading data found for the selected date range</p>
+          <p className="text-lg">
+            No reading data found for the selected date range
+          </p>
         </div>
       </div>
     );
@@ -256,7 +265,7 @@ export default function Stats() {
           Loading...
         </div>
       )}
-      
+
       <TabGroup>
         <TabList className="flex gap-4 w-full sm:mx-auto overflow-x-auto overflow-y-hidden no-scrollbar p-4 pb-0">
           {tabItems?.map((tab) => {
@@ -270,19 +279,23 @@ export default function Stats() {
             );
           })}
         </TabList>
-        
+
         <div className="p-4 pb-0">
           <div className="bg-card gap-4 p-2 rounded-xl">
-            Start Date:{" "}
-            <DatePicker
-              date={startDate}
-              onDateSelect={(date) => handleDateChange("start", date)}
-            />{" "}
-            End Date:
-            <DatePicker
-              date={endDate}
-              onDateSelect={(date) => handleDateChange("end", date)}
-            />
+            <div className="flex flex-col gap-2">
+              <div>Start Date:</div>
+              <DatePicker
+                date={startDate}
+                onDateSelect={(date) => handleDateChange("start", date)}
+              />{" "}
+            </div>
+            <div className="flex flex-col gap-2">
+              <div>Start Date:</div>
+              <DatePicker
+                date={endDate}
+                onDateSelect={(date) => handleDateChange("end", date)}
+              />
+            </div>
           </div>
         </div>
 
@@ -324,18 +337,21 @@ export default function Stats() {
                   </ChartContainer>
                 </CardContent>
               </Card>
-              
+
               <Card>
                 <CardHeader>
                   <CardTitle>Total Pages</CardTitle>
                 </CardHeader>
                 <CardContent>
                   <p className="text-4xl font-bold">
-                    {pagesChartData.reduce((sum, data) => sum + data.pagesRead, 0)}
+                    {pagesChartData.reduce(
+                      (sum, data) => sum + data.pagesRead,
+                      0
+                    )}
                   </p>
                 </CardContent>
               </Card>
-              
+
               <Card>
                 <CardHeader>
                   <CardTitle>Average Pages per Month</CardTitle>
@@ -344,14 +360,16 @@ export default function Stats() {
                   <p className="text-4xl font-bold">
                     {pagesChartData.length > 0
                       ? Math.round(
-                          pagesChartData.reduce((sum, data) => sum + data.pagesRead, 0) /
-                          pagesChartData.length
+                          pagesChartData.reduce(
+                            (sum, data) => sum + data.pagesRead,
+                            0
+                          ) / pagesChartData.length
                         )
                       : 0}
                   </p>
                 </CardContent>
               </Card>
-              
+
               <Card>
                 <CardHeader>
                   <CardTitle>Most Productive Month</CardTitle>
@@ -408,18 +426,21 @@ export default function Stats() {
                   </ChartContainer>
                 </CardContent>
               </Card>
-              
+
               <Card>
                 <CardHeader>
                   <CardTitle>Total Books</CardTitle>
                 </CardHeader>
                 <CardContent>
                   <p className="text-4xl font-bold">
-                    {booksChartData.reduce((sum, data) => sum + data.booksRead, 0)}
+                    {booksChartData.reduce(
+                      (sum, data) => sum + data.booksRead,
+                      0
+                    )}
                   </p>
                 </CardContent>
               </Card>
-              
+
               <Card>
                 <CardHeader>
                   <CardTitle>Average Books per Month</CardTitle>
@@ -428,14 +449,16 @@ export default function Stats() {
                   <p className="text-4xl font-bold">
                     {booksChartData.length > 0
                       ? Math.round(
-                          booksChartData.reduce((sum, data) => sum + data.booksRead, 0) /
-                          booksChartData.length
+                          booksChartData.reduce(
+                            (sum, data) => sum + data.booksRead,
+                            0
+                          ) / booksChartData.length
                         )
                       : 0}
                   </p>
                 </CardContent>
               </Card>
-              
+
               <Card>
                 <CardHeader>
                   <CardTitle>Most Productive Month</CardTitle>

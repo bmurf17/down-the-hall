@@ -33,15 +33,13 @@ export default function Goals({ completedBooks, goals }: Props) {
     const newGoal: Omit<InsertGoal, "id"> = {
       bookCount: bookCount,
       timeFrame: GoalTimeFrame.Year,
-      userId: undefined, // Will be set server-side
+      userId: undefined,
     };
 
-    // Optimistically update the UI
     startTransition(() => {
       setOptimisticGoals(newGoal);
     });
 
-    // Perform the actual server action
     try {
       await addGoalAction(newGoal);
     } catch (error) {
@@ -70,7 +68,7 @@ export default function Goals({ completedBooks, goals }: Props) {
           </CardHeader>
           <CardContent>
             <ProgressTracker
-              goal={optimisticGoals[0]?.bookCount || 0}
+              goal={optimisticGoals[optimisticGoals.length - 1]?.bookCount || 0}
               completed={completedBooks.length}
             />
           </CardContent>
