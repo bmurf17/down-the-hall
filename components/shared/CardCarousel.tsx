@@ -69,7 +69,7 @@ export default function CardCarousel({ userData, onSlideChange }: Props) {
               <img
                 src={book.image || ""}
                 alt={book.title}
-                className="h-80 w-auto object-contain rounded-md shadow-md"
+                className="h-80 w-auto rounded-md shadow-md"
               />
               <div className="mt-2 text-sm text-center">
                 <p className="font-medium truncate max-w-48">{book.title}</p>

@@ -24,7 +24,7 @@ export function DatePicker({ date, onDateSelect, placeholder = "Pick a date" }: 
         <Button
           variant="outline"
           data-empty={!date}
-          className="data-[empty=true]:text-muted-foreground w-[280px] justify-start text-left font-normal"
+          className="data-[empty=true]:text-muted-foreground justify-start text-left font-normal"
         >
           <CalendarIcon />
           {date ? format(date, "PPP") : <span>{placeholder}</span>}
