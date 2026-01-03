@@ -51,7 +51,7 @@ export default function CentralDisplay({
           <div className="bg-card rounded-xl p-4">
             <h2 className="text-xl font-medium mb-3">Goals</h2>
             <ProgressTracker
-              goal={goals[0]?.bookCount || 0}
+              goal={goals[goals.length -1 ]?.bookCount || 0}
               completed={completedBooksLength || 0}
             />
           </div>
