@@ -26,10 +26,11 @@ export default function StarRating({ book }: Props) {
     setHover(0);
   };
 
-  const handleClick = (value: React.SetStateAction<number>) => {
-    setRating(value);
-    editBook(book.id, book.title, book.status || 0, value.toString());
-  };
+const handleClick = () => {
+  const value = hover || rating;
+  setRating(value);
+  editBook(book.id, book.title, book.status || 0, value.toString());
+};
 
   return (
     <div className="flex items-center">
@@ -39,7 +40,7 @@ export default function StarRating({ book }: Props) {
             className="relative w-8 h-8 focus:outline-none"
             onMouseMove={(e) => handleMouseMove(e, index - 1)}
             onMouseLeave={handleMouseLeave}
-            onClick={() => handleClick(index)}
+            onClick={handleClick}  // Remove the arrow function and index parameter
             key={index}
           >
             <div className="absolute inset-0 flex items-center justify-center">
