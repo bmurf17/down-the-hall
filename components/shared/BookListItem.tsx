@@ -12,6 +12,11 @@ import StarRating from "./StarRating";
 import { SelectBook } from "@/lib/schema";
 import { SignedIn } from "@clerk/nextjs";
 import { Loader2 } from "lucide-react";
+import { Popover, PopoverContent, PopoverTrigger } from "../ui/popover";
+import { Button } from "../ui/button";
+import { ChevronDownIcon } from "../icons/ChevronDownIcon";
+import { Label } from "../ui/label";
+import { Calendar } from "../ui/calendar";
 
 interface Props {
   book: Book;
@@ -23,6 +28,9 @@ export default function BookListItem({ book }: Props) {
   const [pageCount, setPageCount] = useState(book.book?.pageCount);
   const [isEditing, setIsEditing] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
+
+  const [datePickerOpen, setDatePickerOpen] = useState(false);
+  const [dateRead, setDateRead] = useState<Date | undefined>(new Date(book.book?.dateRead?.toString() || "") || undefined);
 
   const number = Math.floor(Math.random() * 7) + 1;
   const addbuttonText = () => {
@@ -45,8 +53,8 @@ export default function BookListItem({ book }: Props) {
       title || "",
       book.book?.status || 0,
       book.book?.rating || "0",
-      undefined,
-      pageCount || 0
+      dateRead,
+      pageCount || 0,
     );
   };
   return (
@@ -97,6 +105,38 @@ export default function BookListItem({ book }: Props) {
               value={pageCount || 0}
               onChange={(e) => setPageCount(+e.target.value)}
             />
+
+            <div className="flex flex-col gap-3">
+              <Label htmlFor="date" className="px-1">
+                Date Finished
+              </Label>
+              <Popover open={datePickerOpen} onOpenChange={setDatePickerOpen}>
+                <PopoverTrigger asChild>
+                  <Button
+                    variant="outline"
+                    id="date"
+                    className="w-48 justify-between font-normal"
+                  >
+                    {dateRead ? dateRead.toLocaleDateString() : "Select date"}
+                    <ChevronDownIcon />
+                  </Button>
+                </PopoverTrigger>
+                <PopoverContent
+                  className="w-auto overflow-hidden p-0"
+                  align="start"
+                >
+                  <Calendar
+                    mode="single"
+                    selected={dateRead}
+                    captionLayout="dropdown"
+                    onSelect={(date) => {
+                      setDateRead(date);
+                      setDatePickerOpen(false);
+                    }}
+                  />
+                </PopoverContent>
+              </Popover>
+            </div>
 
             <div className="md:hidden flex justify-center">
               {book.book && book.book.status !== null ? (
