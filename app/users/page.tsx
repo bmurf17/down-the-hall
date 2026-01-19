@@ -6,7 +6,6 @@ import { users, book } from "@/lib/schema";
 import { Status } from "@/types/enums/statusEnum";
 import { eq, and } from "drizzle-orm";
 
-// Force dynamic rendering
 export const dynamic = 'force-dynamic';
 export const revalidate = 0;
 
@@ -22,9 +21,6 @@ export default async function UserPage() {
       );
     }
 
-    // Query database directly instead of going through API route
-    console.log('QUERYING DATABASE AT:', new Date().toISOString());
-    
     const data = await db
       .select({
         user: {
@@ -63,8 +59,6 @@ export default async function UserPage() {
     }, {});
 
     const userGridResponse: userGridResponse[] = Object.values(processedData);
-
-    console.log('GOT USERS:', userGridResponse.length, 'at', new Date().toISOString());
 
     return (
       <div className="mx-16">

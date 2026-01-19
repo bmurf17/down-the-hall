@@ -9,9 +9,7 @@ import { Status } from "@/types/enums/statusEnum";
 export const dynamic = 'force-dynamic';
 export const revalidate = 0;
 
-export async function GET(request: NextRequest) {
-  console.log('API CALLED AT:', new Date().toISOString());
-  
+export async function GET(request: NextRequest) {  
   try {
     const data = await db
       .select({
@@ -51,8 +49,6 @@ export async function GET(request: NextRequest) {
     }, {});
 
     const finalData = Object.values(processedData);
-
-    console.log('API RETURNING:', finalData.length, 'users at', new Date().toISOString());
 
     return NextResponse.json(finalData);
   } catch (error) {

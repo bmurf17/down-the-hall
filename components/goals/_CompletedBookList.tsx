@@ -34,8 +34,8 @@ export function CompletedBooksList({ books }: CompletedBooksListProps) {
                   <img
                     src={book?.image || ""}
                     alt={`Book ${index + 1}`}
-                    style={{ height: 200 }}
-                    className="relative overflow-hidden group transition-all border border-gray-100/20 ring-accent hover:ring-1 hover:border-accent rounded-l-sm rounded-r-md shadow-md block"
+                    style={{ height: 200, minWidth: 116 }}
+                    className="relative group transition-all border border-gray-100/20 ring-accent hover:ring-1 hover:border-accent rounded-l-sm rounded-r-md shadow-md block"
                   />
                 </div>
               </CarouselItem>
