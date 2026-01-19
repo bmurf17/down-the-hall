@@ -6,7 +6,6 @@ import { users, book } from "@/lib/schema";
 import { Status } from "@/types/enums/statusEnum";
 import { eq, and } from "drizzle-orm";
 
-// Force dynamic rendering
 export const dynamic = 'force-dynamic';
 export const revalidate = 0;
 

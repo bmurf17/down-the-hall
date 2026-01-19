@@ -4,10 +4,7 @@ import db from "@/lib/db";
 import { author, book, userActivityLog } from "@/lib/schema";
 import { UserActivityLogList } from "@/types/apiResponse/UseLogResponse";
 
-// Infer the type from the actual query result
-type UserActivityLogData = Awaited<ReturnType<typeof getUserActivityLogData>>;
-
-export async function getUserActivityLogData(userId: string | undefined) {
+async function getUserActivityLogData(userId: string | undefined) {
   if (!userId) {
     return [];
   }
