@@ -51,7 +51,7 @@ export type TrendingBookDetails = {
 };
 
 export type TrendingBookData = {
-  [key: string]: TrendingBookDetails;
+  [key: string]: TrendingBookDetails[];
 };
 
 export type TrendingData = {

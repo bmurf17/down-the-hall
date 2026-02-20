@@ -17,7 +17,7 @@ export async function convertTrendingBookData(
   seriesData: SeriesListResponse
 ): Promise<Book[]> {
   return await Promise.all(
-    Object.values(trendingData).map((trendingBookDetails, index) =>
+    trendingData.books.map((trendingBookDetails) =>
       processTrendingBookDetails(trendingBookDetails, seriesData)
     )
   );

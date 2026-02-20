@@ -1,7 +1,7 @@
 "use server";
 
 import { book } from "@/lib/schema";
-import { ApolloClient, InMemoryCache, gql } from "@apollo/client";
+import { ApolloClient, HttpLink, InMemoryCache, gql } from "@apollo/client";
 
 //QUERIES
 function getMonthString(date: Date): string {
@@ -102,32 +102,21 @@ const SERIES_BY_ID_QUERY = (id: number) => gql`
   }
 `;
 
-const BOOKS_BY_IDS_QUERY = (ids: number[]) => gql`
-  query BooksByIds {
-    ${ids
-      .map(
-        (id, index) => `
-        book${index}: books_by_pk(id: ${id}) {
-          id
-          title
-          pages
-           book_series {
-            series_id
-            details
-            position
-            featured
-          }
-          default_physical_edition_id
-          users_count
-          users_read_count      
-          cached_image
-          release_year
-          description
-          cached_contributors
-        }
-      `
-      )
-      .join("")}
+const BOOKS_BY_IDS_QUERY = gql`
+  query BooksByIds($ids: [Int!]!) {
+    books(where: { id: { _in: $ids } }) {
+      id
+      title
+      pages
+      book_series { series_id details position featured }
+      default_physical_edition_id
+      users_count
+      users_read_count
+      cached_image
+      release_year
+      description
+      cached_contributors
+    }
   }
 `;
 
@@ -161,7 +150,8 @@ export const getBooks = async (title: string) => {
 
     // Fetch book details
     const booksResponse = await client.query({
-      query: BOOKS_BY_IDS_QUERY(ids),
+      query: BOOKS_BY_IDS_QUERY,
+      variables: { ids },
     });
     const seriesIds = Object.values(booksResponse.data)
       .filter((book: any) => book.series?.length > 0 && book.series)
@@ -251,18 +241,13 @@ export const getBook = async (id: string) => {
 };
 
 const client = new ApolloClient({
-  uri: process.env.HARCOVER_URL || "",
-  cache: new InMemoryCache({
-    typePolicies: {
-      images: {
-        keyFields: ["id"], // Ensures Apollo uses `id` as a unique cache key for each image
-      },
+  link: new HttpLink({
+    uri: "https://api.hardcover.app/v1/graphql",
+    headers: {
+      Authorization: `${process.env.HARDCOVER_TOKEN}`,
     },
   }),
-  headers: {
-    "content-type": "application/json",
-    Authorization: `${process.env.HARDCOVER_TOKEN}`,
-  },
+  cache: new InMemoryCache(),
 });
 
 export async function fetchTrendingData() {
@@ -274,7 +259,8 @@ export async function fetchTrendingData() {
     const ids = trendingBooksResponse.data.books_trending.ids;
 
     const booksResponse = await client.query({
-      query: BOOKS_BY_IDS_QUERY(ids),
+      query: BOOKS_BY_IDS_QUERY,
+      variables: { ids },
     });
 
     const seriesIds = Object.values(booksResponse.data)
@@ -344,7 +330,8 @@ export const getBooksByIsbn = async (isbns: string[]) => {
 
     // Fetch book details
     const booksResponse = await client.query({
-      query: BOOKS_BY_IDS_QUERY(ids),
+      query: BOOKS_BY_IDS_QUERY,
+      variables: { ids },
     });
 
     const seriesIds = Object.values(booksResponse.data)

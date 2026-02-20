@@ -12,7 +12,6 @@ import { users, book, userGoals } from "@/lib/schema";
 import { Status } from "@/types/enums/statusEnum";
 import { eq, and, sql } from "drizzle-orm";
 
-// Force dynamic rendering
 export const dynamic = 'force-dynamic';
 export const revalidate = 0;
 
@@ -21,7 +20,6 @@ export interface UserActivityLogReturnType {
   book: Book;
 }
 
-// Default empty data structures for fallbacks
 const DEFAULT_TRENDING_DATA: Book[] = [];
 const DEFAULT_USER_ACTIVITY_LOG: UserActivityLogList = [];
 
@@ -59,7 +57,6 @@ async function fetchUserActivityLogSafely(
   }
 }
 
-// Direct DB query for currently reading books
 async function getCurrentUserReading(userId?: string) {
   try {
     if (!userId) {
@@ -103,7 +100,6 @@ async function getCurrentUserReading(userId?: string) {
   }
 }
 
-// Direct DB query for user goals
 async function fetchUserGoalsSafely(userId?: string) {
   try {
     if (!userId) {
