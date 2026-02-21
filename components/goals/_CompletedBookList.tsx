@@ -28,14 +28,14 @@ export function CompletedBooksList({ books }: CompletedBooksListProps) {
             {books.map((book, index) => (
               <CarouselItem
                 key={book.title + " " + book.id}
-                className="pl-2 md:pl-4 lg:basis-1/6 md:basis-1/4 basis-1/2"
+                className="pl-2 md:pl-4 basis-auto"
               >
                 <div className="p-1">
                   <img
                     src={book?.image || ""}
                     alt={`Book ${index + 1}`}
-                    style={{ height: 200, minWidth: 116 }}
-                    className="relative group transition-all border border-gray-100/20 ring-accent hover:ring-1 hover:border-accent rounded-l-sm rounded-r-md shadow-md block"
+                    style={{ height: 200 }}
+                    className="h-48 w-auto aspect-[2/3] object-cover relative group transition-all border border-gray-100/20 ring-accent hover:ring-1 hover:border-accent rounded-l-sm rounded-r-md shadow-md block"
                   />
                 </div>
               </CarouselItem>
