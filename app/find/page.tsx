@@ -1,4 +1,4 @@
-import { enhancedSearchBooks, searchBooks } from "@/actions/openLibraryActions";
+import { enhancedSearchBooks } from "@/actions/openLibraryActions";
 import Find from "@/components/find/Find";
 import BookListItem from "@/components/shared/BookListItem";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";

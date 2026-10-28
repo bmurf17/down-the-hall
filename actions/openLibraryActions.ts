@@ -321,34 +321,6 @@ async function searchOpenLibraryByISBN(
   }
 }
 
-// Alternative search strategy with multiple attempts
-export async function searchBooksWithFallback(
-  params: SearchParams
-): Promise<Book[] | null> {
-  // Strategy 1: Google Books primary
-  let results = await searchBooksWithGoogleBooks(params);
-  if (results && results.length > 0) {
-    return results;
-  }
-
-  // Strategy 2: Try different query variations for Google Books
-  if (params.title) {
-    const variations = [
-      { ...params, title: params.title.replace(/^The\s+/i, "") }, // Remove "The"
-      { ...params, title: params.title.split(" ").slice(0, 3).join(" ") }, // First 3 words
-    ];
-
-    for (const variation of variations) {
-      results = await searchBooksWithGoogleBooks(variation);
-      if (results && results.length > 0) {
-        return results;
-      }
-    }
-  }
-
-  return await enhancedSearchBooks(params);
-}
-
 // Keep your existing functions for backward compatibility
 export async function enhancedSearchBooks(
   params: SearchParams
@@ -492,9 +464,7 @@ export async function searchBooks(
                 ) {
                   const pos = (seriesEntry as any).position;
                   book.series_position =
-                    typeof pos === "string" || typeof pos === "number"
-                      ? parseFloat(pos)
-                      : undefined;
+                    typeof pos === "number" ? pos : parseFloat(pos);
                 } else if (
                   book.series_position === undefined &&
                   (seriesEntry as any).series &&
@@ -503,9 +473,7 @@ export async function searchBooks(
                 ) {
                   const pos = (seriesEntry as any).series.position;
                   book.series_position =
-                    typeof pos === "string" || typeof pos === "number"
-                      ? parseFloat(pos)
-                      : undefined;
+                    typeof pos === "number" ? pos : parseFloat(pos);
                 }
               }
             }

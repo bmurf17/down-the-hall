@@ -26,7 +26,7 @@ export async function GET(request: NextRequest) {
   }
 
   const orderColumn = getOrderColumn(order || "");
-  const orderDirection = isDesc ? asc : desc;
+  const orderDirection = isDesc ? desc : asc;
 
   try {
     const countQuery = db

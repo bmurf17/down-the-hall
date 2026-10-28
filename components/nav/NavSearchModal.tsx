@@ -10,6 +10,8 @@ import { fetchBooks } from "@/functions/fetchBook";
 import { SignedIn } from "@clerk/nextjs";
 import { Loader2, SearchIcon, X } from "lucide-react";
 import { AddToListButton } from "../shared/AddToListButton";
+import { readingStatusString } from "@/types/enums/statusEnum";
+import { getPublicImageUrl, PLACEHOLDER_IMAGE } from "@/lib/storage-urls";
 
 export function NavSearchModal() {
   const [isOpen, setIsOpen] = useState(false);
@@ -61,19 +63,13 @@ export function NavSearchModal() {
   }, [searchTerm, fetchSearchResults]);
 
   const addbuttonText = (book: Book) => {
-    var status = book.book?.status;
+    const status = book.book?.status;
 
-    if (status === null) {
-      return "Add to List";
+    if (status === null || status === undefined) {
+      return readingStatusString[4];
     }
 
-    return [
-      "Want to Read",
-      "Currently Reading",
-      "Finished",
-      "On Hold",
-      "Add to List",
-    ][status || 0];
+    return readingStatusString[status] ?? readingStatusString[4];
   };
 
   return (
@@ -165,7 +161,7 @@ export function NavSearchModal() {
                             <img
                               src={
                                 book.book?.image ||
-                                `https://drqcfogwcllwvklwdzlm.supabase.co/storage/v1/object/public/book-covers/placeholder.webp`
+                                getPublicImageUrl(PLACEHOLDER_IMAGE)
                               }
                               alt={book.book?.title}
                               className="w-16 h-24 object-cover rounded"

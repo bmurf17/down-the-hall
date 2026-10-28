@@ -263,10 +263,14 @@ export async function convertBookData(
         }
         if (seriesPosition == null && parsed.position) {
           const pos = parsed.position;
-          seriesPosition = typeof pos === "string" || typeof pos === "number" ? pos : null;
+          const numericPosition =
+            typeof pos === "number" ? pos : parseFloat(pos);
+          seriesPosition = Number.isNaN(numericPosition) ? null : numericPosition;
         } else if (seriesPosition == null && parsed.series?.position) {
           const pos = parsed.series.position;
-          seriesPosition = typeof pos === "string" || typeof pos === "number" ? pos : null;
+          const numericPosition =
+            typeof pos === "number" ? pos : parseFloat(pos);
+          seriesPosition = Number.isNaN(numericPosition) ? null : numericPosition;
         }
       }
     } catch (e) {

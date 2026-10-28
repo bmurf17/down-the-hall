@@ -1,5 +1,12 @@
 import "server-only";
 import { createClient } from "@supabase/supabase-js";
+import {
+  BUCKET_NAME,
+  PLACEHOLDER_IMAGE,
+  getPublicImageUrl,
+} from "./storage-urls";
+
+export { BUCKET_NAME, PLACEHOLDER_IMAGE, getPublicImageUrl };
 
 const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!;
 
@@ -17,14 +24,6 @@ if (!supabaseUrl || !supabaseServiceKey) {
 }
 
 export const supabase = createClient(supabaseUrl, supabaseServiceKey);
-
-export const BUCKET_NAME = "book-covers";
-export const PLACEHOLDER_IMAGE = "placeholder.webp";
-
-export function getPublicImageUrl(path: string): string {
-  const { data } = supabase.storage.from(BUCKET_NAME).getPublicUrl(path);
-  return data.publicUrl;
-}
 
 /**
  * Builds the canonical storage object name for a book cover.

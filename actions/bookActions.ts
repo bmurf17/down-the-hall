@@ -153,6 +153,13 @@ const insertQuery = async (
   user_id: string,
   date_read?: Date
 ) => {
+  // `series_position` is a decimal column, so "empty"/"null" strings have to be
+  // normalised to a real value instead of being sent as-is.
+  const seriesPosition =
+    series_position == null || series_position === "" || series_position === "null"
+      ? 0
+      : series_position;
+
   const {
     rows: [{ id: book_id }],
   } = await client.query(
@@ -165,7 +172,7 @@ const insertQuery = async (
       release_year || 0,
       default_physical_edition_id,
       description,
-      series_position === "" || "null" || null ? 0 : series_position,
+      seriesPosition,
       series_length,
       series_name,
       hardcover_id,

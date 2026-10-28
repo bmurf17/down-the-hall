@@ -42,7 +42,7 @@ export async function GET(request: NextRequest) {
       }
 
       if (row.books?.id) {
-        acc[row.books.id].books.push(row.books);
+        acc[row.user.id].books.push(row.books);
       }
 
       return acc;
