@@ -462,10 +462,54 @@ export async function searchBooks(
               );
             }
 
-            if (workData.series) {
-              book.series_name = workData.series[0];
+            if (workData.series && Array.isArray(workData.series) && workData.series.length > 0) {
+              const seriesEntry = workData.series[0];
+              if (typeof seriesEntry === "string") {
+                book.series_name = seriesEntry;
+              } else if (typeof seriesEntry === "object" && seriesEntry !== null) {
+                // OpenLibrary sometimes returns objects like { series: { key: '/series/...' }, position: '6' }
+                // or { key: '/series/...' }
+                if (typeof (seriesEntry as any).name === "string") {
+                  book.series_name = (seriesEntry as any).name;
+                } else if (
+                  (seriesEntry as any).series &&
+                  typeof (seriesEntry as any).series === "object" &&
+                  typeof (seriesEntry as any).series.name === "string"
+                ) {
+                  book.series_name = (seriesEntry as any).series.name;
+                } else if (typeof (seriesEntry as any).title === "string") {
+                  book.series_name = (seriesEntry as any).title;
+                } else {
+                  // Avoid storing the whole object as a string
+                  book.series_name = undefined;
+                }
+
+                // Extract position if it's in the series object
+                if (
+                  book.series_position === undefined &&
+                  (seriesEntry as any).position !== undefined &&
+                  (seriesEntry as any).position !== null
+                ) {
+                  const pos = (seriesEntry as any).position;
+                  book.series_position =
+                    typeof pos === "string" || typeof pos === "number"
+                      ? parseFloat(pos)
+                      : undefined;
+                } else if (
+                  book.series_position === undefined &&
+                  (seriesEntry as any).series &&
+                  typeof (seriesEntry as any).series === "object" &&
+                  (seriesEntry as any).series.position !== undefined
+                ) {
+                  const pos = (seriesEntry as any).series.position;
+                  book.series_position =
+                    typeof pos === "string" || typeof pos === "number"
+                      ? parseFloat(pos)
+                      : undefined;
+                }
+              }
             }
-            if (workData.series_position) {
+            if (workData.series_position !== undefined && workData.series_position !== null) {
               book.series_position = parseFloat(workData.series_position);
             }
 

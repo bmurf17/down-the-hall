@@ -1,6 +1,6 @@
 "use server";
 
-import { storage } from "@/lib/firebase-config";
+import { BUCKET_NAME, buildImageFileName, getPublicImageUrl, supabase } from "@/lib/supabase-storage";
 import { SelectAuthor, SelectBook } from "@/lib/schema";
 import { Book } from "@/types/book";
 import { SeriesListResponse } from "@/types/trending/seriesHardCoverResponse";
@@ -8,9 +8,8 @@ import {
   TrendingBookData,
   TrendingBookDetails,
 } from "@/types/trending/trendingbookresponse";
-import { getDownloadURL, ref, uploadBytesResumable } from "firebase/storage";
 
-const placeholderImage = "placeholder.png";
+const placeholderImage = "placeholder.webp";
 
 export async function convertTrendingBookData(
   trendingData: TrendingBookData,
@@ -37,7 +36,7 @@ export const processTrendingBookDetails = async (
   var image = await handleImage(
     trendingBookDetails.id,
     trendingBookDetails.title,
-    trendingBookDetails.cached_image.url || placeholderImage
+    trendingBookDetails.cached_image?.url || ""
   );
 
   const book: SelectBook = {
@@ -91,28 +90,55 @@ export const processTrendingBookDetails = async (
 };
 
 export async function handleImage(
-  id: number,
+  id: number | string,
   bookTitle: string,
   imageUrl: string
 ) {
-  const filePath =
-    imageUrl !== placeholderImage
-      ? `${id}_${bookTitle}.jpeg`
-      : placeholderImage;
+  // Nothing usable upstream: use the shared placeholder.
+  if (!imageUrl || imageUrl === placeholderImage) {
+    return getPublicImageUrl(placeholderImage);
+  }
 
-  const newImageRef = ref(storage, filePath);
+  // Already stored in our bucket (e.g. a migrated cover) - no work to do.
+  if (imageUrl.includes(`/${BUCKET_NAME}/`)) {
+    return imageUrl;
+  }
+
+  const filePath = buildImageFileName(id, bookTitle);
+
+  const { data: existing, error: listError } = await supabase.storage
+    .from(BUCKET_NAME)
+    .list("", { search: filePath });
+
+  if (listError) {
+    console.error("Error checking Supabase storage:", listError);
+  }
+
+  // `search` is a substring match, so confirm the exact object name.
+  if (existing?.some((file) => file.name === filePath)) {
+    return getPublicImageUrl(filePath);
+  }
 
   try {
-    const imageURL = await getDownloadURL(newImageRef);
-    return imageURL || "";
+    const blob = await urlToBlob(imageUrl);
+
+    const { error } = await supabase.storage
+      .from(BUCKET_NAME)
+      .upload(filePath, blob, {
+        contentType: "image/jpeg",
+        upsert: true,
+      });
+
+    if (error) {
+      console.error("Error uploading image to Supabase:", error);
+      // Keep showing the upstream cover rather than masking the failure.
+      return imageUrl;
+    }
+
+    return getPublicImageUrl(filePath);
   } catch (error) {
-    //assuming the file has not been uploaded to fb
-    var blob = await urlToBlob(imageUrl);
-
-    const newImageRef = ref(storage, filePath);
-    await uploadBytesResumable(newImageRef, blob);
-
-    return (await getDownloadURL(newImageRef)) || "";
+    console.error("Error uploading image to Supabase:", error);
+    return imageUrl;
   }
 }
 

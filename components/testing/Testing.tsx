@@ -9,7 +9,7 @@ export default function Testing() {
           <div className="cover shadow">
             <img
               className="shadow"
-              src="https://firebasestorage.googleapis.com/v0/b/booksite-2aa2a.appspot.com/o/665261_Wind%20and%20Truth.jpeg?alt=media&token=56b3b36b-0a65-4410-8aa1-87bb145e9700"
+              src="https://drqcfogwcllwvklwdzlm.supabase.co/storage/v1/object/public/book-covers/665261_Wind%20and%20Truth.jpeg"
               alt="winds-and-truth"
             />
           </div>

@@ -165,7 +165,7 @@ export function NavSearchModal() {
                             <img
                               src={
                                 book.book?.image ||
-                                `https://firebasestorage.googleapis.com/v0/b/booksite-2aa2a.appspot.com/o/placeholder.png?alt=media&token=27d06441-e35b-478b-9ca6-014884920848`
+                                `https://drqcfogwcllwvklwdzlm.supabase.co/storage/v1/object/public/book-covers/placeholder.webp`
                               }
                               alt={book.book?.title}
                               className="w-16 h-24 object-cover rounded"
