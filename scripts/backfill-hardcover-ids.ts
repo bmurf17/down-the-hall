@@ -23,7 +23,11 @@ import * as path from "path";
 dotenv.config({ path: path.resolve(__dirname, "../.env") });
 
 const sql = neon(process.env.DATABASE_URL!);
-const HARDCOVER_TOKEN = process.env.HARDCOVER_TOKEN;
+// Hardcover now requires the Bearer scheme; accept a pasted full header too.
+const HARDCOVER_TOKEN = process.env.HARDCOVER_TOKEN?.replace(
+  /^Bearer\s+/i,
+  ""
+);
 
 const DELAY_MS = 1500;
 const MAX_RETRIES = 3;
@@ -172,7 +176,7 @@ async function searchHardcover(
       method: "POST",
       headers: {
         "Content-Type": "application/json",
-        Authorization: HARDCOVER_TOKEN!,
+        Authorization: `Bearer ${HARDCOVER_TOKEN}`,
       },
       body: JSON.stringify({ query: graphql, variables: { query } }),
     });

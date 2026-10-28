@@ -2,6 +2,11 @@
 
 import { book } from "@/lib/schema";
 import { ApolloClient, HttpLink, InMemoryCache, gql } from "@apollo/client";
+import { setContext } from "@apollo/client/link/context";
+import {
+  HARDCOVER_GRAPHQL_ENDPOINT,
+  getHardcoverAuthorizationHeader,
+} from "@/lib/hardcover-oauth";
 
 //QUERIES
 const TRENDING_BOOKS_QUERY = gql`
@@ -155,13 +160,21 @@ export const getBook = async (id: string) => {
   }
 };
 
+const httpLink = new HttpLink({
+  uri: HARDCOVER_GRAPHQL_ENDPOINT,
+});
+
+// Resolve the token per request: OAuth access tokens are short-lived and the
+// refresh token rotates, so the Authorization header can't be static.
+const authLink = setContext(async (_, { headers }) => ({
+  headers: {
+    ...headers,
+    authorization: await getHardcoverAuthorizationHeader(),
+  },
+}));
+
 const client = new ApolloClient({
-  link: new HttpLink({
-    uri: "https://api.hardcover.app/v1/graphql",
-    headers: {
-      Authorization: `${process.env.HARDCOVER_TOKEN}`,
-    },
-  }),
+  link: authLink.concat(httpLink),
   cache: new InMemoryCache(),
 });
 

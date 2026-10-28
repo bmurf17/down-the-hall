@@ -41,7 +41,11 @@ const supabase = createClient(
 
 const BUCKET_NAME = "book-covers";
 const PLACEHOLDER_PATH = "placeholder.webp";
-const HARDCOVER_TOKEN = process.env.HARDCOVER_TOKEN;
+// Hardcover now requires the Bearer scheme; accept a pasted full header too.
+const HARDCOVER_TOKEN = process.env.HARDCOVER_TOKEN?.replace(
+  /^Bearer\s+/i,
+  ""
+);
 const FIREBASE_MATCH = "%firebasestorage.googleapis.com%";
 const DELAY_MS = 1500;
 const MAX_RETRIES = 3;
@@ -80,7 +84,7 @@ async function fetchBookFromHardcover(hardcoverId: number) {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
-        Authorization: HARDCOVER_TOKEN!,
+        Authorization: `Bearer ${HARDCOVER_TOKEN}`,
       },
       body: JSON.stringify({ query }),
     });

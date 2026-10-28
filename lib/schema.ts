@@ -118,6 +118,27 @@ export const users = pgTable("users", {
   lastLoggedIn: timestamp("last_logged_in"),
 });
 
+/**
+ * Single-row table holding the app-wide Hardcover OAuth connection.
+ *
+ * Hardcover rotates refresh tokens on every use, so the newest pair has to be
+ * persisted somewhere writable. `refresh_lock_expires_at` is a cross-instance
+ * lease so two server instances never spend the same refresh token at once
+ * (Hardcover treats that as replay and revokes the whole token chain).
+ */
+export const hardcoverOAuthToken = pgTable("hardcover_oauth_token", {
+  id: integer("id").primaryKey().notNull(),
+  accessToken: text("access_token"),
+  refreshToken: text("refresh_token"),
+  expiresAt: timestamp("expires_at", { withTimezone: true }),
+  scope: text("scope"),
+  tokenType: text("token_type"),
+  refreshLockExpiresAt: timestamp("refresh_lock_expires_at", {
+    withTimezone: true,
+  }),
+  updatedAt: timestamp("updated_at", { withTimezone: true }).defaultNow(),
+});
+
 export const userRelations = relations(users, ({ many }) => ({
   goals: many(userGoals),
   books: many(book),
@@ -137,3 +158,7 @@ export type SelectGoal = typeof userGoals.$inferSelect;
 export type InsertGoal = typeof userGoals.$inferInsert;
 export type SelectUser = typeof users.$inferSelect;
 export type InsertUser = typeof users.$inferInsert;
+export type SelectHardcoverOAuthToken =
+  typeof hardcoverOAuthToken.$inferSelect;
+export type InsertHardcoverOAuthToken =
+  typeof hardcoverOAuthToken.$inferInsert;
