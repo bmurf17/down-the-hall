@@ -5,7 +5,6 @@ import { convertTrendingBookData } from "@/helpers/convertTrendingBookToBook";
 import { UserActivityLogList } from "@/types/apiResponse/UseLogResponse";
 import { Book } from "@/types/book";
 import { TrendingData } from "@/types/trending/trendingbookresponse";
-import { UserActivityLog } from "@/types/userActivityLog";
 import { currentUser } from "@clerk/nextjs/server";
 import db from "@/lib/db";
 import { users, book, userGoals } from "@/lib/schema";
@@ -14,11 +13,6 @@ import { eq, and, sql } from "drizzle-orm";
 
 export const dynamic = 'force-dynamic';
 export const revalidate = 0;
-
-export interface UserActivityLogReturnType {
-  user_activity_log: UserActivityLog;
-  book: Book;
-}
 
 const DEFAULT_TRENDING_DATA: Book[] = [];
 const DEFAULT_USER_ACTIVITY_LOG: UserActivityLogList = [];

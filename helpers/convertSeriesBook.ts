@@ -12,7 +12,7 @@ export const processBookSeriesDetails = async (
   var image = await handleImage(
     bookId,
     dtoCombined.title,
-    bookSeries.book?.cached_image.url || "placeholder.png"
+    dtoCombined.cached_image?.url || ""
   );
 
   var authorId = dtoCombined.contributions

@@ -82,9 +82,11 @@ export default function BookDetails({
               seriesBooks={seriesBooks}
             />
           </TabPanel>
-          <TabPanel>
-            <Notes dbBookInfo={dbBookInfo} />
-          </TabPanel>
+          {dbBookInfo ? (
+            <TabPanel>
+              <Notes dbBookInfo={dbBookInfo} />
+            </TabPanel>
+          ) : null}
         </TabGroup>
       </div>
     </div>

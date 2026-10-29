@@ -10,7 +10,7 @@ import { Fragment, useState } from "react";
 import { NavSearchModal } from "./NavSearchModal";
 import { BookmarkIcon } from "../icons/BookmarkIcon";
 import { BarChartIcon } from "../icons/BarChartIcon";
-import { SearchIcon } from "lucide-react";
+import { SearchIcon, Settings } from "lucide-react";
 import { BurgerMenuIcon } from "../icons/BurgerMenuIcon";
 import { GoalsIcon } from "../icons/GoalsIcon";
 import { PersonIcon } from "@radix-ui/react-icons";
@@ -33,13 +33,15 @@ export default function NavBar() {
       <header className="w-full z-10">
         <div className="bg-navbar text-white px-16 py-4 mb-4 flex gap-4 justify-between items-center">
           <div className="flex gap-4 hover:cursor-pointer items-center">
-            <div
+            <button
+              type="button"
+              aria-label="Open navigation menu"
               onClick={() => {
                 setMenuOpen(true);
               }}
             >
               <BurgerMenuIcon color="white" size={24} />
-            </div>
+            </button>
             <Link href="/">Down The Hall</Link>
           </div>
 
@@ -145,6 +147,16 @@ export default function NavBar() {
                     >
                       <PersonIcon className="h-5 w-5" />
                       Users
+                    </button>
+                    <button
+                      type="button"
+                      className="flex items-center gap-3 rounded-md px-3 py-2 text-lg font-medium text-gray-500 transition-colors hover:bg-gray-100 hover:text-gray-900"
+                      onClick={() => {
+                        navigateTo("/settings");
+                      }}
+                    >
+                      <Settings className="h-5 w-5" />
+                      Settings
                     </button>
                   </div>
                 </SignedIn>

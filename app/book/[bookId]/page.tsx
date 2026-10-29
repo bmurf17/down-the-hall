@@ -5,6 +5,7 @@ import { processTrendingBookDetails } from "@/helpers/convertTrendingBookToBook"
 import { BookSeriesArray } from "@/types/apiResponse/seriesResponse";
 import { Book } from "@/types/book";
 import { currentUser } from "@clerk/nextjs/server";
+import { notFound } from "next/navigation";
 
 async function getBookData(bookId: string): Promise<Book | null> {
   const baseUrl = process.env.NEXT_PUBLIC_API_URL || "http://localhost:3000";
@@ -29,6 +30,10 @@ async function getBookData(bookId: string): Promise<Book | null> {
 
 export default async function Page({ params }: { params: { bookId: string } }) {
   const data: any = await getBook(params.bookId);
+
+  if (!data?.booksData?.books_by_pk) {
+    notFound();
+  }
 
   const hardCoverBookInfo = await processTrendingBookDetails(
     data?.booksData.books_by_pk,

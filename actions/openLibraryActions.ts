@@ -321,34 +321,6 @@ async function searchOpenLibraryByISBN(
   }
 }
 
-// Alternative search strategy with multiple attempts
-export async function searchBooksWithFallback(
-  params: SearchParams
-): Promise<Book[] | null> {
-  // Strategy 1: Google Books primary
-  let results = await searchBooksWithGoogleBooks(params);
-  if (results && results.length > 0) {
-    return results;
-  }
-
-  // Strategy 2: Try different query variations for Google Books
-  if (params.title) {
-    const variations = [
-      { ...params, title: params.title.replace(/^The\s+/i, "") }, // Remove "The"
-      { ...params, title: params.title.split(" ").slice(0, 3).join(" ") }, // First 3 words
-    ];
-
-    for (const variation of variations) {
-      results = await searchBooksWithGoogleBooks(variation);
-      if (results && results.length > 0) {
-        return results;
-      }
-    }
-  }
-
-  return await enhancedSearchBooks(params);
-}
-
 // Keep your existing functions for backward compatibility
 export async function enhancedSearchBooks(
   params: SearchParams
@@ -462,10 +434,50 @@ export async function searchBooks(
               );
             }
 
-            if (workData.series) {
-              book.series_name = workData.series[0];
+            if (workData.series && Array.isArray(workData.series) && workData.series.length > 0) {
+              const seriesEntry = workData.series[0];
+              if (typeof seriesEntry === "string") {
+                book.series_name = seriesEntry;
+              } else if (typeof seriesEntry === "object" && seriesEntry !== null) {
+                // OpenLibrary sometimes returns objects like { series: { key: '/series/...' }, position: '6' }
+                // or { key: '/series/...' }
+                if (typeof (seriesEntry as any).name === "string") {
+                  book.series_name = (seriesEntry as any).name;
+                } else if (
+                  (seriesEntry as any).series &&
+                  typeof (seriesEntry as any).series === "object" &&
+                  typeof (seriesEntry as any).series.name === "string"
+                ) {
+                  book.series_name = (seriesEntry as any).series.name;
+                } else if (typeof (seriesEntry as any).title === "string") {
+                  book.series_name = (seriesEntry as any).title;
+                } else {
+                  // Avoid storing the whole object as a string
+                  book.series_name = undefined;
+                }
+
+                // Extract position if it's in the series object
+                if (
+                  book.series_position === undefined &&
+                  (seriesEntry as any).position !== undefined &&
+                  (seriesEntry as any).position !== null
+                ) {
+                  const pos = (seriesEntry as any).position;
+                  book.series_position =
+                    typeof pos === "number" ? pos : parseFloat(pos);
+                } else if (
+                  book.series_position === undefined &&
+                  (seriesEntry as any).series &&
+                  typeof (seriesEntry as any).series === "object" &&
+                  (seriesEntry as any).series.position !== undefined
+                ) {
+                  const pos = (seriesEntry as any).series.position;
+                  book.series_position =
+                    typeof pos === "number" ? pos : parseFloat(pos);
+                }
+              }
             }
-            if (workData.series_position) {
+            if (workData.series_position !== undefined && workData.series_position !== null) {
               book.series_position = parseFloat(workData.series_position);
             }
 

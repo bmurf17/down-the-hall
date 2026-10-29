@@ -1,7 +1,3 @@
-import {
-  TrendingAuthorsData,
-  TrendingAuthorsResponse,
-} from "./authorhardcoverresponse";
 import { SeriesListResponse } from "./seriesHardCoverResponse";
 
 type CachedImageResponse = {
@@ -62,12 +58,4 @@ export type TrendingData = {
 export type Image = {
   id: number;
   url: string;
-};
-
-export type TrendingImageData = {
-  images: Image[];
-};
-
-export type TrendingImage = {
-  data: TrendingImageData;
 };

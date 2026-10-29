@@ -22,6 +22,16 @@ interface Props {
   book: Book;
 }
 
+// Deterministic fallback cover so the same book always renders the same image.
+// Using Math.random() here caused hydration mismatches and flickering covers.
+function fallbackCoverNumber(key: string): number {
+  let hash = 0;
+  for (let i = 0; i < key.length; i++) {
+    hash = (hash * 31 + key.charCodeAt(i)) | 0;
+  }
+  return (Math.abs(hash) % 7) + 1;
+}
+
 export default function BookListItem({ book }: Props) {
   const { toast } = useToast();
   const [title, setTitle] = useState(book.book?.title);
@@ -32,7 +42,9 @@ export default function BookListItem({ book }: Props) {
   const [datePickerOpen, setDatePickerOpen] = useState(false);
   const [dateRead, setDateRead] = useState<Date | undefined>(new Date(book.book?.dateRead?.toString() || "") || undefined);
 
-  const number = Math.floor(Math.random() * 7) + 1;
+  const fallbackCover = `https://hardcover.app/images/covers/cover${fallbackCoverNumber(
+    `${book.book?.title ?? ""}|${book.author?.name ?? ""}`
+  )}.png`;
   const addbuttonText = () => {
     var status = book.book?.status;
 
@@ -43,9 +55,12 @@ export default function BookListItem({ book }: Props) {
     return readingStatusString[status || 0];
   };
 
-  const bookId = !book.book?.hardcoverId
-    ? book.book?.id
-    : book.book?.hardcoverId;
+  // The book detail page looks books up by Hardcover id, so only link when we
+  // actually have one. Falling back to the database id would load whichever
+  // unrelated Hardcover book happens to share that number.
+  const hardcoverId = book.book?.hardcoverId;
+  const hasHardcoverId =
+    typeof hardcoverId === "number" && hardcoverId > 0;
 
   const submit = () => {
     editBook(
@@ -57,9 +72,55 @@ export default function BookListItem({ book }: Props) {
       pageCount || 0,
     );
   };
+
+  const bookSummary = (
+    <div className="flex flex-col md:flex-row gap-2 align-middle">
+      <div className="flex justify-center flex-shrink-0">
+        <img
+          className="w-20 md:w-28 relative overflow-hidden group transition-all border border-gray-100/20 ring-accent hover:ring-1 hover:border-accent rounded-l-sm rounded-r-md shadow-md block"
+          src={book.book?.image || fallbackCover}
+          alt={book.book?.title}
+          height={100}
+          width={100}
+        />
+      </div>
+      <div className="flex flex-col gap-2 flex-grow min-w-0">
+        <div className="text-black underline-offset-4 text-lg md:text-3xl font-bold no-underline hover:underline decoration-gray-300 dark:decoration-gray-500 break-words">
+          {title}
+        </div>
+
+        <div className="text-md md:text-lg font-semibold text-text">
+          By: {book.author?.name}
+        </div>
+
+        <div className="text-text text-sm md:text-base font-semibold flex gap-2 flex-wrap">
+          {book.book?.genres?.slice(0, 3).join(", ")}
+        </div>
+
+        {book.book?.seriesName ? (
+          <div className="text-text text-sm md:text-base font-semibold break-words">
+            Series Name: {book.book?.seriesName}
+          </div>
+        ) : null}
+
+        <div className="text-text text-sm font-semibold">
+          Page Count: {pageCount}
+        </div>
+
+        <div className="md:hidden flex justify-center">
+          {book.book && book.book.status !== null ? (
+            <StarRating book={book.book as SelectBook} />
+          ) : null}
+        </div>
+      </div>
+    </div>
+  );
+
   return (
     <div
-      className="flex flex-col md:flex-row justify-between p-4 border-b-2 border-gray-500 hover:bg-slate-200 hover:cursor-pointer"
+      className={`flex flex-col md:flex-row justify-between p-4 border-b-2 border-gray-500 hover:bg-slate-200 ${
+        hasHardcoverId ? "hover:cursor-pointer" : ""
+      }`}
       key={book.book?.title || ""}
     >
       {isEditing ? (
@@ -68,8 +129,7 @@ export default function BookListItem({ book }: Props) {
             <img
               className="w-20 md:w-28 relative overflow-hidden group transition-all border border-gray-100/20 ring-accent hover:ring-1 hover:border-accent rounded-l-sm rounded-r-md shadow-md block"
               src={
-                book.book?.image ||
-                `https://hardcover.app/images/covers/cover${number}.png`
+                book.book?.image || fallbackCover
               }
               alt={book.book?.title}
               height={100}
@@ -145,52 +205,21 @@ export default function BookListItem({ book }: Props) {
             </div>
           </div>
         </div>
-      ) : (
-        <Link href={`/book/${bookId}`} className="flex-1 min-w-0">
-          <div className="flex flex-col md:flex-row gap-2 align-middle">
-            <div className="flex justify-center flex-shrink-0">
-              <img
-                className="w-20 md:w-28 relative overflow-hidden group transition-all border border-gray-100/20 ring-accent hover:ring-1 hover:border-accent rounded-l-sm rounded-r-md shadow-md block"
-                src={
-                  book.book?.image ||
-                  `https://hardcover.app/images/covers/cover${number}.png`
-                }
-                alt={book.book?.title}
-                height={100}
-                width={100}
-              />
-            </div>
-            <div className="flex flex-col gap-2 flex-grow min-w-0">
-              <div className="text-black underline-offset-4 text-lg md:text-3xl font-bold no-underline hover:underline decoration-gray-300 dark:decoration-gray-500 break-words">
-                {title}
-              </div>
-
-              <div className="text-md md:text-lg font-semibold text-text">
-                By: {book.author?.name}
-              </div>
-
-              <div className="text-text text-sm md:text-base font-semibold flex gap-2 flex-wrap">
-                {book.book?.genres?.slice(0, 3).join(", ")}
-              </div>
-
-              {book.book?.seriesName ? (
-                <div className="text-text text-sm md:text-base font-semibold break-words">
-                  Series Name: {book.book?.seriesName}
-                </div>
-              ) : null}
-
-              <div className="text-text text-sm font-semibold">
-                Page Count: {pageCount}
-              </div>
-
-              <div className="md:hidden flex justify-center">
-                {book.book && book.book.status !== null ? (
-                  <StarRating book={book.book as SelectBook} />
-                ) : null}
-              </div>
-            </div>
-          </div>
+      ) : hasHardcoverId ? (
+        <Link
+          href={`/book/${hardcoverId}`}
+          className="flex-1 min-w-0"
+          title="View book details"
+        >
+          {bookSummary}
         </Link>
+      ) : (
+        <div
+          className="flex-1 min-w-0"
+          title="No Hardcover match for this book, so details are unavailable"
+        >
+          {bookSummary}
+        </div>
       )}
 
       <div className="flex flex-col md:flex-row md:items-end gap-2 mt-4 md:mt-0 flex-shrink-0">
@@ -205,10 +234,7 @@ export default function BookListItem({ book }: Props) {
             <AddToListButton
               title={book.book?.title || ""}
               author={book.author?.name || ""}
-              image={
-                book.book?.image ||
-                `https://hardcover.app/images/covers/cover${number}.png`
-              }
+              image={book.book?.image || fallbackCover}
               default_physical_edition_id={
                 book.book?.defaultPhysicalEditionId || 0
               }

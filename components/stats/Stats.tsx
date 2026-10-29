@@ -229,7 +229,7 @@ export default function Stats() {
   }
 
   const pagesChartData = stats.map((stat) => {
-    const [year, month] = stat.month.split("-");
+    const [, month] = stat.month.split("-");
     return {
       month: MONTH_NAMES[parseInt(month, 10) - 1],
       pagesRead: parseInt(stat.totalPages, 10),
@@ -237,7 +237,7 @@ export default function Stats() {
   });
 
   const booksChartData = stats.map((stat) => {
-    const [year, month] = stat.month.split("-");
+    const [, month] = stat.month.split("-");
     return {
       month: MONTH_NAMES[parseInt(month, 10) - 1],
       booksRead: parseInt(stat.bookCount, 10),
@@ -290,7 +290,7 @@ export default function Stats() {
               />{" "}
             </div>
             <div className="flex flex-col gap-2">
-              <div>Start Date:</div>
+              <div>End Date:</div>
               <DatePicker
                 date={endDate}
                 onDateSelect={(date) => handleDateChange("end", date)}
@@ -307,7 +307,7 @@ export default function Stats() {
                   <CardTitle>Pages Read</CardTitle>
                   <CardDescription>
                     {pagesChartData[0]?.month} -{" "}
-                    {pagesChartData[pagesChartData.length - 1]?.month} 2024
+                    {pagesChartData[pagesChartData.length - 1]?.month}
                   </CardDescription>
                 </CardHeader>
                 <CardContent className="h-[300px] sm:h-[400px] relative">
@@ -396,7 +396,7 @@ export default function Stats() {
                   <CardTitle>Books Read</CardTitle>
                   <CardDescription>
                     {booksChartData[0]?.month} -{" "}
-                    {booksChartData[booksChartData.length - 1]?.month} 2024
+                    {booksChartData[booksChartData.length - 1]?.month}
                   </CardDescription>
                 </CardHeader>
                 <CardContent className="h-[300px] sm:h-[400px] relative">

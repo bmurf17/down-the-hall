@@ -1,4 +1,3 @@
-import { UserActivityLogReturnType } from "@/app/page";
 import { SignedIn, SignedOut, SignInButton } from "@clerk/nextjs";
 import { UserActivityLogList } from "@/types/apiResponse/UseLogResponse";
 import clsx from "clsx";
@@ -17,7 +16,7 @@ export default function UserLog({ userActivityLog }: Props) {
 
       <SignedOut>
         <div className="flex flex-col gap-4">
-          <p>Sign in to start traking your book</p>
+          <p>Sign in to start tracking your book</p>
           <SignInButton>
             <button
               className={clsx(

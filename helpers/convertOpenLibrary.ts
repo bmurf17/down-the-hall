@@ -1,6 +1,20 @@
 import { OpenLibraryBook } from "@/actions/openLibraryActions";
+import { getPublicImageUrl, PLACEHOLDER_IMAGE } from "@/lib/supabase-storage";
 import { Book } from "@/types/book";
 import { handleImage } from "./convertTrendingBookToBook";
+
+/**
+ * Deterministic, filesystem-friendly id for books that have neither a
+ * Hardcover id nor an ISBN. Same title + author always yields the same value,
+ * so repeated searches reuse one stored cover instead of uploading a new one.
+ */
+function stableHash(input: string): string {
+  let hash = 5381;
+  for (let i = 0; i < input.length; i++) {
+    hash = ((hash << 5) + hash + input.charCodeAt(i)) | 0;
+  }
+  return `h${(hash >>> 0).toString(36)}`;
+}
 
 interface GoogleBooksData {
   kind: string;
@@ -169,7 +183,7 @@ export async function convertBookData(
         bookImage = book0.cached_image.url;
       }
 
-      if (book0.pages) {
+      if (book0.pages !== null && book0.pages !== undefined) {
         pageCount = book0.pages;
       }
 
@@ -200,19 +214,67 @@ export async function convertBookData(
 
       // Use Hardcover series information if available
       if (book0.series?.length && hardcoverData.seriesData?.series?.length) {
-        const seriesEntry = book0.series.find((s) => s.featured);
+        const seriesEntry =
+          book0.series.find((s) => s.featured) || book0.series[0];
         if (seriesEntry) {
           const seriesInfo = hardcoverData.seriesData.series.find(
             (s) => s.id === seriesEntry?.series_id
           );
           if (seriesInfo) {
-            var sp =
-              seriesEntry.position !== null ? seriesEntry.position : null;
+            const sp =
+              seriesEntry.position !== null && seriesEntry.position !== undefined
+                ? seriesEntry.position
+                : null;
             seriesName = seriesInfo.name;
             seriesPosition = sp !== undefined ? sp : null;
           }
         }
+      } else if (book0.series?.length && !hardcoverData.seriesData?.series?.length) {
+        // If series data not loaded separately, try to use what we have
+        const seriesEntry =
+          book0.series.find((s) => s.featured) || book0.series[0];
+        if (seriesEntry) {
+          const sp =
+            seriesEntry.position !== null && seriesEntry.position !== undefined
+              ? seriesEntry.position
+              : null;
+          if ((seriesEntry as any).name) {
+            seriesName = (seriesEntry as any).name;
+          }
+          seriesPosition = sp !== undefined ? sp : null;
+        }
       }
+    }
+  }
+
+  // Clean up series name if it was stringified as an object
+  if (typeof seriesName === "string" && seriesName.trim().startsWith("{")) {
+    try {
+      const parsed = JSON.parse(seriesName);
+      if (parsed && typeof parsed === "object") {
+        if (parsed.name) {
+          seriesName = parsed.name;
+        } else if (parsed.series?.name) {
+          seriesName = parsed.series.name;
+        } else if (parsed.title) {
+          seriesName = parsed.title;
+        } else {
+          seriesName = "";
+        }
+        if (seriesPosition == null && parsed.position) {
+          const pos = parsed.position;
+          const numericPosition =
+            typeof pos === "number" ? pos : parseFloat(pos);
+          seriesPosition = Number.isNaN(numericPosition) ? null : numericPosition;
+        } else if (seriesPosition == null && parsed.series?.position) {
+          const pos = parsed.series.position;
+          const numericPosition =
+            typeof pos === "number" ? pos : parseFloat(pos);
+          seriesPosition = Number.isNaN(numericPosition) ? null : numericPosition;
+        }
+      }
+    } catch (e) {
+      // If it's not valid JSON, leave as is
     }
   }
 
@@ -228,9 +290,9 @@ export async function convertBookData(
       releaseYear,
       defaultPhysicalEditionId,
       description: bookDescription,
-      seriesPosition: seriesPosition + "",
+      seriesPosition: seriesPosition != null ? seriesPosition + "" : null,
       seriesLength,
-      seriesName,
+      seriesName: typeof seriesName === "string" ? seriesName : "",
       pageCount,
       genres,
       hardcoverId,
@@ -264,41 +326,39 @@ export async function convertBookDataWithImageUpload(
     hardcoverData
   );
 
-  // Generate a temporary ID for the book if it doesn't have one
-  const tempId = bookData.book?.id || Date.now();
+  // Use a stable identity for the stored file. A timestamp here meant every
+  // search re-uploaded every cover under a brand new name, leaking storage.
+  // Prefer the Hardcover id, then the ISBN, then a deterministic title/author
+  // hash so repeated searches (and later "add to list") reuse the same object.
+  const stableId =
+    bookData.book?.hardcoverId ||
+    googleBooksData?.matchedISBN?.replace(/[^0-9Xx]/g, "") ||
+    stableHash(`${bookData.book?.title ?? ""}|${bookData.author?.name ?? ""}`);
 
-  // Handle image upload to Firebase if we have an image URL
-  if (bookData.book?.image) {
-    try {
-      // Upload the book image to Firebase
-      const firebaseImageUrl = await handleImage(
-        tempId,
+  // Handle book image upload if we have an image URL
+  if (bookData.book) {
+    if (bookData.book.image) {
+      bookData.book.image = await handleImage(
+        stableId,
         bookData.book.title,
         bookData.book.image
       );
-
-      // Update the book image URL with the Firebase URL
-      bookData.book.image = firebaseImageUrl;
-    } catch (error) {
-      console.error("Error uploading book image to Firebase:", error);
-      // Keep the original image URL if upload fails
+    } else {
+      bookData.book.image = getPublicImageUrl(PLACEHOLDER_IMAGE);
     }
   }
 
-  // Handle author image upload if needed
+  // Handle author image upload if needed. Keyed by the author's name so all of
+  // their books share one stored portrait instead of one per search/book.
   if (bookData.author?.image) {
     try {
-      // Upload the author image to Firebase
-      const authorImageUrl = await handleImage(
-        tempId,
+      bookData.author.image = await handleImage(
+        stableHash(`author:${bookData.author.name}`),
         `author_${bookData.author.name.replace(/\s+/g, "_")}`,
         bookData.author.image
       );
-
-      // Update the author image URL with the Firebase URL
-      bookData.author.image = authorImageUrl;
     } catch (error) {
-      console.error("Error uploading author image to Firebase:", error);
+      console.error("Error caching author image:", error);
       // Keep the original image URL if upload fails
     }
   }
