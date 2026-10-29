@@ -71,3 +71,17 @@ and Settings will ask you to reconnect.
 `HARDCOVER_TOKEN` still works and is sent as `Bearer <token>`. Once OAuth is
 connected, OAuth takes precedence. The maintenance scripts in `scripts/` use
 `HARDCOVER_TOKEN` directly.
+
+## End-to-end tests
+
+Playwright covers the signed-out pages, the JSON API and the signed-in
+experience:
+
+```bash
+npm run test:e2e:install   # first time only
+npm run test:e2e           # public, API and (when configured) signed-in specs
+npm run test:e2e:public    # no Clerk credentials needed
+```
+
+See [tests/README.md](tests/README.md) for the Clerk test-user setup and the
+suite layout.

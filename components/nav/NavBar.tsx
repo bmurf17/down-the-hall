@@ -33,13 +33,15 @@ export default function NavBar() {
       <header className="w-full z-10">
         <div className="bg-navbar text-white px-16 py-4 mb-4 flex gap-4 justify-between items-center">
           <div className="flex gap-4 hover:cursor-pointer items-center">
-            <div
+            <button
+              type="button"
+              aria-label="Open navigation menu"
               onClick={() => {
                 setMenuOpen(true);
               }}
             >
               <BurgerMenuIcon color="white" size={24} />
-            </div>
+            </button>
             <Link href="/">Down The Hall</Link>
           </div>
 
