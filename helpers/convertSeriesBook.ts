@@ -21,6 +21,13 @@ export const processBookSeriesDetails = async (
       : 0
     : 0;
 
+  const genres = Array.from(
+    new Set([
+      ...(dtoCombined.genres ?? []),
+      ...(dtoCombined.cached_tags?.Genre?.map((tag) => tag.tag) ?? []),
+    ])
+  );
+
   const book: SelectBook = {
     id: bookId,
     title: dtoCombined.title,
@@ -31,11 +38,11 @@ export const processBookSeriesDetails = async (
     defaultPhysicalEditionId: 0,
     description: dtoCombined.description,
     seriesPosition: bookSeries.position?.toString() || null,
-    seriesLength: dtoCombined.series?.length || null,
+    seriesLength: dtoCombined.book_series?.length || null,
     seriesName: "",
     hardcoverId: 0,
-    pageCount: dtoCombined.page_count,
-    genres: dtoCombined.genres,
+    pageCount: dtoCombined.pages ?? dtoCombined.page_count,
+    genres: genres,
     dateRead: Date.now().toString(),
     updatedDate: Date.now().toString(),
     userId: "",

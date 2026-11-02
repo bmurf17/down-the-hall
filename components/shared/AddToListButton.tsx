@@ -65,7 +65,7 @@ export function AddToListButton({
     setIsLoading(true);
     try {
       if (id) {
-        await editBookToList(id, title, e.id, rating);
+        await editBookToList(id, title, e.id, rating, page_number);
         router.refresh();
       } else {
         await addBookToList(

@@ -11,5 +11,6 @@ export type userGridResponse = {
     image: string | null;
     dateRead: Date | null;
     rating: number | null;
+    pageCount: number | null;
   }[];
 };

@@ -418,9 +418,6 @@ export async function searchBooks(
           if (workResponse.ok) {
             const workData = await workResponse.json();
 
-            searchWithISBNFallbackGooglebooks(book.isbn || []);
-            searchWithISBNFallbackHardCover(book.isbn || []);
-
             book.description =
               typeof workData.description === "string"
                 ? workData.description

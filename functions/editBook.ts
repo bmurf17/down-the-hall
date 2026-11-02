@@ -7,13 +7,15 @@ export const editBookToList = async (
   id: number,
   title: string,
   status: number,
-  ranking: string
+  ranking: string,
+  page_count?: number
 ) => {
-  editBook(
+  await editBook(
     id,
     title,
     status,
     ranking,
-    status == Status.Finished ? new Date() : undefined
+    status == Status.Finished ? new Date() : undefined,
+    page_count
   );
 };

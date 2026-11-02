@@ -26,7 +26,13 @@ export default function CurrentlyReadingCard({ userData }: Props) {
 
     const activeBook = localUserData.books[activeBookIndex];
 
-    await editBookToList(activeBook.id, activeBook.title, status, "0");
+    await editBookToList(
+      activeBook.id,
+      activeBook.title,
+      status,
+      "0",
+      activeBook.pageCount ?? undefined
+    );
 
     const updatedBooks = localUserData.books.filter(
       (book) => book.id !== activeBook.id

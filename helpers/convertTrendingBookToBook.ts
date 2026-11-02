@@ -39,6 +39,13 @@ export const processTrendingBookDetails = async (
     trendingBookDetails.cached_image?.url || ""
   );
 
+  const genres = Array.from(
+    new Set([
+      ...(trendingBookDetails.genres ?? []),
+      ...(trendingBookDetails.cached_tags?.Genre?.map((tag) => tag.tag) ?? []),
+    ])
+  );
+
   const book: SelectBook = {
     id: 0,
     title: trendingBookDetails.title,
@@ -61,7 +68,7 @@ export const processTrendingBookDetails = async (
     seriesName: series?.length > 0 ? series[0].name : "",
     hardcoverId: trendingBookDetails.id,
     pageCount: trendingBookDetails.pages,
-    genres: trendingBookDetails.genres,
+    genres: genres,
     dateRead: Date.now().toString(),
     updatedDate: Date.now().toString(),
     userId: "",

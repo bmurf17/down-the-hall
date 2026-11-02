@@ -1,13 +1,16 @@
 "use server";
-import { asc, eq } from "drizzle-orm";
-import { revalidatePath, revalidateTag } from "next/cache";
+import { eq } from "drizzle-orm";
+import { revalidateTag } from "next/cache";
 
 import { Pool } from "@neondatabase/serverless";
 import db from "../lib/db";
-import { author, book, bookNote, userActivityLog, users } from "../lib/schema";
+import { author, book, users } from "../lib/schema";
 import { PoolClient } from "pg";
 import { logStatusString } from "@/types/enums/statusEnum";
 import { User } from "@clerk/nextjs/server";
+
+const pool = new Pool({ connectionString: process.env.DATABASE_URL });
+pool.on("error", (err) => console.error(err));
 
 export const addBook = async (
   title: string,
@@ -26,85 +29,47 @@ export const addBook = async (
   user: User | null,
   date_read?: Date
 ) => {
+  const userId = user?.id || "";
   const userData = await db
     .select()
     .from(users)
-    .where(eq(users.id, user?.id || ""));
+    .where(eq(users.id, userId));
 
   if (userData.length === 0) {
     await db.insert(users).values({
-      id: user?.id || "",
+      id: userId,
       image: user?.imageUrl,
       lastLoggedIn: new Date(),
       userName: user?.fullName,
     });
   }
 
-  const pool = new Pool({ connectionString: process.env.DATABASE_URL });
-  pool.on("error", (err) => console.error(err)); // deal with e.g. re-connect
-  const client = await pool.connect();
-
   const authorData = await db
     .select()
     .from(author)
     .where(eq(author.name, authorName));
 
-  //author does not exist so we need to start transaction to add them as well
-  if (authorData.length == 0) {
-    try {
-      await client.query("BEGIN");
-      const {
-        rows: [{ id: authorId }],
-      } = await client.query(
+  const client = await pool.connect();
+
+  try {
+    await client.query("BEGIN");
+
+    let authorId = authorData[0]?.id;
+
+    // The author does not exist yet, so create them inside the same transaction.
+    if (authorId === undefined) {
+      const { rows } = await client.query(
         "INSERT INTO author (name, image) VALUES ($1, $2) RETURNING id",
         [authorName, authorImg]
       );
-
-      var book_id = await insertQuery(
-        //@ts-ignore
-        client,
-        title,
-        authorId,
-        status,
-        image,
-        release_year,
-        default_physical_edition_id,
-        description,
-        series_position,
-        series_length,
-        series_name,
-        hardcover_id,
-        page_count,
-        user?.id || "",
-        date_read
-      );
-
-      await client.query("COMMIT");
-
-      await db.insert(userActivityLog).values({
-        bookId: book_id,
-        updatedDate: new Date(),
-        action: logStatusString[status],
-        userId: user?.id || "",
-      });
-
-      revalidateTag("books");
-    } catch (err) {
-      console.log(err);
-      await client.query("ROLLBACK");
-      throw err;
-    } finally {
-      client.release();
-      return;
+      authorId = (rows[0] as { id: number }).id;
     }
-  }
 
-  try {
-    var book_id = await insertQuery(
-      //@ts-ignore
+    const bookId = await insertQuery(
+      //@ts-ignore -- the neon client is structurally compatible with pg's PoolClient
       client,
       title,
-      authorData[0].id,
+      authorId,
       status,
       image,
       release_year,
@@ -115,25 +80,25 @@ export const addBook = async (
       series_name,
       hardcover_id,
       page_count,
-      user?.id || "",
+      userId,
       date_read
     );
 
-    await db.insert(userActivityLog).values({
-      bookId: book_id,
-      updatedDate: new Date(),
-      action: logStatusString[status],
-      userId: user?.id || "",
-    });
+    await client.query(
+      "INSERT INTO user_activity_log (book_id, updated_date, action, user_id) VALUES ($1, $2, $3, $4)",
+      [bookId, new Date(), logStatusString[status], userId]
+    );
+
+    await client.query("COMMIT");
   } catch (err) {
-    console.log(err);
+    await client.query("ROLLBACK");
+    throw err;
   } finally {
     client.release();
   }
 
   revalidateTag("books");
-  revalidatePath("user-data")
-  revalidatePath("user")
+  revalidateTag("userActivityLog");
 };
 
 const insertQuery = async (
@@ -187,14 +152,25 @@ const insertQuery = async (
 };
 
 export const deleteBook = async (id: number) => {
-  await db.delete(bookNote).where(eq(bookNote.bookId, id));
+  const client = await pool.connect();
 
-  await db.delete(userActivityLog).where(eq(userActivityLog.bookId, id));
+  try {
+    await client.query("BEGIN");
+    await client.query("DELETE FROM book_note WHERE book_id = $1", [id]);
+    await client.query("DELETE FROM user_activity_log WHERE book_id = $1", [id]);
+    await client.query("DELETE FROM book WHERE id = $1", [id]);
+    await client.query("COMMIT");
+  } catch (error) {
+    await client.query("ROLLBACK");
+    throw error;
+  } finally {
+    client.release();
+  }
 
-  // Delete the book
-  await db.delete(book).where(eq(book.id, id));
-
+  // The cover is removed by scripts/cleanup-orphaned-images.ts once no book
+  // references it anymore.
   revalidateTag("books");
+  revalidateTag("userActivityLog");
 };
 
 export const editBook = async (

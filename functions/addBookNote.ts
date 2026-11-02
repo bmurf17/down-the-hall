@@ -14,5 +14,5 @@ export const addBookNote = async (
 
   noteToAdd.userId = userRightNow?.id;
 
-  addNote(noteToAdd, hardcoverId);
+  await addNote(noteToAdd, hardcoverId);
 };

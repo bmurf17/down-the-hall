@@ -9,5 +9,5 @@ export const addGoal = async (goalToAdd: Omit<InsertGoal, "id">) => {
 
   goalToAdd.userId = userRightNow?.id;
 
-  addGoalAction(goalToAdd);
+  await addGoalAction(goalToAdd);
 };

@@ -25,6 +25,7 @@ export async function GET(request: NextRequest) {
           image: book.image,
           dateRead: book.dateRead,
           rating: book.rating,
+          pageCount: book.pageCount,
         },
       })
       .from(users)

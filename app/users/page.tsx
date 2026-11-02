@@ -35,6 +35,7 @@ export default async function UserPage() {
           image: book.image,
           dateRead: book.dateRead,
           rating: book.rating,
+          pageCount: book.pageCount,
         },
       })
       .from(users)

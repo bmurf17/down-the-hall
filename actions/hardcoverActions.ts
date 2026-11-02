@@ -11,7 +11,7 @@ import {
 //QUERIES
 const TRENDING_BOOKS_QUERY = gql`
   query MyQuery {
-    books_trending(from: "", limit: 10, offset: 10, to: "") {
+    books_trending(limit: 10) {
       ids
     }
   }
@@ -37,12 +37,16 @@ const BOOK_BY_ID_QUERY = (id: string) => gql`
       id
       default_physical_edition_id
       users_count
-      users_read_count      
+      users_read_count
       cached_image
       cached_contributors
       description
       release_year
       title
+      pages
+      cached_tags
+      book_series { series_id details position featured }
+      contributions { author_id contribution }
     }
   }
 `;
@@ -52,12 +56,23 @@ const SERIES_BY_ID_QUERY = (id: number) => gql`
     series(where: {id: {_eq: ${id}}}) {
       id
       name
-    book_series {
+      book_series {
         position
-        book{
+        book {
           id
           title
           cached_image
+          users_read_count
+          description
+          release_year
+          pages
+          contributions {
+            author_id
+            contribution
+            author { id name }
+          }
+          book_series { series_id position details featured }
+          cached_tags
         }
       }
     }
@@ -78,6 +93,8 @@ const BOOKS_BY_IDS_QUERY = gql`
       release_year
       description
       cached_contributors
+      contributions { author_id contribution }
+      cached_tags
     }
   }
 `;
@@ -97,68 +114,81 @@ export const getBook = async (id: string) => {
       query: BOOK_BY_ID_QUERY(id),
     });
 
-    var seriesResponse =
-      booksResponse.data.books_by_pk?.series?.length > 0
+    const series = booksResponse.data.books_by_pk?.book_series;
+    const seriesResponse =
+      series?.length > 0
         ? await client.query({
-            query: SERIES_BY_ID_QUERY(
-              booksResponse.data.books_by_pk?.series[0]?.series_id
-            ),
+            query: SERIES_BY_ID_QUERY(series[0]?.series_id),
           })
         : null;
 
     if (seriesResponse?.data) {
-      var filteredSeries = seriesResponse?.data.series
-        .map((book: any) => ({
-          ...book,
-          book_series: book.book_series.filter(
+      const filteredSeries = seriesResponse.data.series
+        .map((series: any) => ({
+          ...series,
+          book_series: series.book_series.filter(
             (x: any) =>
-              x.book.country_id === 1 &&
-              !x.book.contributions.some(
+              !x.book.contributions?.some(
                 (contribution: any) =>
                   contribution.contribution === "Translator"
               )
           ),
         }))
-        .filter((book: any) => book.book_series.length > 0);
+        .filter((series: any) => series.book_series.length > 0);
 
-      const uniquePositionBooks = filteredSeries[0].book_series.reduce(
-        (
-          acc: { [x: string]: any },
-          current: {
-            position: string | number;
-            book: { users_read_count: number };
-          }
-        ) => {
-          if (
-            !acc[current.position] ||
-            acc[current.position].book.users_read_count <
-              current.book.users_read_count
-          ) {
-            acc[current.position] = current;
-          }
-          return acc;
-        },
-        {}
-      );
+      if (filteredSeries.length > 0) {
+        const uniquePositionBooks = filteredSeries[0].book_series.reduce(
+          (
+            acc: { [x: string]: any },
+            current: {
+              position: string | number;
+              book: { users_read_count: number };
+            }
+          ) => {
+            if (
+              !acc[current.position] ||
+              acc[current.position].book.users_read_count <
+                current.book.users_read_count
+            ) {
+              acc[current.position] = current;
+            }
+            return acc;
+          },
+          {}
+        );
 
-      const result = Object.values(uniquePositionBooks).sort(
-        (a: any, b: any) => a.position - b.position
-      );
+        const result = Object.values(uniquePositionBooks).sort(
+          (a: any, b: any) => a.position - b.position
+        );
 
-      return {
-        booksData: booksResponse.data,
-        seriesData: result,
-      };
+        return {
+          booksData: booksResponse.data,
+          seriesData: result,
+        };
+      }
     }
 
     return {
       booksData: booksResponse.data,
-      seriesData: {},
+      seriesData: [],
     };
   } catch (ex) {
-    console.log(ex);
+    console.error(`Error fetching Hardcover book ${id}:`, ex);
+    return null;
   }
 };
+
+function extractSeriesIds(
+  books: { book_series?: { series_id: number }[] | null }[]
+): number[] {
+  return Array.from(
+    new Set(
+      books
+        .map((book) => book.book_series?.[0]?.series_id)
+        .filter((id): id is number => typeof id === "number")
+    )
+  );
+}
 
 const httpLink = new HttpLink({
   uri: HARDCOVER_GRAPHQL_ENDPOINT,
@@ -190,13 +220,13 @@ export async function fetchTrendingData() {
       variables: { ids },
     });
 
-    const seriesIds = Object.values(booksResponse.data)
-      .filter((book: any) => book.book_series)
-      .map((book: any) => book.book_series[0]?.series_id);
+    const seriesIds = extractSeriesIds(booksResponse.data.books);
 
-    const seriesResponse = await client.query({
-      query: SERIES_BY_IDS_QUERY(seriesIds),
-    });
+    const seriesResponse = seriesIds.length
+      ? await client.query({
+          query: SERIES_BY_IDS_QUERY(seriesIds),
+        })
+      : { data: { series: [] } };
 
     return {
       bookData: booksResponse.data,
@@ -238,13 +268,13 @@ export const getBooksByIsbn = async (isbns: string[]) => {
       variables: { ids },
     });
 
-    const seriesIds = Object.values(booksResponse.data)
-      .filter((book: any) => book.series?.length > 0 && book.series)
-      .map((book: any) => book.series[0]?.series_id);
+    const seriesIds = extractSeriesIds(booksResponse.data.books);
 
-    const seriesResponse = await client.query({
-      query: SERIES_BY_IDS_QUERY(seriesIds),
-    });
+    const seriesResponse = seriesIds.length
+      ? await client.query({
+          query: SERIES_BY_IDS_QUERY(seriesIds),
+        })
+      : { data: { series: [] } };
 
     return {
       bookData: booksResponse.data,

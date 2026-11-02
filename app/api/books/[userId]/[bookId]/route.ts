@@ -30,8 +30,11 @@ export async function GET(
         json_agg(
           json_build_object(
             'id', bn.id,
+            'user_id', bn.user_id,
+            'book_id', bn.book_id,
+            'updated_date', bn.updated_date,
             'page_number', bn.page_number,
-            'series', bn.series,  
+            'series', bn.series,
             'note', bn.note
           )
         ) AS book_notes
@@ -49,17 +52,40 @@ export async function GET(
 
     const data = result.rows[0];
 
+    const bookNotes = (data.book_notes || [])
+      .filter((note: { id: number | null }) => note.id != null)
+      .map(
+        (note: {
+          id: number;
+          user_id: string | null;
+          book_id: number | null;
+          updated_date: string | null;
+          page_number: number | null;
+          series: string | null;
+          note: string | null;
+        }) => ({
+          id: note.id,
+          userId: note.user_id ?? userId,
+          bookId: note.book_id ?? data.id,
+          updatedDate: note.updated_date ?? null,
+          pageNumber: note.page_number ?? null,
+          series: note.series ?? null,
+          note: note.note ?? null,
+        })
+      );
+
     const response = {
       book: {
         id: data.id,
         title: data.title,
-        hardcover_id: data.hardcover_id,
+        hardcoverId: data.hardcover_id,
+        seriesName: data.series_name,
       },
       author: {
         id: data.author_id,
         name: data.author_name,
       },
-      book_notes: data.book_notes || [],
+      book_notes: bookNotes,
     };
 
     return NextResponse.json(response);
