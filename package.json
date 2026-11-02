@@ -16,7 +16,6 @@
     "test:e2e:install": "playwright install chromium"
   },
   "dependencies": {
-    "@apollo/client": "^3.11.4",
     "@clerk/nextjs": "^5.4.1",
     "@headlessui/react": "^2.0.3",
     "@neondatabase/serverless": "^0.9.3",

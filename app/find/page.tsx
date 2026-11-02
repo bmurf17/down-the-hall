@@ -1,4 +1,5 @@
-import { enhancedSearchBooks } from "@/actions/openLibraryActions";
+import Page from "@/components/shared/Page";
+import { enhancedSearchBooks } from "@/lib/books/openlibrary";
 import Find from "@/components/find/Find";
 import BookListItem from "@/components/shared/BookListItem";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
@@ -88,12 +89,12 @@ export default function FindPage({ searchParams }: Props) {
   const searchTitle = searchParams?.title || "";
 
   return (
-    <div className="mx-16">
+    <Page>
       <Find>
         <Suspense fallback={<LoadingResults />}>
           {searchTitle && <BookResults searchTitle={searchTitle} />}
         </Suspense>
       </Find>
-    </div>
+    </Page>
   );
 }

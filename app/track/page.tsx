@@ -1,3 +1,4 @@
+import Page from "@/components/shared/Page";
 import Track from "@/components/track/Track";
 import { currentUser } from "@clerk/nextjs/server";
 import { Suspense } from "react";
@@ -43,11 +44,11 @@ export default async function TrackPage({ searchParams }: Props) {
   );
 
   return (
-    <div className="mx-16">
+    <Page>
       <Suspense fallback={<Loading />}>
         <AsyncTrack booksPromise={booksPromise} />
       </Suspense>
-    </div>
+    </Page>
   );
 }
 

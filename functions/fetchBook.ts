@@ -1,6 +1,6 @@
 "use server";
 
-import { searchBooksWithGoogleBooks } from "@/actions/openLibraryActions";
+import { searchBooksWithGoogleBooks } from "@/lib/books/google";
 
 export const fetchBooks = async (query: string) => {
   const results = await searchBooksWithGoogleBooks({

@@ -1,7 +1,12 @@
-import { OpenLibraryBook } from "@/actions/openLibraryActions";
-import { getPublicImageUrl, PLACEHOLDER_IMAGE } from "@/lib/supabase-storage";
+import "server-only";
+
+import { handleImage, getPublicImageUrl, PLACEHOLDER_IMAGE } from "@/lib/supabase-storage";
+import type {
+  GoogleBooksItem,
+  HardcoverData,
+  OpenLibraryBook,
+} from "@/lib/books/types";
 import { Book } from "@/types/book";
-import { handleImage } from "./convertTrendingBookToBook";
 
 /**
  * Deterministic, filesystem-friendly id for books that have neither a
@@ -19,66 +24,7 @@ function stableHash(input: string): string {
 interface GoogleBooksData {
   kind: string;
   id: string;
-  volumeInfo: {
-    title: string;
-    subtitle?: string;
-    authors?: string[];
-    description?: string;
-    pageCount?: number;
-    categories?: string[];
-    imageLinks?: {
-      thumbnail?: string;
-      smallThumbnail?: string;
-    };
-    publishedDate?: string;
-  };
-}
-
-interface HardcoverBookData {
-  book0?: {
-    __typename: string;
-    id: number;
-    default_physical_edition_id: number;
-    users_count: number;
-    users_read_count: number;
-    title: string;
-    pages: number;
-    cached_image?: {
-      url?: string;
-    };
-    description: string;
-    genres: string[];
-    series: {
-      series_id: number;
-      details: string;
-      position: number;
-      featured: boolean;
-    }[];
-    release_year: number;
-    cached_contributors?: Array<{
-      author?: {
-        name: string;
-        slug: string;
-        cachedImage?: {
-          url?: string;
-        };
-      };
-    }>;
-  };
-  book1?: {
-    // Same structure as book0
-  };
-}
-
-interface HardcoverData {
-  bookData: HardcoverBookData;
-  seriesData?: {
-    series?: Array<{
-      __typename: string;
-      id: number;
-      name: string;
-    }>;
-  };
+  volumeInfo: GoogleBooksItem["volumeInfo"];
 }
 
 export async function convertBookData(
@@ -164,12 +110,14 @@ export async function convertBookData(
   // Enhance with Hardcover data if available
   if (hardcoverData?.bookData) {
     const hcData = hardcoverData.bookData;
-    const book0 = hcData.book0;
+    // Hardcover lookups return a `books` array; older callers passed aliased
+    // `book0`/`book1` fields, so support both shapes.
+    const book0 = hcData.book0 ?? hcData.books?.[0];
 
     if (book0) {
       // Set Hardcover IDs
       hardcoverId = book0.id;
-      defaultPhysicalEditionId = book0.default_physical_edition_id;
+      defaultPhysicalEditionId = book0.default_physical_edition_id ?? 0;
 
       // Use Hardcover description if available and better quality
       if (
@@ -213,9 +161,9 @@ export async function convertBookData(
       }
 
       // Use Hardcover series information if available
-      if (book0.series?.length && hardcoverData.seriesData?.series?.length) {
+      if (book0.book_series?.length && hardcoverData.seriesData?.series?.length) {
         const seriesEntry =
-          book0.series.find((s) => s.featured) || book0.series[0];
+          book0.book_series.find((s) => s.featured) || book0.book_series[0];
         if (seriesEntry) {
           const seriesInfo = hardcoverData.seriesData.series.find(
             (s) => s.id === seriesEntry?.series_id
@@ -229,18 +177,18 @@ export async function convertBookData(
             seriesPosition = sp !== undefined ? sp : null;
           }
         }
-      } else if (book0.series?.length && !hardcoverData.seriesData?.series?.length) {
-        // If series data not loaded separately, try to use what we have
+      } else if (
+        book0.book_series?.length &&
+        !hardcoverData.seriesData?.series?.length
+      ) {
+        // If series data not loaded separately, at least keep the position.
         const seriesEntry =
-          book0.series.find((s) => s.featured) || book0.series[0];
+          book0.book_series.find((s) => s.featured) || book0.book_series[0];
         if (seriesEntry) {
           const sp =
             seriesEntry.position !== null && seriesEntry.position !== undefined
               ? seriesEntry.position
               : null;
-          if ((seriesEntry as any).name) {
-            seriesName = (seriesEntry as any).name;
-          }
           seriesPosition = sp !== undefined ? sp : null;
         }
       }

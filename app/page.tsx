@@ -1,3 +1,4 @@
+import Page from "@/components/shared/Page";
 import { fetchTrendingData } from "@/actions/hardcoverActions";
 import CentralDisplay from "@/components/home/CentralDisplay";
 import { convertTrendingBookData } from "@/helpers/convertTrendingBookToBook";
@@ -112,7 +113,7 @@ export default async function Home() {
   }
 
   return (
-    <div className="mx-16">
+    <Page>
       <CentralDisplay
         books={trendingBooks}
         userActivityLog={activityLog}
@@ -120,6 +121,6 @@ export default async function Home() {
         goals={goalsData.goals}
         completedBooksLength={goalsData.books.length}
       />
-    </div>
+    </Page>
   );
 }

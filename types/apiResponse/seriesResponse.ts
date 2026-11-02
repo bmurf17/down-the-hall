@@ -10,6 +10,7 @@ export interface BookSeries {
     cached_image: Image;
     description: string;
     genres: string[];
+    users_read_count?: number;
     cached_tags?: Record<string, Array<{ tag: string }>>;
     book_series?: {
       series_id: number;
@@ -21,6 +22,8 @@ export interface BookSeries {
     page_count: number;
     pages?: number;
     contributions?: Array<{
+      author_id?: number;
+      contribution?: string | null;
       author?: {
         name: string;
         slug: string;

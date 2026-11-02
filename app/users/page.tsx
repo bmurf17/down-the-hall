@@ -1,3 +1,4 @@
+import Page from "@/components/shared/Page";
 import Users from "@/components/users/Users";
 import { currentUser } from "@clerk/nextjs/server";
 import { getUsersWithCurrentlyReading } from "@/lib/queries/users";
@@ -20,9 +21,9 @@ export default async function UserPage() {
     const userGridResponse = await getUsersWithCurrentlyReading();
 
     return (
-      <div className="mx-16">
+      <Page>
         <Users users={userGridResponse} />
-      </div>
+      </Page>
     );
   } catch (error) {
     console.error("StatsPage Error:", error);

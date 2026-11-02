@@ -1,7 +1,7 @@
 import { SelectBook, SelectAuthor } from "@/lib/schema";
 import { BookSeries } from "@/types/apiResponse/seriesResponse";
 import { Book } from "@/types/book";
-import { handleImage } from "./convertTrendingBookToBook";
+import { handleImage } from "@/lib/supabase-storage";
 
 export const processBookSeriesDetails = async (
   bookSeries: BookSeries,

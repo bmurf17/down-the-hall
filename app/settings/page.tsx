@@ -122,21 +122,21 @@ export default async function SettingsPage({ searchParams }: SettingsPageProps) 
 
   if (!user || !user.id) {
     return (
-      <div className="mx-16">
+      <Page>
         <h1 className="mb-6 text-2xl font-bold">Settings</h1>
         <p className="text-lg">Sign in to manage settings.</p>
-      </div>
+      </Page>
     );
   }
 
   if (!isHardcoverOwner(user.id)) {
     return (
-      <div className="mx-16">
+      <Page>
         <h1 className="mb-6 text-2xl font-bold">Settings</h1>
         <p className="text-lg">
           The Hardcover connection is managed by the site owner.
         </p>
-      </div>
+      </Page>
     );
   }
 
@@ -148,7 +148,7 @@ export default async function SettingsPage({ searchParams }: SettingsPageProps) 
     : null;
 
   return (
-    <div className="mx-16 pb-16">
+    <Page className="pb-16">
       <h1 className="mb-6 text-2xl font-bold">Settings</h1>
       <StatusBanner result={result} reason={reason} />
 
@@ -258,6 +258,6 @@ export default async function SettingsPage({ searchParams }: SettingsPageProps) 
           </li>
         </ul>
       </section>
-    </div>
+    </Page>
   );
 }

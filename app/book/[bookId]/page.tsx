@@ -1,3 +1,4 @@
+import Page from "@/components/shared/Page";
 import { getBook } from "@/actions/hardcoverActions";
 import BookDetails from "@/components/bookDetails/BookDetails";
 import { processBookSeriesDetails } from "@/helpers/convertSeriesBook";
@@ -9,16 +10,19 @@ import { notFound } from "next/navigation";
 import { getBookForUser } from "@/lib/queries/books";
 
 export default async function Page({ params }: { params: { bookId: string } }) {
-  const data: any = await getBook(params.bookId);
+  const data = await getBook(params.bookId);
 
-  if (!data?.booksData?.books_by_pk) {
+  if (!data?.booksData.books_by_pk) {
     notFound();
   }
 
   const userRightNow = await currentUser();
 
   const [hardCoverBookInfo, dbBookData] = await Promise.all([
-    processTrendingBookDetails(data?.booksData.books_by_pk, data.seriesData),
+    processTrendingBookDetails(
+      data.booksData.books_by_pk,
+      data.seriesInfo
+    ),
     getBookForUser(userRightNow?.id, parseInt(params.bookId, 10)),
   ]);
 
@@ -33,13 +37,13 @@ export default async function Page({ params }: { params: { bookId: string } }) {
     : [];
 
   return (
-    <div className="mx-16">
+    <Page>
       <BookDetails
         hardCoverBookInfo={hardCoverBookInfo}
         dbBookInfo={dbBookData as Book | null}
         hcSeriesData={seriesData}
         seriesBooks={seriesBooks}
       />
-    </div>
+    </Page>
   );
 }
