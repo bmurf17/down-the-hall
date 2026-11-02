@@ -2,7 +2,6 @@
 import type { UserActivityLogList } from "@/types/apiResponse/UseLogResponse";
 import type { Book } from "@/types/book";
 import { Tab, TabGroup, TabList, TabPanel, TabPanels } from "@headlessui/react";
-import { useState } from "react";
 import TrendingDisplay from "./_TrendingDisplay";
 import UserLog from "./_UserLog";
 
@@ -12,6 +11,7 @@ import { ProgressTracker } from "../goals/_ProgressTracker";
 import { userGridResponse } from "@/types/apiResponse/usersgridResponse";
 import { SelectGoal } from "@/lib/schema";
 import { cn } from "@/lib/utils";
+import { Card } from "../ui/card";
 
 interface Props {
   books: Book[];
@@ -28,73 +28,60 @@ export default function CentralDisplay({
   goals = [],
   completedBooksLength,
 }: Props) {
-  const [tabs] = useState({
-    Trending: [],
-    "Your Feed": [],
-  });
-
+  const TABS = ["Trending", "Your Feed"] as const; 
   return (
-    <div className="w-full px-2 py-2 sm:px-0">
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-        <div className="flex flex-col gap-4 order-1 md:order-1">
+    <div className="w-full px-3 py-3 sm:px-0">
+      <div className="grid grid-cols-1 gap-4 lg:grid-cols-3">
+        <div className="flex min-w-0 flex-col gap-4">
           {currentlyReading ? (
             <CurrentlyReadingCard userData={currentlyReading} />
           ) : (
-            <div className="text-muted-foreground">
+            <Card className="p-4 text-center text-sm text-muted-foreground">
               No book currently being read
-            </div>
+            </Card>
           )}
 
-          <div className="bg-card rounded-xl p-4">
-            <h2 className="text-xl font-medium mb-3">Goals</h2>
+          <Card className="p-4">
+            <h2 className="mb-3 text-lg font-semibold">Goals</h2>
             <ProgressTracker
-              goal={goals[goals.length - 1]?.bookCount || 0}
-              completed={completedBooksLength || 0}
+              goal={goals.at(-1)?.bookCount ?? 0}
+              completed={completedBooksLength ?? 0}
             />
-          </div>
+          </Card>
         </div>
 
-        <div className="md:h-[calc(100vh-150px)] order-3 md:order-2 col-span-2">
+        <div className="min-w-0 lg:col-span-2">
           <TabGroup>
-            <TabList className="flex space-x-1 rounded-xl bg-card p-1">
-              {Object.keys(tabs).map((category) => (
+            <TabList className="flex gap-1 rounded-xl bg-card p-1">
+              {TABS.map((name) => (
                 <Tab
-                  key={category}
+                  key={name}
                   className={({ selected }) =>
                     cn(
-                      "w-full rounded-lg py-2.5 text-sm font-medium leading-5",
-                      "ring-white/60 ring-offset-2 ring-offset-blue-400 focus:outline-none focus:ring-2",
+                      "min-h-11 flex-1 rounded-lg px-3 text-sm font-medium transition-colors",
+                      "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring",
                       selected
-                        ? "bg-white text-blue-700 shadow"
-                        : "text-blue-100 hover:bg-white/[0.12] hover:text-white"
+                        ? "bg-background text-foreground shadow-sm"
+                        : "text-muted-foreground hover:text-foreground"
                     )
                   }
                 >
-                  {category}
+                  {name}
                 </Tab>
               ))}
             </TabList>
+
             <TabPanels className="mt-2">
-              <TabPanel
-                className={cn(
-                  "rounded-xl bg-card p-3 animate-fade-in-grow h-full",
-                  "ring-white/60 ring-offset-2 ring-offset-blue-400 focus:outline-none focus:ring-2"
-                )}
-              >
-                <ScrollArea className="h-[calc(100vh-220px)]">
+              <TabPanel className="rounded-xl bg-card p-3 motion-safe:animate-fade-in-grow focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring">
+                <div className="lg:max-h-[calc(100dvh-14rem)] lg:overflow-y-auto">
                   <TrendingDisplay books={books} />
-                </ScrollArea>
+                </div>
               </TabPanel>
 
-              <TabPanel
-                className={cn(
-                  "rounded-xl bg-card p-3 animate-fade-in-grow h-full",
-                  "ring-white/60 ring-offset-2 ring-offset-blue-400 focus:outline-none focus:ring-2"
-                )}
-              >
-                <ScrollArea className="h-[calc(100vh-220px)]">
+              <TabPanel className="rounded-xl bg-card p-3 motion-safe:animate-fade-in-grow focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring">
+                <div className="lg:max-h-[calc(100dvh-14rem)] lg:overflow-y-auto">
                   <UserLog userActivityLog={userActivityLog} />
-                </ScrollArea>
+                </div>
               </TabPanel>
             </TabPanels>
           </TabGroup>

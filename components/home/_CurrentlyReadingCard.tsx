@@ -15,6 +15,8 @@ export default function CurrentlyReadingCard({ userData }: Props) {
     ...userData,
   });
   const [activeBookIndex, setActiveBookIndex] = useState(0);
+  const [isPending, setIsPending] = useState(false);
+
   const { toast } = useToast();
 
   useEffect(() => {
@@ -22,75 +24,82 @@ export default function CurrentlyReadingCard({ userData }: Props) {
   }, [userData]);
 
   const updateBook = async (status: number) => {
-    if (localUserData.books.length === 0) return;
+    if (isPending || localUserData.books.length === 0) return;
+    setIsPending(true);
+    try {
+      if (localUserData.books.length === 0) return;
 
-    const activeBook = localUserData.books[activeBookIndex];
+      const activeBook = localUserData.books[activeBookIndex];
 
-    await editBookToList(
-      activeBook.id,
-      activeBook.title,
-      status,
-      "0",
-      activeBook.pageCount ?? undefined
-    );
+      await editBookToList(
+        activeBook.id,
+        activeBook.title,
+        status,
+        "0",
+        activeBook.pageCount ?? undefined
+      );
 
-    const updatedBooks = localUserData.books.filter(
-      (book) => book.id !== activeBook.id
-    );
+      const updatedBooks = localUserData.books.filter(
+        (book) => book.id !== activeBook.id
+      );
 
-    let newIndex = activeBookIndex;
-    if (newIndex >= updatedBooks.length && updatedBooks.length > 0) {
-      newIndex = updatedBooks.length - 1;
+      let newIndex = activeBookIndex;
+      if (newIndex >= updatedBooks.length && updatedBooks.length > 0) {
+        newIndex = updatedBooks.length - 1;
+      }
+
+      setLocalUserData((prev) => ({
+        ...prev,
+        books: updatedBooks,
+      }));
+
+      setActiveBookIndex(newIndex);
+
+      toast({
+        title: `Updated Reading Status for ${activeBook.title}`,
+      });
+    } catch {
+      toast({
+        title: "Couldn't update book. Try again.",
+        variant: "destructive",
+      });
+    } finally {
+      setIsPending(false);
     }
-
-    setLocalUserData((prev) => ({
-      ...prev,
-      books: updatedBooks,
-    }));
-
-    setActiveBookIndex(newIndex);
-
-    toast({
-      title: `Updated Reading Status for ${activeBook.title}`,
-    });
   };
 
+  const hasBooks = localUserData.books.length > 0;
+
+
   return (
-    <Card
-      key={localUserData.user.id}
-      className="p-6 bg-card text-card-foreground cursor-pointer"
-    >
-      <div className="flex items-center gap-2 mb-4">Currently Reading </div>
+  <Card className="bg-card p-4 text-card-foreground sm:p-6">
+    <h2 className="mb-3 text-lg font-semibold">Currently Reading</h2>
 
-      {localUserData.books.length > 0 ? (
-        <div className="relative w-full">
-          <CardCarousel
-            userData={localUserData}
-            onSlideChange={setActiveBookIndex}
-          />
+    {hasBooks ? (
+      <>
+        <div className="relative w-full min-w-0">
+          <CardCarousel userData={localUserData} onSlideChange={setActiveBookIndex} />
         </div>
-      ) : (
-        <div className="text-center text-muted-foreground">
-          No books currently being read
-        </div>
-      )}
 
-      <div className="flex items-center mt-8 gap-4 justify-center">
-        <Button
-          className="text-white"
-          onClick={() => updateBook(1)}
-          disabled={localUserData.books.length === 0}
-        >
-          Finished
-        </Button>
-        <Button
-          className="text-white"
-          onClick={() => updateBook(3)}
-          disabled={localUserData.books.length === 0}
-        >
-          Not Finishing
-        </Button>
-      </div>
-    </Card>
+        <div className="mt-4 grid grid-cols-2 gap-3">
+          <Button onClick={() => updateBook(1)} disabled={isPending} className="min-h-11">
+            Finished
+          </Button>
+          <Button
+            variant="outline"
+            onClick={() => updateBook(3)}
+            disabled={isPending}
+            className="min-h-11"
+          >
+            Not Finishing
+          </Button>
+        </div>
+      </>
+    ) : (
+      <p className="text-center text-sm text-muted-foreground">
+        No books currently being read
+      </p>
+    )}
+  </Card>
   );
 }
