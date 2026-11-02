@@ -2,6 +2,56 @@
 
 My book tracking website.
 
+## Setup
+
+```bash
+npm install
+cp .env.example .env.local   # fill in the values below
+npm run dev
+```
+
+Apply the SQL files in `drizzle/` with `npx drizzle-kit migrate` (or
+`npx drizzle-kit push` for a throwaway database).
+
+## Environment variables
+
+| Variable                            | Required    | Purpose                                                                                   |
+| ----------------------------------- | ----------- | ----------------------------------------------------------------------------------------- |
+| `DATABASE_URL`                      | yes         | Neon/Postgres connection string used by Drizzle and the one-off scripts.                  |
+| `NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY` | yes         | Clerk publishable key.                                                                    |
+| `CLERK_SECRET_KEY`                  | yes         | Clerk server key (also used by the Playwright setup project).                             |
+| `NEXT_PUBLIC_API_URL`               | recommended | Public origin used for links and the public API (for example `http://localhost:3000`).    |
+| `NEXT_PUBLIC_SUPABASE_URL`          | for images  | Supabase project URL used to build public storage URLs.                                   |
+| `SUPABASE_SERVICE_ROLE_KEY`         | for uploads | Service-role key used when uploading covers. Never expose this to the client.             |
+| `HARDCOVER_TOKEN`                   | fallback    | Personal access token used until an OAuth connection exists; also used by `scripts/*.ts`. |
+
+Hardcover OAuth adds `HARDCOVER_CLIENT_ID`, `HARDCOVER_CLIENT_SECRET`,
+`HARDCOVER_REDIRECT_URI` and optionally `HARDCOVER_OWNER_USER_ID`; see the
+section below.
+
+## Scripts
+
+```bash
+npm run dev        # development server
+npm run build      # production build
+npm run start      # run the production build
+npm run lint       # ESLint
+npm run typecheck  # tsc --noEmit
+npm run test:e2e   # Playwright (see tests/README.md)
+```
+
+One-off maintenance commands in `scripts/` are run with `tsx`, for example:
+
+```bash
+npx tsx scripts/backfill-hardcover-ids.ts
+npx tsx scripts/cleanup-orphaned-images.ts
+npx tsx scripts/migrate-images.ts
+npx tsx scripts/refetch-hardcover-images.ts
+```
+
+Read each script before running it: several rewrite book rows or storage
+objects.
+
 ## Hardcover authentication
 
 Hardcover now requires `Authorization: Bearer <token>`. The app supports two

@@ -1,8 +1,6 @@
-import { eq, sql } from "drizzle-orm";
 import { NextRequest, NextResponse } from "next/server";
-import db from "../../../../lib/db";
-import { book, userGoals } from "../../../../lib/schema";
-import { Status } from "@/types/enums/statusEnum";
+
+import { getUserGoals } from "@/lib/queries/goals";
 
 function addCorsHeaders(response: NextResponse) {
   response.headers.set("Access-Control-Allow-Origin", "*");
@@ -23,41 +21,11 @@ export async function GET(
   request: NextRequest,
   { params }: { params: { userId: string } }
 ): Promise<NextResponse> {
+  // Intentionally public read-only profile data (reading goals and the books
+  // counted towards them). It contains no notes or credentials.
   const { userId } = params;
 
-  const currentYear = new Date().getFullYear();
-  const startOfYear = new Date(currentYear, 0, 1);
+  const data = await getUserGoals(userId);
 
-  const booksData = await db
-    .select({
-      bookId: book.id,
-      title: book.title,
-      dateRead: book.dateRead,
-      pageCount: book.pageCount,
-      image: book.image,
-    })
-    .from(book)
-    .where(
-      sql`${book.userId} = ${userId}
-        AND ${book.dateRead} >= ${startOfYear}
-        AND ${book.dateRead} IS NOT NULL
-        AND ${book.status} = ${Status.Finished}`
-    )
-    .orderBy(book.dateRead);
-
-  const goalsData = await db
-    .select({
-      id: userGoals.id,
-      timeFrame: userGoals.timeFrame,
-      bookCount: userGoals.bookCount,
-    })
-    .from(userGoals)
-    .where(eq(userGoals.userId, userId));
-
-  const response = NextResponse.json({
-    books: booksData,
-    goals: goalsData,
-  });
-
-  return addCorsHeaders(response);
+  return addCorsHeaders(NextResponse.json(data));
 }

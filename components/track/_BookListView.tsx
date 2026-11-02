@@ -1,12 +1,5 @@
 import React, { useState } from "react";
 import { Book } from "@/types/book";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
 
 const ALL_COLUMNS = [
   { key: "image", label: "Image" },
@@ -65,40 +58,42 @@ export default function BookListView({ books }: { books: Book[] }) {
     }
   };
 
+  const toggleColumn = (columnKey: string) => {
+    if (DEFAULT_COLUMNS.includes(columnKey)) {
+      return;
+    }
+
+    setSelectedColumns((current) =>
+      current.includes(columnKey)
+        ? current.filter((key) => key !== columnKey)
+        : [...current, columnKey]
+    );
+  };
+
   return (
     <div className="w-full">
-      <div className="mb-4 flex items-center space-x-2">
-        <label className="text-sm font-medium">Select Columns:</label>
-        <Select
-          onValueChange={(value) => {
-            const newColumns = Array.from(
-              new Set([
-                ...DEFAULT_COLUMNS,
-                ...value.split(",").filter((col) => col.trim() !== ""),
-              ])
-            );
-            setSelectedColumns(newColumns);
-          }}
-          value={selectedColumns.join(",")}
-        >
-          <SelectTrigger className="w-[300px]">
-            <SelectValue placeholder="Select columns to display" />
-          </SelectTrigger>
-          <SelectContent>
-            {ALL_COLUMNS.map((column) => (
-              <SelectItem
-                key={column.key}
-                value={column.key}
-                // Disable default columns from being deselected
-                disabled={DEFAULT_COLUMNS.includes(column.key)}
-              >
-                {column.label}
-                {DEFAULT_COLUMNS.includes(column.key) && " (Required)"}
-              </SelectItem>
-            ))}
-          </SelectContent>
-        </Select>
-      </div>
+      <fieldset className="mb-4 flex flex-wrap items-center gap-x-4 gap-y-2">
+        <legend className="text-sm font-medium">Select Columns:</legend>
+        {ALL_COLUMNS.map((column) => {
+          const isRequired = DEFAULT_COLUMNS.includes(column.key);
+
+          return (
+            <label
+              key={column.key}
+              className="flex items-center gap-1.5 text-sm"
+            >
+              <input
+                type="checkbox"
+                checked={selectedColumns.includes(column.key)}
+                disabled={isRequired}
+                onChange={() => toggleColumn(column.key)}
+              />
+              {column.label}
+              {isRequired && " (Required)"}
+            </label>
+          );
+        })}
+      </fieldset>
 
       {/* Book List Table */}
       <div className="overflow-x-auto">

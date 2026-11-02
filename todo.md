@@ -70,36 +70,36 @@ npm run build
 
 ## 2. Security / data ownership
 
-- [ ] **Server actions have no ownership checks.**
+- [x] **Server actions have no ownership checks.**
       `deleteBook` and `editBook` in `actions/bookActions.ts` accept any id.
       Add `currentUser()` and scope the update/delete with
       `and(eq(book.id, id), eq(book.userId, user.id))`; same for the author
       actions if they are ever restored.
-- [ ] **API routes trust the URL `userId`.**
+- [x] **API routes trust the URL `userId`.**
       `/api/stats/[userId]`, `/api/goals/[userId]`, `/api/books?user=`, and
       `/api/useractivitylog?userId=` return any user's data (including notes)
       without checking the session. If this is intentional social behaviour,
       document it; otherwise derive the user from Clerk and drop the param.
-- [ ] **GraphQL queries interpolate user input.**
+- [x] **GraphQL queries interpolate user input.**
       `actions/hardcoverActions.ts` builds queries with template strings
       (`BOOK_BY_ID_QUERY(id)`, `SERIES_BY_ID_QUERY(...)`,
       `FIND_BOOKS_BY_ISBN_QUERY(...)`). `bookId` comes straight from the URL.
       Convert these to GraphQL variables (`$id: Int!`, `$ids: [Int!]!`, etc.),
       matching `BOOKS_BY_IDS_QUERY`.
-- [ ] **`pg` pool is created per request.**
+- [x] **`pg` pool is created per request.**
       `actions/bookActions.ts:43` constructs a new `Pool` on every `addBook`
       and never calls `.end()`. Reuse a module-level pool (or use Drizzle's
       client) rather than mixing Drizzle/neon-http with `pg`.
 
 ## 3. Architecture / duplication
 
-- [ ] **Stop self-fetching API routes from server code.**
+- [x] **Stop self-fetching API routes from server code.**
       `app/track/page.tsx`, `app/book/[bookId]/page.tsx`,
       `functions/getactivtyLog.ts`, and `app/page.tsx` call
       `${NEXT_PUBLIC_API_URL}/api/...` from server components. This adds a
       network hop, requires the env var at build/runtime, and `/track` returns
       `null` when it is missing. Call the DB queries directly.
-- [ ] **Extract shared queries.**
+- [x] **Extract shared queries.**
       The "user + currently reading books" query is duplicated in
       `app/page.tsx`, `app/api/users/route.ts`, `app/api/users/[userId]/route.ts`,
       and `app/users/page.tsx`. The goals query is duplicated in
@@ -114,11 +114,11 @@ npm run build
       are `"use server"` modules that both fetch remote images and upload to
       Supabase. Keep conversion pure and move uploads into
       `lib/supabase-storage.ts`.
-- [ ] **Consolidate status labels.**
+- [x] **Consolidate status labels.**
       `components/shared/AddToListButton.tsx` still builds its own status list
       via `Object.keys(Status)` + a local `readingStatusString`. Use
       `types/enums/statusEnum.ts` as the single source.
-- [ ] **Consolidate `classNames`.**
+- [x] **Consolidate `classNames`.**
       A local copy remains in `components/home/CentralDisplay.tsx` and
       `components/track/_TrackBookViewLogic.tsx`; `lib/utils.ts` already exports
       `cn`.
@@ -126,13 +126,13 @@ npm run build
       The same long class string appears three times in
       `components/shared/BookListItem.tsx` and again in `AddToListButton` /
       `_Notes`. Move to `components/ui/button` variants or a small component.
-- [ ] **`Track` view tabs are duplicated.**
+- [x] **`Track` view tabs are duplicated.**
       `components/track/Track.tsx:316-351` renders five identical `TabPanel`s,
       and every panel receives the same `paginatedBooks`. Either make each tab
       filter by status client-side or render a single panel.
       Also seed `selected` from the `order` query param so the sort dropdown
       reflects the URL.
-- [ ] **`_BookListView` column selector only supports one extra column.**
+- [x] **`_BookListView` column selector only supports one extra column.**
       The `Select` is single-value while the state is an array; switching
       columns replaces rather than toggles. Use a multi-select/checklist.
 - [ ] **Page shell duplicated.**
@@ -145,18 +145,18 @@ npm run build
       ~40 occurrences, concentrated in `actions/bookActions.ts`,
       `app/page.tsx`, `app/book/[bookId]/page.tsx`, and the Hardcover types.
       Type the query row shapes instead of suppressing.
-- [ ] **Replace `var` with `const`/`let`.**
+- [x] **Replace `var` with `const`/`let`.**
       Still in `actions/bookActions.ts`, `helpers/convertSeriesBook.ts`,
       `helpers/convertTrendingBookToBook.ts`, `app/find/page.tsx`, and
       `components/shared/BookListItem.tsx`.
-- [ ] **`types/apiResponse/*` drift from the DB schema.**
+- [x] **`types/apiResponse/*` drift from the DB schema.**
       `BookDetails.genres` is `string | null` but the column is `text[]`;
       `seriesPosition`/`seriesLength` are `number` but the DB is decimal/int.
       Align these with `SelectBook`.
-- [ ] **`getBook` returns `undefined` on error.**
+- [x] **`getBook` returns `undefined` on error.**
       `actions/hardcoverActions.ts` catches and logs, then callers `notFound()`.
       Return `null` consistently and log with context.
-- [ ] **`app/api/books` uses `fullJoin` unnecessarily.**
+- [x] **`app/api/books` uses `fullJoin` unnecessarily.**
       The `WHERE` clauses on `book` turn it into an inner join. Use `leftJoin`
       (or `innerJoin`) for clarity.
 
@@ -169,10 +169,10 @@ npm run build
       (needs `remotePatterns` for Supabase/Hardcover assets) or disable the
       rule with a documented reason. Also fix the missing `alt` in
       `_BookCrazyView.tsx`.
-- [ ] **Add Prettier + `eslint-config-prettier`.**
+- [x] **Add Prettier + `eslint-config-prettier`.**
       Formatting is mixed (4-space in places, 2-space elsewhere). Add
       `.prettierrc`, `format` script, and run once.
-- [ ] **Write the README.**
+- [x] **Write the README.**
       Currently 25 bytes. Document required env vars (`DATABASE_URL`, Clerk
       keys, `HARDCOVER_TOKEN`, `NEXT_PUBLIC_SUPABASE_URL`,
       `SUPABASE_SERVICE_ROLE_KEY`, `NEXT_PUBLIC_API_URL`), setup, scripts, and
@@ -186,10 +186,10 @@ npm run build
       At minimum unit tests for `helpers/convertOpenLibrary.ts`,
       `helpers/convertTrendingBookToBook.ts`, and the matching/scoring helpers
       in `scripts/backfill-hardcover-ids.ts` (pure functions, easy to cover).
-- [ ] **`npm run typecheck` in CI.**
+- [x] **`npm run typecheck` in CI.**
       The script exists now; wire it (and `lint`/`build`) into a GitHub Action
       so the previous type errors cannot return.
-- [ ] **Local junk files.**
+- [x] **Local junk files.**
       Remove `.DS_Store` from the working tree and add it to `.gitignore`
       (currently ignored via the generic rule but present on disk).
 

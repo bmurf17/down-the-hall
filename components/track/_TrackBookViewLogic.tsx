@@ -10,9 +10,7 @@ interface Props {
   viewOptions: string[];
 }
 
-function classNames(...classes: string[]) {
-  return classes.filter(Boolean).join(" ");
-}
+import { cn } from "@/lib/utils";
 
 export default function TrackBookViewLogic({
   books,
@@ -21,7 +19,7 @@ export default function TrackBookViewLogic({
 }: Props) {
   return (
     <div
-      className={classNames(
+      className={cn(
         "rounded-xl bg-card p-3 animate-fade-in-grow mt-4",
         "ring-white/60 ring-offset-2 ring-offset-blue-400 focus:outline-none focus:ring-2"
       )}

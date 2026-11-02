@@ -1,17 +1,15 @@
 import { fetchTrendingData } from "@/actions/hardcoverActions";
 import CentralDisplay from "@/components/home/CentralDisplay";
-import { getUserActivityLogData } from "@/functions/getactivtyLog";
 import { convertTrendingBookData } from "@/helpers/convertTrendingBookToBook";
 import { UserActivityLogList } from "@/types/apiResponse/UseLogResponse";
 import { Book } from "@/types/book";
 import { TrendingData } from "@/types/trending/trendingbookresponse";
 import { currentUser } from "@clerk/nextjs/server";
-import db from "@/lib/db";
-import { users, book, userGoals } from "@/lib/schema";
-import { Status } from "@/types/enums/statusEnum";
-import { eq, and, sql } from "drizzle-orm";
+import { getUserActivityLog } from "@/lib/queries/books";
+import { getUserGoals } from "@/lib/queries/goals";
+import { getUserWithCurrentlyReading } from "@/lib/queries/users";
 
-export const dynamic = 'force-dynamic';
+export const dynamic = "force-dynamic";
 export const revalidate = 0;
 
 const DEFAULT_TRENDING_DATA: Book[] = [];
@@ -44,54 +42,12 @@ async function fetchUserActivityLogSafely(
       return DEFAULT_USER_ACTIVITY_LOG;
     }
 
-    const userActivityLog = await getUserActivityLogData(userId);
-    return userActivityLog || DEFAULT_USER_ACTIVITY_LOG;
+    const userActivityLog = await getUserActivityLog(userId);
+    return (
+      (userActivityLog as UserActivityLogList) || DEFAULT_USER_ACTIVITY_LOG
+    );
   } catch (error) {
     return DEFAULT_USER_ACTIVITY_LOG;
-  }
-}
-
-async function getCurrentUserReading(userId?: string) {
-  try {
-    if (!userId) {
-      return undefined;
-    }
-
-    const data = await db
-      .select({
-        user: {
-          id: users.id,
-          userName: users.userName,
-          image: users.image,
-          lastLoggedIn: users.lastLoggedIn,
-        },
-        books: {
-          id: book.id,
-          title: book.title,
-          image: book.image,
-          dateRead: book.dateRead,
-          rating: book.rating,
-          pageCount: book.pageCount,
-        },
-      })
-      .from(users)
-      .where(eq(users.id, userId))
-      .leftJoin(
-        book,
-        and(eq(book.userId, users.id), eq(book.status, Status.InProgress))
-      );
-
-    if (data.length === 0) {
-      return undefined;
-    }
-
-    return {
-      user: data[0].user,
-      books: data.filter((row) => row.books?.id).map((row) => row.books),
-    };
-  } catch (error) {
-    console.error("Current reading fetch failed:", error);
-    return undefined;
   }
 }
 
@@ -101,39 +57,7 @@ async function fetchUserGoalsSafely(userId?: string) {
       return { books: [], goals: [] };
     }
 
-    const currentYear = new Date().getFullYear();
-    const startOfYear = new Date(currentYear, 0, 1);
-
-    const booksData = await db
-      .select({
-        bookId: book.id,
-        title: book.title,
-        dateRead: book.dateRead,
-        pageCount: book.pageCount,
-        image: book.image,
-      })
-      .from(book)
-      .where(
-        sql`${book.userId} = ${userId}
-          AND ${book.dateRead} >= ${startOfYear}
-          AND ${book.dateRead} IS NOT NULL
-          AND ${book.status} = ${Status.Finished}`
-      )
-      .orderBy(book.dateRead);
-
-    const goalsData = await db
-      .select({
-        id: userGoals.id,
-        timeFrame: userGoals.timeFrame,
-        bookCount: userGoals.bookCount,
-      })
-      .from(userGoals)
-      .where(eq(userGoals.userId, userId));
-
-    return {
-      books: booksData,
-      goals: goalsData,
-    };
+    return await getUserGoals(userId);
   } catch (error) {
     console.error("User goals fetch failed:", error);
     return {
@@ -150,7 +74,9 @@ export default async function Home() {
     await Promise.allSettled([
       fetchTrendingDataSafely(),
       fetchUserActivityLogSafely(userRightNow?.id),
-      getCurrentUserReading(userRightNow?.id),
+      getUserWithCurrentlyReading(userRightNow?.id ?? "").catch(
+        () => undefined
+      ),
       fetchUserGoalsSafely(userRightNow?.id),
     ]);
 
@@ -190,9 +116,7 @@ export default async function Home() {
       <CentralDisplay
         books={trendingBooks}
         userActivityLog={activityLog}
-        //@ts-ignore
         currentlyReading={currentlyReading}
-        //@ts-ignore
         goals={goalsData.goals}
         completedBooksLength={goalsData.books.length}
       />

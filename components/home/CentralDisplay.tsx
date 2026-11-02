@@ -11,17 +11,14 @@ import CurrentlyReadingCard from "./_CurrentlyReadingCard";
 import { ProgressTracker } from "../goals/_ProgressTracker";
 import { userGridResponse } from "@/types/apiResponse/usersgridResponse";
 import { SelectGoal } from "@/lib/schema";
+import { cn } from "@/lib/utils";
 
 interface Props {
   books: Book[];
   userActivityLog: UserActivityLogList;
-  currentlyReading?: userGridResponse;
+  currentlyReading?: userGridResponse | null;
   goals?: SelectGoal[];
   completedBooksLength?: number;
-}
-
-function classNames(...classes: string[]) {
-  return classes.filter(Boolean).join(" ");
 }
 
 export default function CentralDisplay({
@@ -51,7 +48,7 @@ export default function CentralDisplay({
           <div className="bg-card rounded-xl p-4">
             <h2 className="text-xl font-medium mb-3">Goals</h2>
             <ProgressTracker
-              goal={goals[goals.length -1 ]?.bookCount || 0}
+              goal={goals[goals.length - 1]?.bookCount || 0}
               completed={completedBooksLength || 0}
             />
           </div>
@@ -64,7 +61,7 @@ export default function CentralDisplay({
                 <Tab
                   key={category}
                   className={({ selected }) =>
-                    classNames(
+                    cn(
                       "w-full rounded-lg py-2.5 text-sm font-medium leading-5",
                       "ring-white/60 ring-offset-2 ring-offset-blue-400 focus:outline-none focus:ring-2",
                       selected
@@ -79,7 +76,7 @@ export default function CentralDisplay({
             </TabList>
             <TabPanels className="mt-2">
               <TabPanel
-                className={classNames(
+                className={cn(
                   "rounded-xl bg-card p-3 animate-fade-in-grow h-full",
                   "ring-white/60 ring-offset-2 ring-offset-blue-400 focus:outline-none focus:ring-2"
                 )}
@@ -90,7 +87,7 @@ export default function CentralDisplay({
               </TabPanel>
 
               <TabPanel
-                className={classNames(
+                className={cn(
                   "rounded-xl bg-card p-3 animate-fade-in-grow h-full",
                   "ring-white/60 ring-offset-2 ring-offset-blue-400 focus:outline-none focus:ring-2"
                 )}

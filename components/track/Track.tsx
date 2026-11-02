@@ -1,7 +1,7 @@
 "use client";
 
 import { Book } from "@/types/book";
-import { Tab, TabGroup, TabList, TabPanel, TabPanels } from "@headlessui/react";
+import { Tab, TabGroup, TabList } from "@headlessui/react";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { useCallback, useState, useMemo } from "react";
 import IconButton from "../basicUI/IconButton";
@@ -46,7 +46,13 @@ export default function Track({ books, totalCount }: Props) {
   const switchView = (toolName: string) =>
     setSelectedView(viewOptions.find((tool) => tool === toolName));
 
-  const [selected, setSelected] = useState(options[0]);
+  const [selected, setSelected] = useState(
+    options.find(
+      (option) =>
+        SanitizeOrderByParam(option.name) ===
+        SanitizeOrderByParam(searchParams.get("order") || "")
+    ) || options[0]
+  );
   const [selectedPageSize, setSelectedPageSize] = useState(
     pageOptions.find((option) => option.name === urlPageSize) || pageOptions[1]
   );
@@ -119,7 +125,7 @@ export default function Track({ books, totalCount }: Props) {
         "?" +
         updateMultipleParams({
           order: SanitizeOrderByParam(e.name),
-          page: "1", 
+          page: "1",
         })
     );
     setSelected(e);
@@ -313,43 +319,13 @@ export default function Track({ books, totalCount }: Props) {
             </div>
           </div>
           <PaginationControls />
-          <TabPanels className="mb-4">
-            <TabPanel>
-              <TrackBookViewLogic
-                selectedView={selectedView}
-                books={paginatedBooks}
-                viewOptions={viewOptions}
-              />
-            </TabPanel>
-            <TabPanel>
-              <TrackBookViewLogic
-                selectedView={selectedView}
-                books={paginatedBooks}
-                viewOptions={viewOptions}
-              />
-            </TabPanel>
-            <TabPanel>
-              <TrackBookViewLogic
-                selectedView={selectedView}
-                books={paginatedBooks}
-                viewOptions={viewOptions}
-              />
-            </TabPanel>
-            <TabPanel>
-              <TrackBookViewLogic
-                selectedView={selectedView}
-                books={paginatedBooks}
-                viewOptions={viewOptions}
-              />
-            </TabPanel>
-            <TabPanel>
-              <TrackBookViewLogic
-                selectedView={selectedView}
-                books={paginatedBooks}
-                viewOptions={viewOptions}
-              />
-            </TabPanel>
-          </TabPanels>
+          <div className="mb-4">
+            <TrackBookViewLogic
+              selectedView={selectedView}
+              books={paginatedBooks}
+              viewOptions={viewOptions}
+            />
+          </div>
         </TabGroup>
       </div>
     </div>

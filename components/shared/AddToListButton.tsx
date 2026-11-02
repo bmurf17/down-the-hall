@@ -2,7 +2,7 @@ import React, { useState } from "react";
 import { addBookToList } from "@/functions/addBook";
 import { editBookToList } from "@/functions/editBook";
 import { useToast } from "@/hooks/use-toast";
-import { Status } from "@/types/enums/statusEnum";
+import { Status, readingStatusString } from "@/types/enums/statusEnum";
 import {
   Listbox,
   ListboxButton,
@@ -51,15 +51,12 @@ export function AddToListButton({
   const { toast } = useToast();
   const [isLoading, setIsLoading] = useState(false);
 
-  const readingStatusString: string[] = ["Reading", "Read", "TBR", "DNF"];
-
-  const listOptions = Object.keys(Status)
-    .map((key, index) => {
-      if (!isNaN(Number(key))) {
-        return { id: key, displayString: readingStatusString[index] };
-      }
-    })
-    .filter((item) => item !== undefined);
+  const listOptions = Object.values(Status)
+    .filter((value): value is number => typeof value === "number")
+    .map((value) => ({
+      id: value,
+      displayString: readingStatusString[value],
+    }));
 
   const handleChange = async (e: { id: number; displayString: string }) => {
     setIsLoading(true);

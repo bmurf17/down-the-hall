@@ -12,7 +12,7 @@ interface Props {
 
 async function BookResults({ searchTitle }: { searchTitle: string }) {
   try {
-    var convertedData: Book[] | null | undefined = [];
+    let convertedData: Book[] | null | undefined = [];
 
     convertedData = await enhancedSearchBooks({
       title: searchTitle,

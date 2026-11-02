@@ -9,8 +9,8 @@ export type userGridResponse = {
     id: number;
     title: string;
     image: string | null;
-    dateRead: Date | null;
-    rating: number | null;
+    dateRead: string | null;
+    rating: string | null;
     pageCount: number | null;
   }[];
 };

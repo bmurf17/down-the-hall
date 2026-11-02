@@ -33,7 +33,7 @@ export default function ActivityLog({ activityLog }: Props) {
                     {book?.title}
                   </div>
                   <div className="text-sm md:text-base font-semibold text-text">
-                    By: {data.authorDetails.name}
+                    By: {data.authorDetails?.name}
                   </div>
                 </div>
               </div>

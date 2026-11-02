@@ -40,13 +40,15 @@ export default function BookListItem({ book }: Props) {
   const [isLoading, setIsLoading] = useState(false);
 
   const [datePickerOpen, setDatePickerOpen] = useState(false);
-  const [dateRead, setDateRead] = useState<Date | undefined>(new Date(book.book?.dateRead?.toString() || "") || undefined);
+  const [dateRead, setDateRead] = useState<Date | undefined>(
+    new Date(book.book?.dateRead?.toString() || "") || undefined
+  );
 
   const fallbackCover = `https://hardcover.app/images/covers/cover${fallbackCoverNumber(
     `${book.book?.title ?? ""}|${book.author?.name ?? ""}`
   )}.png`;
   const addbuttonText = () => {
-    var status = book.book?.status;
+    const status = book.book?.status;
 
     if (status === null) {
       return readingStatusString[4];
@@ -59,8 +61,7 @@ export default function BookListItem({ book }: Props) {
   // actually have one. Falling back to the database id would load whichever
   // unrelated Hardcover book happens to share that number.
   const hardcoverId = book.book?.hardcoverId;
-  const hasHardcoverId =
-    typeof hardcoverId === "number" && hardcoverId > 0;
+  const hasHardcoverId = typeof hardcoverId === "number" && hardcoverId > 0;
 
   const submit = () => {
     editBook(
@@ -69,7 +70,7 @@ export default function BookListItem({ book }: Props) {
       book.book?.status || 0,
       book.book?.rating || "0",
       dateRead,
-      pageCount || 0,
+      pageCount || 0
     );
   };
 
@@ -128,9 +129,7 @@ export default function BookListItem({ book }: Props) {
           <div className="flex justify-center flex-shrink-0 ">
             <img
               className="w-20 md:w-28 relative overflow-hidden group transition-all border border-gray-100/20 ring-accent hover:ring-1 hover:border-accent rounded-l-sm rounded-r-md shadow-md block"
-              src={
-                book.book?.image || fallbackCover
-              }
+              src={book.book?.image || fallbackCover}
               alt={book.book?.title}
               height={100}
               width={100}

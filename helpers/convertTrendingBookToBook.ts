@@ -1,6 +1,11 @@
 "use server";
 
-import { BUCKET_NAME, buildImageFileName, getPublicImageUrl, supabase } from "@/lib/supabase-storage";
+import {
+  BUCKET_NAME,
+  buildImageFileName,
+  getPublicImageUrl,
+  supabase,
+} from "@/lib/supabase-storage";
 import { SelectAuthor, SelectBook } from "@/lib/schema";
 import { Book } from "@/types/book";
 import { SeriesListResponse } from "@/types/trending/seriesHardCoverResponse";
@@ -26,14 +31,13 @@ export const processTrendingBookDetails = async (
   trendingBookDetails: TrendingBookDetails,
   seriesData: SeriesListResponse
 ): Promise<Book> => {
-
-  var series = seriesData?.series?.filter((series) => {
+  const series = seriesData?.series?.filter((series) => {
     if (trendingBookDetails?.book_series?.length > 0) {
       return series.id === trendingBookDetails.book_series[0]?.series_id;
     }
   });
 
-  var image = await handleImage(
+  const image = await handleImage(
     trendingBookDetails.id,
     trendingBookDetails.title,
     trendingBookDetails.cached_image?.url || ""

@@ -1,8 +1,8 @@
 import Track from "@/components/track/Track";
-import { Book } from "@/types/book";
 import { currentUser } from "@clerk/nextjs/server";
 import { Suspense } from "react";
 import Loading from "../loading";
+import { getBooksPage, BooksPage } from "@/lib/queries/books";
 
 interface Props {
   searchParams?: {
@@ -14,49 +14,26 @@ interface Props {
   };
 }
 
-interface PaginatedResponse {
-  books: Book[];
-  totalCount: number;
-  currentPage: number;
-  totalPages: number;
-  pageSize: number;
-}
-
 async function getBookData(
   status?: string,
   order?: string,
   page?: string,
   pageSize?: string,
   desc?: string
-): Promise<PaginatedResponse> {
-  const baseUrl = process.env.NEXT_PUBLIC_API_URL || "http://localhost:3000";
+): Promise<BooksPage> {
   const userRightNow = await currentUser();
 
-  const searchParams = new URLSearchParams({
-    ...(status && { status }),
-    ...(userRightNow?.id && { user: userRightNow.id }),
-    ...(order && { order }),
-    ...(page && { page }),
-    ...(pageSize && { pageSize }),
-    ...(desc && { desc }),
+  return getBooksPage({
+    userId: userRightNow?.id ?? "",
+    status,
+    order,
+    isDesc: desc === "true",
+    page: page ? parseInt(page) : 1,
+    pageSize: pageSize ? parseInt(pageSize) : 25,
   });
-
-  const res = await fetch(`${baseUrl}/api/books?${searchParams.toString()}`, {
-    next: { tags: ["books"] },
-  });
-
-  if (!res.ok) {
-    throw new Error("Failed to fetch data");
-  }
-
-  return res.json();
 }
 
 export default async function TrackPage({ searchParams }: Props) {
-  if (!process.env.NEXT_PUBLIC_API_URL) {
-    return null;
-  }
-
   const booksPromise = getBookData(
     searchParams?.status,
     searchParams?.order,
@@ -77,7 +54,7 @@ export default async function TrackPage({ searchParams }: Props) {
 async function AsyncTrack({
   booksPromise,
 }: {
-  booksPromise: Promise<PaginatedResponse>;
+  booksPromise: Promise<BooksPage>;
 }) {
   const data = await booksPromise;
   return <Track books={data.books} totalCount={data.totalCount} />;

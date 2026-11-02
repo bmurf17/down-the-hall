@@ -1,5 +1,5 @@
 "use server";
-import { eq } from "drizzle-orm";
+import { and, eq } from "drizzle-orm";
 import { revalidateTag } from "next/cache";
 
 import { Pool } from "@neondatabase/serverless";
@@ -7,7 +7,7 @@ import db from "../lib/db";
 import { author, book, users } from "../lib/schema";
 import { PoolClient } from "pg";
 import { logStatusString } from "@/types/enums/statusEnum";
-import { User } from "@clerk/nextjs/server";
+import { currentUser, User } from "@clerk/nextjs/server";
 
 const pool = new Pool({ connectionString: process.env.DATABASE_URL });
 pool.on("error", (err) => console.error(err));
@@ -30,10 +30,7 @@ export const addBook = async (
   date_read?: Date
 ) => {
   const userId = user?.id || "";
-  const userData = await db
-    .select()
-    .from(users)
-    .where(eq(users.id, userId));
+  const userData = await db.select().from(users).where(eq(users.id, userId));
 
   if (userData.length === 0) {
     await db.insert(users).values({
@@ -121,7 +118,9 @@ const insertQuery = async (
   // `series_position` is a decimal column, so "empty"/"null" strings have to be
   // normalised to a real value instead of being sent as-is.
   const seriesPosition =
-    series_position == null || series_position === "" || series_position === "null"
+    series_position == null ||
+    series_position === "" ||
+    series_position === "null"
       ? 0
       : series_position;
 
@@ -152,13 +151,36 @@ const insertQuery = async (
 };
 
 export const deleteBook = async (id: number) => {
+  const user = await currentUser();
+
+  if (!user?.id) {
+    throw new Error("User not authenticated");
+  }
+
   const client = await pool.connect();
 
   try {
     await client.query("BEGIN");
+
+    // Verify ownership before touching child rows. The book is deleted last so
+    // foreign keys from notes/activity logs are already gone.
+    const { rowCount } = await client.query(
+      "SELECT 1 FROM book WHERE id = $1 AND user_id = $2",
+      [id, user.id]
+    );
+
+    if (!rowCount) {
+      throw new Error("Book not found");
+    }
+
     await client.query("DELETE FROM book_note WHERE book_id = $1", [id]);
-    await client.query("DELETE FROM user_activity_log WHERE book_id = $1", [id]);
-    await client.query("DELETE FROM book WHERE id = $1", [id]);
+    await client.query("DELETE FROM user_activity_log WHERE book_id = $1", [
+      id,
+    ]);
+    await client.query("DELETE FROM book WHERE id = $1 AND user_id = $2", [
+      id,
+      user.id,
+    ]);
     await client.query("COMMIT");
   } catch (error) {
     await client.query("ROLLBACK");
@@ -182,21 +204,36 @@ export const editBook = async (
   page_count?: number
 ) => {
   try {
-    const updateData: any = {
+    const user = await currentUser();
+
+    if (!user?.id) {
+      throw new Error("User not authenticated");
+    }
+
+    const updateData: Partial<typeof book.$inferInsert> = {
       title: title,
       status: status,
       rating: rating,
     };
 
     if (date_read !== undefined) {
-      updateData.dateRead = date_read;
+      updateData.dateRead = date_read.toISOString().slice(0, 10);
     }
 
     if (page_count !== null && page_count !== undefined) {
       updateData.pageCount = page_count;
     }
 
-    await db.update(book).set(updateData).where(eq(book.id, id));
+    const updated = await db
+      .update(book)
+      .set(updateData)
+      .where(and(eq(book.id, id), eq(book.userId, user.id)))
+      .returning({ id: book.id });
+
+    if (updated.length === 0) {
+      throw new Error("Book not found");
+    }
+
     revalidateTag("books");
   } catch (error) {
     console.error("Error editing book:", error);

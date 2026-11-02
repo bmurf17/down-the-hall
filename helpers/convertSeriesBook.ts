@@ -9,13 +9,13 @@ export const processBookSeriesDetails = async (
 ): Promise<Book> => {
   const dtoCombined = bookSeries.book;
 
-  var image = await handleImage(
+  const image = await handleImage(
     bookId,
     dtoCombined.title,
     dtoCombined.cached_image?.url || ""
   );
 
-  var authorId = dtoCombined.contributions
+  const authorId = dtoCombined.contributions
     ? dtoCombined.contributions?.length > 0
       ? dtoCombined.contributions[0]?.author?.id || 0
       : 0

@@ -17,23 +17,23 @@ const TRENDING_BOOKS_QUERY = gql`
   }
 `;
 
-const FIND_BOOKS_BY_ISBN_QUERY = (isbns: string[]) => gql`
-query BooksByIsbns {
- editions(
-   where: {isbn_13: {_in: [${isbns.map((isbn) => `"${isbn}"`).join(", ")}]}}
-   order_by: {book: {user_books_aggregate: {count: desc}}}
- ) {
-   book {
-     title 
-     id
-   }
- }
-}
+const FIND_BOOKS_BY_ISBN_QUERY = gql`
+  query BooksByIsbns($isbns: [String!]!) {
+    editions(
+      where: { isbn_13: { _in: $isbns } }
+      order_by: { book: { user_books_aggregate: { count: desc } } }
+    ) {
+      book {
+        title
+        id
+      }
+    }
+  }
 `;
 
-const BOOK_BY_ID_QUERY = (id: string) => gql`
-  query BookByID {
-    books_by_pk(id: ${id}) {
+const BOOK_BY_ID_QUERY = gql`
+  query BookByID($id: Int!) {
+    books_by_pk(id: $id) {
       id
       default_physical_edition_id
       users_count
@@ -45,15 +45,23 @@ const BOOK_BY_ID_QUERY = (id: string) => gql`
       title
       pages
       cached_tags
-      book_series { series_id details position featured }
-      contributions { author_id contribution }
+      book_series {
+        series_id
+        details
+        position
+        featured
+      }
+      contributions {
+        author_id
+        contribution
+      }
     }
   }
 `;
 
-const SERIES_BY_ID_QUERY = (id: number) => gql`
-  query SeriesByIds {
-    series(where: {id: {_eq: ${id}}}) {
+const SERIES_BY_ID_QUERY = gql`
+  query SeriesById($id: Int!) {
+    series(where: { id: { _eq: $id } }) {
       id
       name
       book_series {
@@ -69,9 +77,17 @@ const SERIES_BY_ID_QUERY = (id: number) => gql`
           contributions {
             author_id
             contribution
-            author { id name }
+            author {
+              id
+              name
+            }
           }
-          book_series { series_id position details featured }
+          book_series {
+            series_id
+            position
+            details
+            featured
+          }
           cached_tags
         }
       }
@@ -85,7 +101,12 @@ const BOOKS_BY_IDS_QUERY = gql`
       id
       title
       pages
-      book_series { series_id details position featured }
+      book_series {
+        series_id
+        details
+        position
+        featured
+      }
       default_physical_edition_id
       users_count
       users_read_count
@@ -93,15 +114,18 @@ const BOOKS_BY_IDS_QUERY = gql`
       release_year
       description
       cached_contributors
-      contributions { author_id contribution }
+      contributions {
+        author_id
+        contribution
+      }
       cached_tags
     }
   }
 `;
 
-const SERIES_BY_IDS_QUERY = (seriesIds: number[]) => gql`
-  query SeriesByIds {
-    series(where: {id: {_in: [${seriesIds.join(",")}]}}) {
+const SERIES_BY_IDS_QUERY = gql`
+  query SeriesByIds($ids: [Int!]!) {
+    series(where: { id: { _in: $ids } }) {
       id
       name
     }
@@ -111,14 +135,16 @@ const SERIES_BY_IDS_QUERY = (seriesIds: number[]) => gql`
 export const getBook = async (id: string) => {
   try {
     const booksResponse = await client.query({
-      query: BOOK_BY_ID_QUERY(id),
+      query: BOOK_BY_ID_QUERY,
+      variables: { id: parseInt(id, 10) },
     });
 
     const series = booksResponse.data.books_by_pk?.book_series;
     const seriesResponse =
       series?.length > 0
         ? await client.query({
-            query: SERIES_BY_ID_QUERY(series[0]?.series_id),
+            query: SERIES_BY_ID_QUERY,
+            variables: { id: series[0]?.series_id },
           })
         : null;
 
@@ -224,7 +250,8 @@ export async function fetchTrendingData() {
 
     const seriesResponse = seriesIds.length
       ? await client.query({
-          query: SERIES_BY_IDS_QUERY(seriesIds),
+          query: SERIES_BY_IDS_QUERY,
+          variables: { ids: seriesIds },
         })
       : { data: { series: [] } };
 
@@ -246,7 +273,8 @@ export const getBooksByIsbn = async (isbns: string[]) => {
 
     // Fetch trending book IDs
     const trendingBooksResponse = await client.query({
-      query: FIND_BOOKS_BY_ISBN_QUERY(isbns),
+      query: FIND_BOOKS_BY_ISBN_QUERY,
+      variables: { isbns },
     });
     let ids: number[] = Array.from(
       new Set(
@@ -272,7 +300,8 @@ export const getBooksByIsbn = async (isbns: string[]) => {
 
     const seriesResponse = seriesIds.length
       ? await client.query({
-          query: SERIES_BY_IDS_QUERY(seriesIds),
+          query: SERIES_BY_IDS_QUERY,
+          variables: { ids: seriesIds },
         })
       : { data: { series: [] } };
 
