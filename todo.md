@@ -1,7 +1,7 @@
 # Down The Hall — Cleanup TODO
 
-Remaining items from the code review. The low-risk fixes (mechanical bugs, build
-config, dead code) are already done; everything below is the follow-up work.
+The original code-review cleanup is complete. Section 6 contains new findings
+from the post-cleanup review; the older sections are kept for history.
 
 Verify changes with:
 
@@ -9,6 +9,7 @@ Verify changes with:
 npm run typecheck
 npm run lint
 npm run build
+npm test
 ```
 
 ---
@@ -201,6 +202,92 @@ npm run build
 - [x] **Local junk files.**
       Remove `.DS_Store` from the working tree and add it to `.gitignore`
       (currently ignored via the generic rule but present on disk).
+
+---
+
+## 6. Next up — new findings from the post-cleanup review
+
+These came out of reviewing the current write paths and schema after the cleanup.
+None are build blockers; they are behavior/data-integrity work.
+
+### P0 — Data integrity / schema
+
+- [ ] **Add indexes and business-key unique constraints.**
+      Migrations currently have no indexes or unique constraints beyond primary
+      keys. That leaves `book`/`user_activity_log`/`book_note`/`user_goal`
+      queries scanning, and allows duplicate books, authors, and yearly goals.
+      Add a migration with:
+      - unique partial index on `book (user_id, hardcover_id)`
+        `WHERE hardcover_id > 0`
+      - unique index on `author (lower(name))` (dedupe existing rows first)
+      - unique index on `user_goal (user_id, goal_year)`
+      - indexes on `book (user_id, status, date_read)`,
+        `book (user_id, hardcover_id)`,
+        `user_activity_log (user_id, updated_date DESC)`,
+        `book_note (book_id, user_id)`
+- [ ] **Prevent duplicate books in `addBook`.**
+      `actions/bookActions.ts` never checks whether the user already has the
+      same `hardcover_id`. Search results have `id = 0`, so adding the same
+      result twice creates two rows. Use the unique index above and either
+      upsert or return/update the existing row.
+- [ ] **Make user/author creation race-safe.**
+      `addBook` inserts the user and reads/creates the author outside the main
+      transaction. Two concurrent first-adds can race. Use `ON CONFLICT` /
+      `returning()` with the new unique constraints.
+
+### P1 — Tracking behavior
+
+- [ ] **Write an activity-log entry whenever status changes.**
+      `editBook` only updates `book`. Changing a book to Reading/Finished/DNF
+      through `AddToListButton`, `_CurrentlyReadingCard`, or `StarRating` never
+      appears in the home feed. Insert into `user_activity_log` when the status
+      actually changes (and use the same transaction as the update).
+- [ ] **Bump `book.date_updated` in `editBook`.**
+      `date_updated` is only written on insert, so “Updated Date” sorting never
+      changes after an edit/status change. Set it alongside the other fields.
+- [ ] **Implement the “Last Read” sort.**
+      `_FilterTracking` offers “Last Read”, but `getOrderColumn` in
+      `lib/queries/books.ts` has no `lastread` case and falls back to
+      `updatedDate`. Map it to `book.dateRead`.
+- [ ] **Filter goals to the current year.**
+      `getUserGoals` returns every goal row and the UI picks one with
+      `.at(-1)` / `[length - 1]` (`CentralDisplay`, `Goals`). Filter to
+      `goalYear === currentYear`, order explicitly, and update the optimistic
+      reducer to replace only the matching year.
+
+### P1 — Write-path bugs
+
+- [ ] **Await `addBookNote` in `_Notes`.**
+      `components/bookDetails/_Notes.tsx` clears the form and refreshes before
+      the server action resolves. Await it, handle failures, and only clear on
+      success.
+- [ ] **Preserve the author image when adding a book.**
+      `AddToListButton` passes `""` for `authorImg`, and `functions/addBook.ts`
+      passes `""` as the third argument to `addBook`. The `author.image` column
+      is never populated from search results.
+- [ ] **Fix `StarRating` on touch and await its action.**
+      Rating is driven by `onMouseMove`, so taps keep the existing rating on
+      touch devices. Pass the clicked value explicitly and `await editBook`
+      with an error toast.
+
+### P2 — Robustness / performance
+
+- [ ] **Reject or clamp non-numeric pagination.**
+      `getBooksPage` does `Math.max(1, page)` / `Math.min(Math.max(1, pageSize),
+      100)`; `NaN` survives and reaches the query. Fall back to defaults when
+      `page`/`pageSize` are not finite numbers (`/track?page=abc`,
+      `/api/books?page=abc`).
+- [ ] **Reduce OpenLibrary search N+1 requests.**
+      `lib/books/openlibrary.ts` fetches one work document per result. Limit or
+      batch enrichment so `/find` does not fan out into many OpenLibrary calls.
+- [ ] **Fix the `/api/books/[userId]/[bookId]` contract.**
+      `getBookForUser` filters on `book.hardcoverId`, but the route param and
+      comment imply a DB book id. Rename/validate the param or switch the query.
+- [ ] **Render the book metadata we already fetch.**
+      `BookDetails` only shows title, description, and series even though the
+      Hardcover query now returns author, pages, genres, release year, and
+      series position. Display the fields (and remove the unused
+      `AddToListButton` import if it stays unused).
 
 ---
 

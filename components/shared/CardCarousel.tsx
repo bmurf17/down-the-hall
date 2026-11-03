@@ -1,11 +1,15 @@
 import { userGridResponse } from "@/types/apiResponse/usersgridResponse";
-import { useCallback, useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import {
   Carousel,
   CarouselContent,
   CarouselItem,
   type CarouselApi,
 } from "../ui/carousel";
+import { ChevronLeft, ChevronRight } from "lucide-react";
+import { Button } from "../ui/button";
+import { BookCover } from "./BookCover";
+
 
 interface Props {
   userData: userGridResponse;
@@ -14,118 +18,59 @@ interface Props {
 
 export default function CardCarousel({ userData, onSlideChange }: Props) {
   const [api, setApi] = useState<CarouselApi>();
-
-  const handleNavigate = useCallback(
-    (direction: "prev" | "next") => {
-      if (!api) return;
-
-      if (direction === "prev") {
-        api.scrollPrev();
-      } else {
-        api.scrollNext();
-      }
-
-      setTimeout(() => {
-        if (onSlideChange) {
-          onSlideChange(api.selectedScrollSnap());
-        }
-      }, 50);
-    },
-    [api, onSlideChange]
-  );
+  const [current, setCurrent] = useState(0);
+  const books = userData.books;
 
   useEffect(() => {
-    if (!api || !onSlideChange) return;
-
-    onSlideChange(api.selectedScrollSnap());
-
+    if (!api) return;
     const onSelect = () => {
-      onSlideChange(api.selectedScrollSnap());
+      const i = api.selectedScrollSnap();
+      setCurrent(i);
+      onSlideChange?.(i);
     };
-
+    onSelect();
     api.on("select", onSelect);
-
+    api.on("reInit", onSelect);
     return () => {
       api.off("select", onSelect);
+      api.off("reInit", onSelect);
     };
   }, [api, onSlideChange]);
 
   return (
-    <Carousel
-      opts={{
-        align: "center",
-        loop: true,
-      }}
-      className="w-full"
-      setApi={setApi}
-    >
-      <CarouselContent>
-        {userData.books.map((book) => (
-          <CarouselItem
-            key={book.id}
-            className="basis-full flex justify-center items-center"
-          >
-            <div className="flex flex-col items-center">
-              <img
-                src={book.image || ""}
-                alt={book.title}
-                className="h-80 w-auto rounded-md shadow-md"
-              />
-              <div className="mt-2 text-sm text-center">
-                <p className="font-medium truncate max-w-48">{book.title}</p>
-              </div>
-            </div>
-          </CarouselItem>
-        ))}
-      </CarouselContent>
-      {userData.books.length > 1 && (
-        <>
-          <div className="absolute left-2 top-1/2 -translate-y-1/2">
-            <button
-              className="h-8 w-8 rounded-full flex items-center justify-center bg-white border shadow-md"
-              onClick={() => handleNavigate("prev")}
-              aria-label="Previous slide"
-            >
-              <svg
-                width="15"
-                height="15"
-                viewBox="0 0 15 15"
-                fill="none"
-                xmlns="http://www.w3.org/2000/svg"
-              >
-                <path
-                  d="M8.84182 3.13514C9.04327 3.32401 9.05348 3.64042 8.86462 3.84188L5.43521 7.49991L8.86462 11.1579C9.05348 11.3594 9.04327 11.6758 8.84182 11.8647C8.64036 12.0535 8.32394 12.0433 8.13508 11.8419L4.38508 7.84188C4.20477 7.64955 4.20477 7.35027 4.38508 7.15794L8.13508 3.15794C8.32394 2.95648 8.64036 2.94628 8.84182 3.13514Z"
-                  fill="currentColor"
-                  fillRule="evenodd"
-                  clipRule="evenodd"
-                ></path>
-              </svg>
-            </button>
-          </div>
-          <div className="absolute right-2 top-1/2 -translate-y-1/2">
-            <button
-              className="h-8 w-8 rounded-full flex items-center justify-center bg-white border shadow-md"
-              onClick={() => handleNavigate("next")}
-              aria-label="Next slide"
-            >
-              <svg
-                width="15"
-                height="15"
-                viewBox="0 0 15 15"
-                fill="none"
-                xmlns="http://www.w3.org/2000/svg"
-              >
-                <path
-                  d="M6.1584 3.13514C5.95694 3.32401 5.94673 3.64042 6.13559 3.84188L9.565 7.49991L6.13559 11.1579C5.94673 11.3594 5.95694 11.6758 6.1584 11.8647C6.35986 12.0535 6.67627 12.0433 6.86514 11.8419L10.6151 7.84188C10.7954 7.64955 10.7954 7.35027 10.6151 7.15794L6.86514 3.15794C6.67627 2.95648 6.35986 2.94628 6.1584 3.13514Z"
-                  fill="currentColor"
-                  fillRule="evenodd"
-                  clipRule="evenodd"
-                ></path>
-              </svg>
-            </button>
-          </div>
-        </>
+    <div className="w-full">
+      <Carousel
+        opts={{ align: "center", loop: books.length > 1 }}
+        setApi={setApi}
+        className="w-full"
+      >
+        <CarouselContent>
+          {books.map((book) => (
+            <CarouselItem key={book.id} className="flex basis-full justify-center">
+              <figure className="flex flex-col items-center gap-2">
+                <BookCover src={book.image} alt={book.title} className="h-56 sm:h-72" />
+                <figcaption className="line-clamp-2 max-w-64 text-center text-sm font-medium">
+                  {book.title}
+                </figcaption>
+              </figure>
+            </CarouselItem>
+          ))}
+        </CarouselContent>
+      </Carousel>
+
+      {books.length > 1 && (
+        <div className="mt-2 flex items-center justify-center gap-2">
+          <Button variant="ghost" size="icon" className="size-11" aria-label="Previous book" onClick={() => api?.scrollPrev()}>
+            <ChevronLeft className="size-5" />
+          </Button>
+          <span className="min-w-12 text-center text-xs tabular-nums text-muted-foreground" aria-live="polite">
+            {current + 1} / {books.length}
+          </span>
+          <Button variant="ghost" size="icon" className="size-11" aria-label="Next book" onClick={() => api?.scrollNext()}>
+            <ChevronRight className="size-5" />
+          </Button>
+        </div>
       )}
-    </Carousel>
+    </div>
   );
 }

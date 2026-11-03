@@ -1,46 +1,36 @@
 import { UserActivityLogList } from "@/types/apiResponse/UseLogResponse";
+import { BookCover } from "./BookCover";
 
 interface Props {
   activityLog: UserActivityLogList;
 }
 
 export default function ActivityLog({ activityLog }: Props) {
+  if (activityLog.length === 0) {
+    return (
+      <p className="py-10 text-center text-sm text-muted-foreground">
+        No activity yet. Add a book to get started.
+      </p>
+    );
+  }
+
   return (
-    <>
-      <div className="flex flex-col gap-4">
-        {activityLog.map((data, index) => {
-          const book = data.bookDetails;
-          return (
-            <div
-              className="flex flex-col md:flex-row justify-between p-4 border-b-2 border-gray-500 hover:bg-slate-200 hover:cursor-pointer"
-              key={book?.title || "" + index}
-            >
-              <div className="flex flex-col md:flex-row gap-2 align-middle flex-1 min-w-0">
-                <div className="flex justify-center flex-shrink-0">
-                  <img
-                    className="w-20 md:w-28 relative overflow-hidden group transition-all border border-gray-100/20 ring-accent hover:ring-1 hover:border-accent rounded-l-sm rounded-r-md shadow-md block"
-                    src={book?.image || ""}
-                    alt={book?.title}
-                    height={100}
-                    width={100}
-                  />
-                </div>
-                <div className="flex flex-col gap-2 flex-grow min-w-0">
-                  <div className="text-base md:text-lg font-semibold">
-                    {data.userActivity.action}
-                  </div>
-                  <div className="text-lg md:text-xl font-serif text-purple-600 break-words">
-                    {book?.title}
-                  </div>
-                  <div className="text-sm md:text-base font-semibold text-text">
-                    By: {data.authorDetails?.name}
-                  </div>
-                </div>
-              </div>
+    <ul className="divide-y divide-border">
+      {activityLog.map((data, index) => {
+        const book = data.bookDetails;
+        return (
+          <li key={data.userActivity.id ?? index} className="flex gap-3 py-3">
+            <BookCover src={book?.image} className="w-12 shrink-0 sm:w-14" />
+            <div className="flex min-w-0 flex-col gap-0.5">
+              <p className="text-xs font-medium uppercase tracking-wide text-muted-foreground">
+                {data.userActivity.action}
+              </p>
+              <p className="line-clamp-2 text-base font-semibold leading-snug">{book?.title}</p>
+              <p className="text-sm text-muted-foreground">{data.authorDetails?.name}</p>
             </div>
-          );
-        })}
-      </div>
-    </>
+          </li>
+        );
+      })}
+    </ul>
   );
 }
