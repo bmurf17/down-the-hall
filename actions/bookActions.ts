@@ -1,10 +1,9 @@
 "use server";
-import { and, eq } from "drizzle-orm";
 import { revalidateTag } from "next/cache";
 
 import { Pool } from "@neondatabase/serverless";
 import db from "../lib/db";
-import { author, book, users } from "../lib/schema";
+import { users } from "../lib/schema";
 import { PoolClient } from "pg";
 import { logStatusString } from "@/types/enums/statusEnum";
 import { currentUser, User } from "@clerk/nextjs/server";
@@ -30,37 +29,38 @@ export const addBook = async (
   date_read?: Date
 ) => {
   const userId = user?.id || "";
-  const userData = await db.select().from(users).where(eq(users.id, userId));
 
-  if (userData.length === 0) {
-    await db.insert(users).values({
+  if (!userId) {
+    throw new Error("User not authenticated");
+  }
+
+  // `onConflictDoNothing` makes concurrent first-adds safe without a prior read.
+  await db
+    .insert(users)
+    .values({
       id: userId,
       image: user?.imageUrl,
       lastLoggedIn: new Date(),
       userName: user?.fullName,
-    });
-  }
-
-  const authorData = await db
-    .select()
-    .from(author)
-    .where(eq(author.name, authorName));
+    })
+    .onConflictDoNothing();
 
   const client = await pool.connect();
 
   try {
     await client.query("BEGIN");
 
-    let authorId = authorData[0]?.id;
-
-    // The author does not exist yet, so create them inside the same transaction.
-    if (authorId === undefined) {
-      const { rows } = await client.query(
-        "INSERT INTO author (name, image) VALUES ($1, $2) RETURNING id",
-        [authorName, authorImg]
-      );
-      authorId = (rows[0] as { id: number }).id;
-    }
+    // Upsert the author inside the transaction. The unique index on
+    // `lower(name)` makes concurrent creates safe; an existing author keeps its
+    // image if one was already stored.
+    const { rows: authorRows } = await client.query<{ id: number }>(
+      `INSERT INTO author (name, image) VALUES ($1, $2)
+       ON CONFLICT (lower(name))
+       DO UPDATE SET image = COALESCE(author.image, EXCLUDED.image)
+       RETURNING id`,
+      [authorName, authorImg || null]
+    );
+    const authorId = authorRows[0].id;
 
     const bookId = await insertQuery(
       // The neon client is structurally compatible with pg's PoolClient.
@@ -96,6 +96,7 @@ export const addBook = async (
 
   revalidateTag("books");
   revalidateTag("userActivityLog");
+  revalidateTag(`user-${userId}`);
 };
 
 const insertQuery = async (
@@ -124,10 +125,30 @@ const insertQuery = async (
       ? 0
       : series_position;
 
+  // Re-adding a book the reader already owns updates that row instead of
+  // creating a duplicate. The partial unique index only covers real Hardcover
+  // ids (search-placeholder rows with id 0 may repeat).
   const {
     rows: [{ id: book_id }],
   } = await client.query(
-    "INSERT INTO book (title, author_id, image, status, release_year, default_physical_edition_id, description, series_position, series_length, series_name, hardcover_id, page_count, date_read, user_id, date_updated) VALUES ($1,$2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15)  RETURNING id",
+    `INSERT INTO book (title, author_id, image, status, release_year, default_physical_edition_id, description, series_position, series_length, series_name, hardcover_id, page_count, date_read, user_id, date_updated)
+     VALUES ($1,$2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15)
+     ON CONFLICT (user_id, hardcover_id) WHERE hardcover_id > 0
+     DO UPDATE SET
+       title = EXCLUDED.title,
+       author_id = EXCLUDED.author_id,
+       image = EXCLUDED.image,
+       status = EXCLUDED.status,
+       release_year = EXCLUDED.release_year,
+       default_physical_edition_id = EXCLUDED.default_physical_edition_id,
+       description = EXCLUDED.description,
+       series_position = EXCLUDED.series_position,
+       series_length = EXCLUDED.series_length,
+       series_name = EXCLUDED.series_name,
+       page_count = EXCLUDED.page_count,
+       date_read = COALESCE(EXCLUDED.date_read, book.date_read),
+       date_updated = EXCLUDED.date_updated
+     RETURNING id`,
     [
       title,
       author_id,
@@ -203,40 +224,71 @@ export const editBook = async (
   date_read?: Date,
   page_count?: number
 ) => {
+  const user = await currentUser();
+
+  if (!user?.id) {
+    throw new Error("User not authenticated");
+  }
+
+  const client = await pool.connect();
+
   try {
-    const user = await currentUser();
+    await client.query("BEGIN");
 
-    if (!user?.id) {
-      throw new Error("User not authenticated");
-    }
+    // Lock + verify ownership, and remember the previous status so a real
+    // status change can be written to the activity feed.
+    const { rows } = await client.query<{ status: number | null }>(
+      "SELECT status FROM book WHERE id = $1 AND user_id = $2 FOR UPDATE",
+      [id, user.id]
+    );
 
-    const updateData: Partial<typeof book.$inferInsert> = {
-      title: title,
-      status: status,
-      rating: rating,
-    };
-
-    if (date_read !== undefined) {
-      updateData.dateRead = date_read.toISOString().slice(0, 10);
-    }
-
-    if (page_count !== null && page_count !== undefined) {
-      updateData.pageCount = page_count;
-    }
-
-    const updated = await db
-      .update(book)
-      .set(updateData)
-      .where(and(eq(book.id, id), eq(book.userId, user.id)))
-      .returning({ id: book.id });
-
-    if (updated.length === 0) {
+    if (rows.length === 0) {
       throw new Error("Book not found");
     }
 
-    revalidateTag("books");
+    const previousStatus = rows[0].status;
+    const values: unknown[] = [title, status, rating];
+    const assignments = ["title = $1", "status = $2", "rating = $3"];
+
+    if (date_read !== undefined) {
+      values.push(date_read.toISOString().slice(0, 10));
+      assignments.push(`date_read = $${values.length}`);
+    }
+
+    if (page_count !== null && page_count !== undefined) {
+      values.push(page_count);
+      assignments.push(`page_count = $${values.length}`);
+    }
+
+    // "Updated Date" sorting should reflect edits, not just inserts.
+    values.push(new Date());
+    assignments.push(`date_updated = $${values.length}`);
+
+    values.push(id, user.id);
+
+    await client.query(
+      `UPDATE book SET ${assignments.join(", ")}
+       WHERE id = $${values.length - 1} AND user_id = $${values.length}`,
+      values
+    );
+
+    if (previousStatus !== status) {
+      await client.query(
+        "INSERT INTO user_activity_log (book_id, updated_date, action, user_id) VALUES ($1, $2, $3, $4)",
+        [id, new Date(), logStatusString[status], user.id]
+      );
+    }
+
+    await client.query("COMMIT");
   } catch (error) {
+    await client.query("ROLLBACK");
     console.error("Error editing book:", error);
     throw error;
+  } finally {
+    client.release();
   }
+
+  revalidateTag("books");
+  revalidateTag("userActivityLog");
+  revalidateTag(`user-${user.id}`);
 };

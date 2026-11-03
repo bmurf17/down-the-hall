@@ -7,7 +7,7 @@ import { BookSeriesArray } from "@/types/apiResponse/seriesResponse";
 import { Book } from "@/types/book";
 import { currentUser } from "@clerk/nextjs/server";
 import { notFound } from "next/navigation";
-import { getBookForUser } from "@/lib/queries/books";
+import { getBookForUserByHardcoverId } from "@/lib/queries/books";
 
 export default async function Page({ params }: { params: { bookId: string } }) {
   const data = await getBook(params.bookId);
@@ -19,11 +19,8 @@ export default async function Page({ params }: { params: { bookId: string } }) {
   const userRightNow = await currentUser();
 
   const [hardCoverBookInfo, dbBookData] = await Promise.all([
-    processTrendingBookDetails(
-      data.booksData.books_by_pk,
-      data.seriesInfo
-    ),
-    getBookForUser(userRightNow?.id, parseInt(params.bookId, 10)),
+    processTrendingBookDetails(data.booksData.books_by_pk, data.seriesInfo),
+    getBookForUserByHardcoverId(userRightNow?.id, parseInt(params.bookId, 10)),
   ]);
 
   const seriesData: BookSeriesArray = data.seriesData;

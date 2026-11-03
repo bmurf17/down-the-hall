@@ -3,7 +3,6 @@
 import { Book } from "@/types/book";
 import { readingStatusString } from "@/types/enums/statusEnum";
 import { Tab, TabGroup, TabList, TabPanel } from "@headlessui/react";
-import { AddToListButton } from "../shared/AddToListButton";
 import Notes from "./_Notes";
 import { BookSeriesArray } from "@/types/apiResponse/seriesResponse";
 import Series from "./_Series";
@@ -54,6 +53,43 @@ export default function BookDetails({
                 {hardCoverBookInfo?.book?.title}
               </h3>
 
+              {hardCoverBookInfo.author?.name ? (
+                <p className="mt-1 text-muted-foreground">
+                  by {hardCoverBookInfo.author.name}
+                </p>
+              ) : null}
+
+              <dl className="mt-4 grid grid-cols-2 gap-x-4 gap-y-2 text-sm">
+                {hardCoverBookInfo.book?.releaseYear ? (
+                  <div>
+                    <dt className="text-muted-foreground">Published</dt>
+                    <dd>{hardCoverBookInfo.book.releaseYear}</dd>
+                  </div>
+                ) : null}
+                {hardCoverBookInfo.book?.pageCount ? (
+                  <div>
+                    <dt className="text-muted-foreground">Pages</dt>
+                    <dd>{hardCoverBookInfo.book.pageCount}</dd>
+                  </div>
+                ) : null}
+                {hardCoverBookInfo.book?.seriesName ? (
+                  <div>
+                    <dt className="text-muted-foreground">Series</dt>
+                    <dd>
+                      {hardCoverBookInfo.book.seriesName}
+                      {hardCoverBookInfo.book.seriesPosition
+                        ? ` #${hardCoverBookInfo.book.seriesPosition}`
+                        : ""}
+                    </dd>
+                  </div>
+                ) : null}
+              </dl>
+
+              {hardCoverBookInfo.book?.genres?.length ? (
+                <p className="mt-3 text-sm text-muted-foreground">
+                  {hardCoverBookInfo.book.genres.join(" · ")}
+                </p>
+              ) : null}
             </div>
           </div>
         </div>
@@ -73,7 +109,11 @@ export default function BookDetails({
               );
             })}
           </TabList>
-          <TabPanel>{hardCoverBookInfo.book?.description}</TabPanel>
+          <TabPanel>
+            <p className="whitespace-pre-line">
+              {hardCoverBookInfo.book?.description || "No description yet."}
+            </p>
+          </TabPanel>
 
           <TabPanel>
             <Series

@@ -7,13 +7,18 @@ import { useToast } from "@/hooks/use-toast";
 import { Status, readingStatusString } from "@/types/enums/statusEnum";
 import { cn } from "@/lib/utils";
 import { Button } from "../ui/button";
-import { DropdownMenu, DropdownMenuContent, DropdownMenuRadioGroup, DropdownMenuRadioItem, DropdownMenuTrigger } from "../ui/dropdown-menu";
-
-
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuRadioGroup,
+  DropdownMenuRadioItem,
+  DropdownMenuTrigger,
+} from "../ui/dropdown-menu";
 
 interface Props {
   title: string;
   author: string;
+  authorImg?: string;
   image: string;
   release_year: string;
   default_physical_edition_id: number;
@@ -26,7 +31,7 @@ interface Props {
   buttonText: string;
   id: number;
   rating: string;
-    currentStatus?: number | null; // pass book.book?.status
+  currentStatus?: number | null; // pass book.book?.status
   className?: string;
 }
 
@@ -37,6 +42,7 @@ const LIST_OPTIONS = Object.values(Status)
 export function AddToListButton({
   title,
   author,
+  authorImg,
   image,
   release_year,
   default_physical_edition_id,
@@ -52,7 +58,7 @@ export function AddToListButton({
   currentStatus,
   className,
 }: Props) {
-   const router = useRouter();
+  const router = useRouter();
   const { toast } = useToast();
   const [isLoading, setIsLoading] = useState(false);
   const [isPending, startTransition] = useTransition();
@@ -70,9 +76,19 @@ export function AddToListButton({
         });
       } else {
         await addBookToList(
-          title, author, "", statusId, image, release_year,
-          default_physical_edition_id, description, series_position,
-          series_length, series_name, hardcover_id, page_number
+          title,
+          author,
+          authorImg ?? "",
+          statusId,
+          image,
+          release_year,
+          default_physical_edition_id,
+          description,
+          series_position,
+          series_length,
+          series_name,
+          hardcover_id,
+          page_number
         );
         toast({ title: "Book added", description: `${title} was added` });
       }

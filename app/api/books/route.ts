@@ -10,10 +10,16 @@ export async function GET(request: NextRequest) {
   const userId = request.nextUrl.searchParams.get("user");
   const order = request.nextUrl.searchParams.get("order");
   const isDesc = request.nextUrl.searchParams.get("desc") === "true";
-  const page = parseInt(request.nextUrl.searchParams.get("page") || "1");
-  const pageSize = parseInt(
-    request.nextUrl.searchParams.get("pageSize") || "25"
+  const pageParam = Number.parseInt(
+    request.nextUrl.searchParams.get("page") || "1",
+    10
   );
+  const pageSizeParam = Number.parseInt(
+    request.nextUrl.searchParams.get("pageSize") || "25",
+    10
+  );
+  const page = Number.isFinite(pageParam) ? pageParam : 1;
+  const pageSize = Number.isFinite(pageSizeParam) ? pageSizeParam : 25;
 
   try {
     const data = await getBooksPage({

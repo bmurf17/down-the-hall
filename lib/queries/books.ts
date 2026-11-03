@@ -40,6 +40,8 @@ function getOrderColumn(order: string): PgColumn {
     case "updateddate":
     case "updatedate":
       return book.updatedDate;
+    case "lastread":
+      return book.dateRead;
     case "booktitle":
       return book.title;
     case "author":
@@ -61,8 +63,10 @@ export async function getBooksPage({
   page = 1,
   pageSize = 25,
 }: BooksPageOptions): Promise<BooksPage> {
-  const validatedPage = Math.max(1, page);
-  const validatedPageSize = Math.min(Math.max(1, pageSize), 100);
+  const validatedPage = Number.isFinite(page) ? Math.max(1, page) : 1;
+  const validatedPageSize = Number.isFinite(pageSize)
+    ? Math.min(Math.max(1, pageSize), 100)
+    : 25;
   const offset = (validatedPage - 1) * validatedPageSize;
 
   const conditions: SQL[] = [eq(book.userId, userId)];
@@ -103,14 +107,7 @@ export async function getBooksPage({
   };
 }
 
-/**
- * A reader's copy of a book plus their private notes. Returns null when the
- * signed-in user has not added the book.
- */
-export async function getBookForUser(
-  userId: string | undefined,
-  hardcoverId: number
-) {
+async function getOwnedBook(userId: string | undefined, where: SQL) {
   if (!userId) {
     return null;
   }
@@ -119,7 +116,7 @@ export async function getBookForUser(
     .select({ book, author })
     .from(book)
     .leftJoin(author, eq(book.authorId, author.id))
-    .where(and(eq(book.hardcoverId, hardcoverId), eq(book.userId, userId)))
+    .where(and(where, eq(book.userId, userId)))
     .limit(1);
 
   if (!row) {
@@ -136,6 +133,37 @@ export async function getBookForUser(
     author: row.author,
     book_notes: notes,
   };
+}
+
+/**
+ * A reader's copy of a book plus their private notes, looked up by the local
+ * database id (the `bookId` route parameter). Returns null when the signed-in
+ * user has not added the book.
+ */
+export async function getBookForUser(
+  userId: string | undefined,
+  bookId: number
+) {
+  if (!Number.isFinite(bookId)) {
+    return null;
+  }
+
+  return getOwnedBook(userId, eq(book.id, bookId));
+}
+
+/**
+ * Same payload as `getBookForUser`, but keyed by the Hardcover id used by the
+ * `/book/[bookId]` detail page.
+ */
+export async function getBookForUserByHardcoverId(
+  userId: string | undefined,
+  hardcoverId: number
+) {
+  if (!Number.isFinite(hardcoverId)) {
+    return null;
+  }
+
+  return getOwnedBook(userId, eq(book.hardcoverId, hardcoverId));
 }
 
 /** Status-change feed shown on the home page. */

@@ -25,7 +25,7 @@ export const addBookToList = async (
   await addBook(
     title,
     author,
-    "",
+    authorImg,
     status,
     image,
     release_year,

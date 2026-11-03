@@ -9,9 +9,11 @@ export async function GET(
 ): Promise<NextResponse> {
   const { userId, bookId } = params;
 
-  if (!userId || !bookId) {
+  const parsedBookId = Number.parseInt(bookId, 10);
+
+  if (!userId || !Number.isFinite(parsedBookId)) {
     return NextResponse.json(
-      { error: "User ID and Book ID are required" },
+      { error: "User ID and numeric Book ID are required" },
       { status: 400 }
     );
   }
@@ -25,7 +27,7 @@ export async function GET(
   }
 
   try {
-    const data = await getBookForUser(userId, parseInt(bookId, 10));
+    const data = await getBookForUser(userId, parsedBookId);
 
     if (!data) {
       return NextResponse.json({ error: "Book not found" }, { status: 404 });

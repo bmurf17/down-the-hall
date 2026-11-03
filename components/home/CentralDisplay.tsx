@@ -28,7 +28,7 @@ export default function CentralDisplay({
   goals = [],
   completedBooksLength,
 }: Props) {
-  const TABS = ["Trending", "Your Feed"] as const; 
+  const TABS = ["Trending", "Your Feed"] as const;
   return (
     <div className="w-full px-3 py-3 sm:px-0">
       <div className="grid grid-cols-1 gap-4 lg:grid-cols-3">
@@ -44,7 +44,10 @@ export default function CentralDisplay({
           <Card className="p-4">
             <h2 className="mb-3 text-lg font-semibold">Goals</h2>
             <ProgressTracker
-              goal={goals.at(-1)?.bookCount ?? 0}
+              goal={
+                goals.find((goal) => goal.goalYear === new Date().getFullYear())
+                  ?.bookCount ?? 0
+              }
               completed={completedBooksLength ?? 0}
             />
           </Card>

@@ -177,6 +177,7 @@ export function NavSearchModal() {
                             <AddToListButton
                               title={book.book?.title || ""}
                               author={book.author?.name || ""}
+                              authorImg={book.author?.image || ""}
                               image={book.book?.image || ""}
                               default_physical_edition_id={
                                 book.book?.defaultPhysicalEditionId || 0

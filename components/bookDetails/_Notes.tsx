@@ -4,6 +4,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { addBookNote } from "@/functions/addBookNote";
+import { useToast } from "@/hooks/use-toast";
 import { InsertBookNote } from "@/lib/schema";
 import { Book } from "@/types/book";
 import { useRouter } from "next/navigation";
@@ -17,11 +18,13 @@ interface Props {
 export default function Notes({ dbBookInfo }: Props) {
   const [newNote, setNewNote] = useState("");
   const [pageNumber, setPageNumber] = useState<number | null>(null);
+  const [isSaving, setIsSaving] = useState(false);
 
   const router = useRouter();
+  const { toast } = useToast();
 
   const handleAddNote = async () => {
-    if (newNote.trim() === "") return;
+    if (newNote.trim() === "" || isSaving) return;
 
     const noteToAdd: Omit<InsertBookNote, "id" | "updatedDate" | "userId"> = {
       bookId: dbBookInfo?.book?.id,
@@ -30,12 +33,21 @@ export default function Notes({ dbBookInfo }: Props) {
       series: dbBookInfo?.book?.seriesName,
     };
 
-    addBookNote(noteToAdd, dbBookInfo?.book?.hardcoverId || 0);
-
-    setNewNote("");
-    setPageNumber(null);
-
-    router.refresh();
+    setIsSaving(true);
+    try {
+      await addBookNote(noteToAdd, dbBookInfo?.book?.hardcoverId || 0);
+      setNewNote("");
+      setPageNumber(null);
+      router.refresh();
+    } catch {
+      toast({
+        title: "Couldn't save note",
+        description: "Please try again.",
+        variant: "destructive",
+      });
+    } finally {
+      setIsSaving(false);
+    }
   };
   return (
     <>
@@ -56,7 +68,9 @@ export default function Notes({ dbBookInfo }: Props) {
               }
             />
             <div className="flex justify-end">
-              <Button onClick={handleAddNote}>Add Note</Button>
+              <Button onClick={handleAddNote} disabled={isSaving}>
+                Add Note
+              </Button>
             </div>
           </div>
           {(dbBookInfo?.book_notes || []).length > 0 ? (

@@ -1,4 +1,4 @@
-import { eq, sql } from "drizzle-orm";
+import { and, eq, sql } from "drizzle-orm";
 
 import db from "@/lib/db";
 import { book, userGoals, SelectBook, SelectGoal } from "@/lib/schema";
@@ -28,7 +28,10 @@ export async function getUserGoals(userId: string): Promise<UserGoalsData> {
   const goals = await db
     .select()
     .from(userGoals)
-    .where(eq(userGoals.userId, userId));
+    .where(
+      and(eq(userGoals.userId, userId), eq(userGoals.goalYear, currentYear))
+    )
+    .orderBy(userGoals.goalYear);
 
   return { books, goals };
 }
