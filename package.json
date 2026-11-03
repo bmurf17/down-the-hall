@@ -9,6 +9,7 @@
     "lint": "next lint",
     "format": "prettier --write .",
     "typecheck": "tsc --noEmit",
+    "test": "tsx --test tests/unit/*.test.ts",
     "test:e2e": "playwright test",
     "test:e2e:public": "playwright test --project=public --project=api",
     "test:e2e:headed": "playwright test --headed",

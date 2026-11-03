@@ -1,4 +1,4 @@
-import Page from "@/components/shared/Page";
+import PageShell from "@/components/shared/Page";
 import { getBook } from "@/actions/hardcoverActions";
 import BookDetails from "@/components/bookDetails/BookDetails";
 import { processBookSeriesDetails } from "@/helpers/convertSeriesBook";
@@ -37,13 +37,13 @@ export default async function Page({ params }: { params: { bookId: string } }) {
     : [];
 
   return (
-    <Page>
+    <PageShell>
       <BookDetails
         hardCoverBookInfo={hardCoverBookInfo}
         dbBookInfo={dbBookData as Book | null}
         hcSeriesData={seriesData}
         seriesBooks={seriesBooks}
       />
-    </Page>
+    </PageShell>
   );
 }

@@ -37,6 +37,7 @@ npm run build      # production build
 npm run start      # run the production build
 npm run lint       # ESLint
 npm run typecheck  # tsc --noEmit
+npm test           # unit tests (node:test via tsx)
 npm run test:e2e   # Playwright (see tests/README.md)
 ```
 

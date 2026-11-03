@@ -1,4 +1,4 @@
-import Page from "@/components/shared/Page";
+import PageShell from "@/components/shared/Page";
 import { fetchTrendingData } from "@/actions/hardcoverActions";
 import CentralDisplay from "@/components/home/CentralDisplay";
 import { convertTrendingBookData } from "@/helpers/convertTrendingBookToBook";
@@ -113,7 +113,7 @@ export default async function Home() {
   }
 
   return (
-    <Page>
+    <PageShell>
       <CentralDisplay
         books={trendingBooks}
         userActivityLog={activityLog}
@@ -121,6 +121,6 @@ export default async function Home() {
         goals={goalsData.goals}
         completedBooksLength={goalsData.books.length}
       />
-    </Page>
+    </PageShell>
   );
 }

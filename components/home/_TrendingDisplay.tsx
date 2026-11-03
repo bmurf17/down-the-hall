@@ -24,7 +24,7 @@ export default function TrendingDisplay({ books }: Props) {
           No trending books right now
         </h3>
         <p className="max-w-xs text-sm text-muted-foreground">
-          We couldn't load trending books. Try again in a moment.
+          We couldn&apos;t load trending books. Try again in a moment.
         </p>
         <Button className="mt-4 min-h-11" onClick={() => router.refresh()}>
           Try again

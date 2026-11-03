@@ -9,10 +9,11 @@ import {
   ListboxOption,
   ListboxOptions,
 } from "@headlessui/react";
-import clsx from "clsx";
 import { useRouter } from "next/navigation";
 import { ChevronDownIcon } from "../icons/ChevronDownIcon";
 import { Loader2 } from "lucide-react";
+import { buttonVariants } from "../ui/button";
+import { cn } from "@/lib/utils";
 
 interface Props {
   title: string;
@@ -106,9 +107,9 @@ export function AddToListButton({
       disabled={isLoading}
     >
       <ListboxButton
-        className={clsx(
-          "bg-primary flex items-center justify-center p-4 rounded-lg text-sm/6 gap-2 text-white hover:bg-opacity-40",
-          "focus:outline-none data-[focus]:outline-2 data-[focus]:-outline-offset-2 data-[focus]:outline-white/25",
+        className={cn(
+          buttonVariants({ size: "lg" }),
+          "p-4 text-sm/6 hover:bg-opacity-40",
           isLoading && "opacity-50 cursor-not-allowed"
         )}
       >
@@ -130,7 +131,7 @@ export function AddToListButton({
       <ListboxOptions
         anchor="bottom"
         transition
-        className={clsx(
+        className={cn(
           "rounded-xl border border-white/5 p-1 [--anchor-gap:var(--spacing-1)] focus:outline-none bg-primary mt-2 w-fit",
           "transition duration-100 ease-in data-[leave]:data-[closed]:opacity-0"
         )}

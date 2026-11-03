@@ -1,4 +1,4 @@
-import Page from "@/components/shared/Page";
+import PageShell from "@/components/shared/Page";
 import Stats from "@/components/stats/Stats";
 import { currentUser } from "@clerk/nextjs/server";
 
@@ -25,8 +25,8 @@ export default async function StatsPage({ searchParams }: Props) {
 
 
   return (
-    <Page>
+    <PageShell>
       <Stats/>
-    </Page>
+    </PageShell>
   );
 }

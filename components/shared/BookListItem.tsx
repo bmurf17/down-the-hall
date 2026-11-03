@@ -4,7 +4,6 @@ import { deleteBook, editBook } from "@/actions/bookActions";
 import { useToast } from "@/hooks/use-toast";
 import { Book } from "@/types/book";
 import { readingStatusString } from "@/types/enums/statusEnum";
-import clsx from "clsx";
 import Link from "next/link";
 import { useState } from "react";
 import { AddToListButton } from "./AddToListButton";
@@ -63,8 +62,8 @@ export default function BookListItem({ book }: Props) {
   const hardcoverId = book.book?.hardcoverId;
   const hasHardcoverId = typeof hardcoverId === "number" && hardcoverId > 0;
 
-  const submit = () => {
-    editBook(
+  const submit = async () => {
+    await editBook(
       book.book?.id || 0,
       title || "",
       book.book?.status || 0,
@@ -252,20 +251,27 @@ export default function BookListItem({ book }: Props) {
 
           {book.book?.status !== null ? (
             <>
-              <button
-                className={clsx(
-                  "bg-white border-2 border-primary flex items-center justify-center px-3 py-2 rounded-lg text-sm text-primary hover:bg-opacity-40 whitespace-nowrap",
-                  "focus:outline-none data-[focus]:outline-2 data-[focus]:-outline-offset-2 data-[focus]:outline-white/25"
-                )}
-                onClick={() => {
+              <Button
+                variant="outlinePrimary"
+                size="sm"
+                disabled={isLoading}
+                onClick={async () => {
                   setIsLoading(true);
-                  deleteBook(book.book?.id ?? 0);
-
-                  toast({
-                    title: "Successfully Deleted Book",
-                    description: `${book.book?.title} was deleted`,
-                  });
-                  setIsLoading(false);
+                  try {
+                    await deleteBook(book.book?.id ?? 0);
+                    toast({
+                      title: "Successfully Deleted Book",
+                      description: `${book.book?.title} was deleted`,
+                    });
+                  } catch {
+                    toast({
+                      title: "Error",
+                      description: "Failed to delete book",
+                      variant: "destructive",
+                    });
+                  } finally {
+                    setIsLoading(false);
+                  }
                 }}
               >
                 {isLoading ? (
@@ -277,22 +283,31 @@ export default function BookListItem({ book }: Props) {
                 ) : (
                   <span>Delete</span>
                 )}
-              </button>
+              </Button>
 
               {isEditing ? (
-                <button
-                  className={clsx(
-                    "bg-white border-2 border-primary flex items-center justify-center px-3 py-2 rounded-lg text-sm text-primary hover:bg-opacity-40 whitespace-nowrap",
-                    "focus:outline-none data-[focus]:outline-2 data-[focus]:-outline-offset-2 data-[focus]:outline-white/25"
-                  )}
-                  onClick={() => {
-                    submit();
-                    setIsEditing(false);
-
-                    toast({
-                      title: "Successfully Updated Book",
-                      description: `${title} was updated`,
-                    });
+                <Button
+                  variant="outlinePrimary"
+                  size="sm"
+                  disabled={isLoading}
+                  onClick={async () => {
+                    setIsLoading(true);
+                    try {
+                      await submit();
+                      setIsEditing(false);
+                      toast({
+                        title: "Successfully Updated Book",
+                        description: `${title} was updated`,
+                      });
+                    } catch {
+                      toast({
+                        title: "Error",
+                        description: "Failed to update book",
+                        variant: "destructive",
+                      });
+                    } finally {
+                      setIsLoading(false);
+                    }
                   }}
                 >
                   {isLoading ? (
@@ -304,27 +319,17 @@ export default function BookListItem({ book }: Props) {
                   ) : (
                     <span>Confirm</span>
                   )}
-                </button>
+                </Button>
               ) : (
-                <button
-                  className={clsx(
-                    "bg-white border-2 border-primary flex items-center justify-center px-3 py-2 rounded-lg text-sm text-primary hover:bg-opacity-40 whitespace-nowrap",
-                    "focus:outline-none data-[focus]:outline-2 data-[focus]:-outline-offset-2 data-[focus]:outline-white/25"
-                  )}
+                <Button
+                  variant="outlinePrimary"
+                  size="sm"
                   onClick={() => {
                     setIsEditing(true);
                   }}
                 >
-                  {isLoading ? (
-                    <>
-                      <Loader2 className="h-4 w-4 animate-spin mr-2" />
-                      <span className="hidden sm:inline">Updating...</span>
-                      <span className="sm:hidden">...</span>
-                    </>
-                  ) : (
-                    <span>Edit</span>
-                  )}
-                </button>
+                  <span>Edit</span>
+                </Button>
               )}
             </>
           ) : null}

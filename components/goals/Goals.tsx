@@ -19,12 +19,21 @@ export default function Goals({ completedBooks, goals }: Props) {
 
   const [optimisticGoals, setOptimisticGoals] = useOptimistic(
     goals,
-    (state, newGoal: any) => {
+    (state, newGoal: Omit<InsertGoal, "id">) => {
+      const existing = state.find(
+        (goal) => goal.timeFrame === newGoal.timeFrame
+      );
+      const optimisticGoal: SelectGoal = {
+        id: existing?.id ?? -1,
+        userId: newGoal.userId ?? null,
+        timeFrame: newGoal.timeFrame ?? null,
+        bookCount: newGoal.bookCount ?? null,
+        goalYear: newGoal.goalYear ?? null,
+      };
+
       return [
         ...state.filter((g) => g.timeFrame !== newGoal.timeFrame),
-        {
-          ...newGoal,
-        },
+        optimisticGoal,
       ];
     }
   );

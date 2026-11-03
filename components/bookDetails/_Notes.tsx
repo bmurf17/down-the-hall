@@ -6,7 +6,6 @@ import { Input } from "@/components/ui/input";
 import { addBookNote } from "@/functions/addBookNote";
 import { InsertBookNote } from "@/lib/schema";
 import { Book } from "@/types/book";
-import clsx from "clsx";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { Textarea } from "../ui/textarea";
@@ -57,15 +56,7 @@ export default function Notes({ dbBookInfo }: Props) {
               }
             />
             <div className="flex justify-end">
-              <Button
-                className={clsx(
-                  "bg-primary flex items-center justify-center p-4 rounded-lg  text-sm/6 gap-2 text-white",
-                  "focus:outline-none data-[focus]:outline-2 data-[focus]:-outline-offset-2 data-[focus]:outline-white/25"
-                )}
-                onClick={handleAddNote}
-              >
-                Add Note
-              </Button>
+              <Button onClick={handleAddNote}>Add Note</Button>
             </div>
           </div>
           {(dbBookInfo?.book_notes || []).length > 0 ? (

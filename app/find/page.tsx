@@ -1,4 +1,4 @@
-import Page from "@/components/shared/Page";
+import PageShell from "@/components/shared/Page";
 import { enhancedSearchBooks } from "@/lib/books/openlibrary";
 import Find from "@/components/find/Find";
 import BookListItem from "@/components/shared/BookListItem";
@@ -89,12 +89,12 @@ export default function FindPage({ searchParams }: Props) {
   const searchTitle = searchParams?.title || "";
 
   return (
-    <Page>
+    <PageShell>
       <Find>
         <Suspense fallback={<LoadingResults />}>
           {searchTitle && <BookResults searchTitle={searchTitle} />}
         </Suspense>
       </Find>
-    </Page>
+    </PageShell>
   );
 }

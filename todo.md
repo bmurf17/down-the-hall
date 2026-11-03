@@ -105,15 +105,17 @@ npm run build
       and `app/users/page.tsx`. The goals query is duplicated in
       `app/page.tsx` and `app/api/goals/[userId]/route.ts`. Add
       `lib/queries/books.ts` / `lib/queries/users.ts` and reuse.
-- [ ] **Split `actions/openLibraryActions.ts`.**
+- [x] **Split `actions/openLibraryActions.ts`.**
       ~620 lines mixing Google Books, OpenLibrary, Hardcover, and response
       types. Move to `lib/books/google.ts`, `lib/books/openlibrary.ts`,
-      `lib/books/hardcover.ts`.
-- [ ] **Separate storage from conversion helpers.**
+      `lib/books/hardcover.ts`. Shared types now live in `lib/books/types.ts`.
+- [x] **Separate storage from conversion helpers.**
       `helpers/convertOpenLibrary.ts` and `helpers/convertTrendingBookToBook.ts`
       are `"use server"` modules that both fetch remote images and upload to
       Supabase. Keep conversion pure and move uploads into
-      `lib/supabase-storage.ts`.
+      `lib/supabase-storage.ts`. Pure converters now live in
+      `lib/books/convert-openlibrary.ts` and `lib/books/convert-trending.ts`;
+      `handleImage` moved to `lib/supabase-storage.ts`.
 - [x] **Consolidate status labels.**
       `components/shared/AddToListButton.tsx` still builds its own status list
       via `Object.keys(Status)` + a local `readingStatusString`. Use
@@ -122,10 +124,11 @@ npm run build
       A local copy remains in `components/home/CentralDisplay.tsx` and
       `components/track/_TrackBookViewLogic.tsx`; `lib/utils.ts` already exports
       `cn`.
-- [ ] **Repeated Tailwind button styles.**
+- [x] **Repeated Tailwind button styles.**
       The same long class string appears three times in
       `components/shared/BookListItem.tsx` and again in `AddToListButton` /
       `_Notes`. Move to `components/ui/button` variants or a small component.
+      Added an `outlinePrimary` variant and reused `buttonVariants`.
 - [x] **`Track` view tabs are duplicated.**
       `components/track/Track.tsx:316-351` renders five identical `TabPanel`s,
       and every panel receives the same `paginatedBooks`. Either make each tab
@@ -135,13 +138,14 @@ npm run build
 - [x] **`_BookListView` column selector only supports one extra column.**
       The `Select` is single-value while the state is an array; switching
       columns replaces rather than toggles. Use a multi-select/checklist.
-- [ ] **Page shell duplicated.**
+- [x] **Page shell duplicated.**
       `mx-16` / page wrappers are repeated in every page. Move the layout into
-      `app/layout.tsx` or a shared `<Page>` wrapper.
+      `app/layout.tsx` or a shared `<Page>` wrapper. Added
+      `components/shared/Page.tsx` and used it across the routes.
 
 ## 4. Types & consistency
 
-- [ ] **Remove remaining `any` / `@ts-ignore`.**
+- [x] **Remove remaining `any` / `@ts-ignore`.**
       ~40 occurrences, concentrated in `actions/bookActions.ts`,
       `app/page.tsx`, `app/book/[bookId]/page.tsx`, and the Hardcover types.
       Type the query row shapes instead of suppressing.
@@ -162,13 +166,16 @@ npm run build
 
 ## 5. Polish / tooling
 
-- [ ] **Address `<img>` lint warnings.**
+- [x] **Address `<img>` lint warnings.**
       Remaining in `BookDetails`, `_CompletedBookList`, `NavSearchModal`,
       `ActivityLog`, `BookListItem`, `CardCarousel`, `_BookCrazyView`,
       `_BookListView`, `_BookShelfView`, `Users`. Migrate to `next/image`
       (needs `remotePatterns` for Supabase/Hardcover assets) or disable the
       rule with a documented reason. Also fix the missing `alt` in
       `_BookCrazyView.tsx`.
+      Disabled `@next/next/no-img-element` in `.eslintrc.json`: cover URLs come
+      from several arbitrary upstream providers, and the optimizer would need
+      a wildcard `remotePatterns` entry anyway. The missing `alt` is fixed.
 - [x] **Add Prettier + `eslint-config-prettier`.**
       Formatting is mixed (4-space in places, 2-space elsewhere). Add
       `.prettierrc`, `format` script, and run once.
@@ -177,15 +184,17 @@ npm run build
       keys, `HARDCOVER_TOKEN`, `NEXT_PUBLIC_SUPABASE_URL`,
       `SUPABASE_SERVICE_ROLE_KEY`, `NEXT_PUBLIC_API_URL`), setup, scripts, and
       the one-off `scripts/*.ts` maintenance commands.
-- [ ] **Consider dropping `@apollo/client`.**
+- [x] **Consider dropping `@apollo/client`.**
       Only used for three static GraphQL calls in
       `actions/hardcoverActions.ts`; the maintenance scripts already use plain
       `fetch`. Replacing it removes a large client dependency from the server
-      bundle.
-- [ ] **Add basic tests.**
+      bundle. Replaced with a small typed `fetch` wrapper.
+- [x] **Add basic tests.**
       At minimum unit tests for `helpers/convertOpenLibrary.ts`,
       `helpers/convertTrendingBookToBook.ts`, and the matching/scoring helpers
       in `scripts/backfill-hardcover-ids.ts` (pure functions, easy to cover).
+      Added `npm test` (node:test via tsx) with tests for the pure converters
+      and the extracted `lib/books/matching.ts` helpers.
 - [x] **`npm run typecheck` in CI.**
       The script exists now; wire it (and `lint`/`build`) into a GitHub Action
       so the previous type errors cannot return.

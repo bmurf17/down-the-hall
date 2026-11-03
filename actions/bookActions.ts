@@ -63,8 +63,8 @@ export const addBook = async (
     }
 
     const bookId = await insertQuery(
-      //@ts-ignore -- the neon client is structurally compatible with pg's PoolClient
-      client,
+      // The neon client is structurally compatible with pg's PoolClient.
+      client as unknown as PoolClient,
       title,
       authorId,
       status,

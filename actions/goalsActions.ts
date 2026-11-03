@@ -15,7 +15,7 @@ export async function addGoalAction(goal: Omit<InsertGoal, "id">) {
   }
 
   const existingGoal = await db.query.userGoals.findFirst({
-    where: (userGoals: { userId: any; goalYear: any }, { eq, and }: any) =>
+    where: (userGoals, { eq, and }) =>
       and(
         eq(userGoals.userId, userRightNow.id),
         eq(userGoals.goalYear, thisYear)

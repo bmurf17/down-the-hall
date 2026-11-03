@@ -1,4 +1,4 @@
-import Page from "@/components/shared/Page";
+import PageShell from "@/components/shared/Page";
 import Track from "@/components/track/Track";
 import { currentUser } from "@clerk/nextjs/server";
 import { Suspense } from "react";
@@ -44,11 +44,11 @@ export default async function TrackPage({ searchParams }: Props) {
   );
 
   return (
-    <Page>
+    <PageShell>
       <Suspense fallback={<Loading />}>
         <AsyncTrack booksPromise={booksPromise} />
       </Suspense>
-    </Page>
+    </PageShell>
   );
 }
 

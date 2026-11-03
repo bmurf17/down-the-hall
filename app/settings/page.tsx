@@ -1,4 +1,5 @@
 import Link from "next/link";
+import PageShell from "@/components/shared/Page";
 import { currentUser } from "@clerk/nextjs/server";
 import {
   getHardcoverConnectionStatus,
@@ -122,21 +123,21 @@ export default async function SettingsPage({ searchParams }: SettingsPageProps) 
 
   if (!user || !user.id) {
     return (
-      <Page>
+      <PageShell>
         <h1 className="mb-6 text-2xl font-bold">Settings</h1>
         <p className="text-lg">Sign in to manage settings.</p>
-      </Page>
+      </PageShell>
     );
   }
 
   if (!isHardcoverOwner(user.id)) {
     return (
-      <Page>
+      <PageShell>
         <h1 className="mb-6 text-2xl font-bold">Settings</h1>
         <p className="text-lg">
           The Hardcover connection is managed by the site owner.
         </p>
-      </Page>
+      </PageShell>
     );
   }
 
@@ -148,7 +149,7 @@ export default async function SettingsPage({ searchParams }: SettingsPageProps) 
     : null;
 
   return (
-    <Page className="pb-16">
+    <PageShell className="pb-16">
       <h1 className="mb-6 text-2xl font-bold">Settings</h1>
       <StatusBanner result={result} reason={reason} />
 
@@ -258,6 +259,6 @@ export default async function SettingsPage({ searchParams }: SettingsPageProps) 
           </li>
         </ul>
       </section>
-    </Page>
+    </PageShell>
   );
 }

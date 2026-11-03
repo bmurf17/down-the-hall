@@ -1,4 +1,4 @@
-import Page from "@/components/shared/Page";
+import PageShell from "@/components/shared/Page";
 import Goals from "@/components/goals/Goals";
 import { currentUser } from "@clerk/nextjs/server";
 import { getUserGoals } from "@/lib/queries/goals";
@@ -17,8 +17,8 @@ export default async function StatsPage() {
   const { books, goals } = await getUserGoals(user.id);
 
   return (
-    <Page>
+    <PageShell>
       <Goals completedBooks={books} goals={goals} />
-    </Page>
+    </PageShell>
   );
 }

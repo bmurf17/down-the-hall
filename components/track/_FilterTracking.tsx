@@ -16,7 +16,7 @@ interface Props {
   selected: {
     name: string;
   };
-  setSelected: (e: any) => void;
+  setSelected: (option: { name: string }) => void;
 }
 
 export default function FilterTrack({ options, selected, setSelected }: Props) {
