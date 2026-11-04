@@ -5,7 +5,6 @@ import { Tab, TabGroup, TabList, TabPanel, TabPanels } from "@headlessui/react";
 import TrendingDisplay from "./_TrendingDisplay";
 import UserLog from "./_UserLog";
 
-import { ScrollArea } from "@/components/ui/scroll-area";
 import CurrentlyReadingCard from "./_CurrentlyReadingCard";
 import { ProgressTracker } from "../goals/_ProgressTracker";
 import { userGridResponse } from "@/types/apiResponse/usersgridResponse";
@@ -32,16 +31,18 @@ export default function CentralDisplay({
   return (
     <div className="w-full px-3 py-3 sm:px-0">
       <div className="grid grid-cols-1 gap-4 lg:grid-cols-3">
-        <div className="flex min-w-0 flex-col gap-4">
-          {currentlyReading ? (
-            <CurrentlyReadingCard userData={currentlyReading} />
-          ) : (
-            <Card className="p-4 text-center text-sm text-muted-foreground">
-              No book currently being read
-            </Card>
-          )}
+        <div className="contents lg:flex lg:min-w-0 lg:flex-col lg:gap-4">
+          <div className="order-1 min-w-0 lg:order-none">
+            {currentlyReading ? (
+              <CurrentlyReadingCard userData={currentlyReading} />
+            ) : (
+              <Card className="p-4 text-center text-sm text-muted-foreground">
+                No book currently being read
+              </Card>
+            )}
+          </div>
 
-          <Card className="p-4">
+          <Card className="order-3 min-w-0 p-4 lg:order-none">
             <h2 className="mb-3 text-lg font-semibold">Goals</h2>
             <ProgressTracker
               goal={
@@ -53,7 +54,7 @@ export default function CentralDisplay({
           </Card>
         </div>
 
-        <div className="min-w-0 lg:col-span-2">
+        <div className="order-2 min-w-0 lg:order-none lg:col-span-2">
           <TabGroup>
             <TabList className="flex gap-1 rounded-xl bg-card p-1">
               {TABS.map((name) => (

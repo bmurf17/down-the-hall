@@ -37,7 +37,7 @@ identity work that makes the app memorable.
       desktop menu. Keep the drawer for `lg` and up.
       File: `components/nav/NavBar.tsx`.
 
-- [ ] **Nav items have no active state and inconsistent sizing.**
+- [X] **Nav items have no active state and inconsistent sizing.**
       Drawer buttons mix `text-lg` and `text-xl` (`NavBar.tsx:102-159`), and
       "Track" is the only one that differs. Unify and highlight the current
       route. Replace the bare `X` close button with an icon and a label.

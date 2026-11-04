@@ -1,10 +1,14 @@
 import { Toaster } from "@/components/ui/toaster";
 import { ClerkProvider } from "@clerk/nextjs";
-import type { Metadata } from "next";
+import type { Metadata, Viewport } from "next";
 import { Inter } from "next/font/google";
 import "./globals.css";
 import Template from "./template";
 import NavBar from "@/components/nav/NavBar";
+
+export const viewport: Viewport = {
+  viewportFit: "cover",
+};
 
 const inter = Inter({ subsets: ["latin"] });
 
@@ -22,11 +26,10 @@ export default function RootLayout({
     <ClerkProvider>
       <html lang="en" className="h-full bg-background ">
         <body className={inter.className + " h-max "}>
-          <div className="flex flex-col bg-background h-full">
+          <div className="flex flex-col bg-background h-full pb-[calc(4rem+env(safe-area-inset-bottom))] lg:pb-0">
+            {" "}
             <NavBar />
-
             <Template>{children}</Template>
-
             <Toaster />
           </div>
         </body>
