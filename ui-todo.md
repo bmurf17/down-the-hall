@@ -31,7 +31,7 @@ identity work that makes the app memorable.
       (`sticky top-0 bg-navbar/90 backdrop-blur`). Add `pb-[env(safe-area-inset-bottom)]`
       where relevant.
 
-- [ ] **Replace the mobile hamburger drawer with a bottom tab bar.**
+- [X] **Replace the mobile hamburger drawer with a bottom tab bar.**
       Home / Find / Track / Stats / Goals as 44px+ targets with an active state
       (use `usePathname`). Move Users + Settings into a "More" sheet or the
       desktop menu. Keep the drawer for `lg` and up.
