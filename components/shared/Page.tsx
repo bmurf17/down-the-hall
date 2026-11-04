@@ -1,9 +1,5 @@
 import { cn } from "@/lib/utils";
 
-/**
- * Shared page shell. Keeps horizontal padding consistent instead of repeating
- * `mx-16` on every route.
- */
 export default function Page({
   children,
   className,
@@ -11,5 +7,5 @@ export default function Page({
   children: React.ReactNode;
   className?: string;
 }) {
-  return <div className={cn("mx-16", className)}>{children}</div>;
+  return <div className={cn("mx-4 sm:mx-8 lg:mx-16", className)}>{children}</div>;
 }
