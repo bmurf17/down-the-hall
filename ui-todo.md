@@ -25,7 +25,7 @@ identity work that makes the app memorable.
       `mx-4 sm:mx-8 lg:mx-16` (or use `px-*` with a max-width container).
       Audit routes for their own duplicate wrappers while you are there.
 
-- [ ] **Navbar padding is desktop-only.**
+- [X] **Navbar padding is desktop-only.**
       `components/nav/NavBar.tsx:34` uses `px-16 py-4`. Use
       `px-4 sm:px-6 lg:px-16` and keep the bar sticky with a backdrop blur
       (`sticky top-0 bg-navbar/90 backdrop-blur`). Add `pb-[env(safe-area-inset-bottom)]`

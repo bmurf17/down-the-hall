@@ -30,8 +30,8 @@ export default function NavBar() {
 
   return (
     <>
-      <header className="w-full z-10">
-        <div className="bg-navbar text-white px-16 py-4 mb-4 flex gap-4 justify-between items-center">
+      <header className="sticky top-0 z-30 w-full">
+        <div className="bg-navbar/90 backdrop-blur text-white px-4 sm:px-6 lg:px-16 py-4 mb-4 flex gap-4 justify-between items-center">
           <div className="flex gap-4 hover:cursor-pointer items-center">
             <button
               type="button"
