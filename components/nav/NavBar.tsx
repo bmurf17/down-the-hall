@@ -10,7 +10,13 @@ import { Fragment, useState, type ComponentType } from "react";
 import { NavSearchModal } from "./NavSearchModal";
 import { BookmarkIcon } from "../icons/BookmarkIcon";
 import { BarChartIcon } from "../icons/BarChartIcon";
-import { Home, MoreHorizontal, SearchIcon, Settings } from "lucide-react";
+import {
+  Home,
+  MoreHorizontal,
+  SearchIcon,
+  Settings,
+  X,
+} from "lucide-react";
 import { BurgerMenuIcon } from "../icons/BurgerMenuIcon";
 import { GoalsIcon } from "../icons/GoalsIcon";
 import { PersonIcon } from "@radix-ui/react-icons";
@@ -33,8 +39,10 @@ const SETTINGS: NavItem = {
   icon: Settings,
 };
 
+/** Mobile bottom bar. Users and Settings live in the "More" sheet. */
 const TAB_ITEMS = [HOME, FIND, TRACK, STATS, GOALS];
 const MORE_ITEMS = [USERS, SETTINGS];
+/** Desktop drawer (lg and up) keeps the full list. */
 const DRAWER_ITEMS = [FIND, TRACK, STATS, GOALS, USERS, SETTINGS];
 
 function isActive(href: string, pathname: string) {
@@ -95,6 +103,7 @@ export default function NavBar() {
         </div>
       </header>
 
+      {/* Mobile bottom tab bar */}
       <SignedIn>
         <nav
           aria-label="Primary"
@@ -166,11 +175,11 @@ export default function NavBar() {
                   <span className="font-bold text-lg text-primary">More</span>
                   <button
                     type="button"
-                    aria-label="Close"
-                    className="flex h-11 w-11 items-center justify-center"
+                    className="flex h-11 items-center gap-1.5 rounded-md px-3 text-base font-medium text-gray-500 transition-colors hover:bg-gray-100 hover:text-gray-900"
                     onClick={closeMore}
                   >
-                    X
+                    <X className="h-5 w-5" aria-hidden="true" />
+                    Close
                   </button>
                 </div>
                 <div className="flex flex-col space-y-1">
@@ -223,11 +232,11 @@ export default function NavBar() {
             <div className="flex flex-col w-64 relative z-10 h-full bg-gray-50 border-r border-gray-200">
               <button
                 type="button"
-                aria-label="Close navigation menu"
-                className="absolute top-2 right-2 flex items-center justify-center w-10 h-10"
+                className="absolute top-2 right-2 flex h-11 items-center gap-1.5 rounded-md px-3 text-base font-medium text-gray-500 transition-colors hover:bg-gray-100 hover:text-gray-900"
                 onClick={closeMenu}
               >
-                X
+                <X className="h-5 w-5" aria-hidden="true" />
+                Close
               </button>
               <div className="py-4 px-6 font-bold text-lg text-primary">
                 Down The Hall
