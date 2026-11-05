@@ -20,6 +20,7 @@ import {
 import { BurgerMenuIcon } from "../icons/BurgerMenuIcon";
 import { GoalsIcon } from "../icons/GoalsIcon";
 import { PersonIcon } from "@radix-ui/react-icons";
+import { ThemeToggle } from "../theme/ThemeToggle";
 
 type NavItem = {
   href: string;
@@ -80,10 +81,13 @@ export default function NavBar() {
             >
               <BurgerMenuIcon color="white" size={24} />
             </button>
-            <Link href="/">Down The Hall</Link>
+            <Link href="/" className="font-serif text-lg font-semibold">
+              Down The Hall
+            </Link>
           </div>
 
-          <div className="flex items-center gap-4 text-white">
+          <div className="flex items-center gap-2 text-white sm:gap-4">
+            <ThemeToggle className="text-white/80 hover:bg-white/10 hover:text-white" />
             <SignedIn>
               <NavSearchModal />
               <UserButton
@@ -107,7 +111,7 @@ export default function NavBar() {
       <SignedIn>
         <nav
           aria-label="Primary"
-          className="fixed inset-x-0 bottom-0 z-30 border-t border-gray-200 bg-white/95 backdrop-blur pb-[env(safe-area-inset-bottom)] lg:hidden"
+          className="fixed inset-x-0 bottom-0 z-30 border-t border-border bg-background/95 backdrop-blur pb-[env(safe-area-inset-bottom)] lg:hidden"
         >
           <ul className="grid grid-cols-6">
             {TAB_ITEMS.map(({ href, label, icon: Icon }) => {
@@ -121,7 +125,7 @@ export default function NavBar() {
                       "flex min-h-14 flex-col items-center justify-center gap-0.5 text-xs font-medium transition-colors",
                       active
                         ? "text-primary"
-                        : "text-gray-500 hover:text-gray-900"
+                        : "text-muted-foreground hover:text-foreground"
                     )}
                   >
                     <Icon className="h-6 w-6" />
@@ -139,7 +143,7 @@ export default function NavBar() {
                   "flex min-h-14 w-full flex-col items-center justify-center gap-0.5 text-xs font-medium transition-colors",
                   moreActive
                     ? "text-primary"
-                    : "text-gray-500 hover:text-gray-900"
+                    : "text-muted-foreground hover:text-foreground"
                 )}
                 onClick={() => {
                   setMoreOpen(true);
@@ -170,12 +174,14 @@ export default function NavBar() {
               leaveFrom="translate-y-0"
               leaveTo="translate-y-full"
             >
-              <div className="fixed inset-x-0 bottom-0 rounded-t-2xl border-t border-gray-200 bg-gray-50 px-4 pt-4 pb-[calc(1rem+env(safe-area-inset-bottom))]">
+              <div className="fixed inset-x-0 bottom-0 rounded-t-2xl border-t border-border bg-background px-4 pt-4 pb-[calc(1rem+env(safe-area-inset-bottom))]">
                 <div className="flex items-center justify-between px-3 pb-2">
-                  <span className="font-bold text-lg text-primary">More</span>
+                  <span className="font-serif text-lg font-bold text-primary">
+                    More
+                  </span>
                   <button
                     type="button"
-                    className="flex h-11 items-center gap-1.5 rounded-md px-3 text-base font-medium text-gray-500 transition-colors hover:bg-gray-100 hover:text-gray-900"
+                    className="flex h-11 items-center gap-1.5 rounded-md px-3 text-base font-medium text-muted-foreground transition-colors hover:bg-muted hover:text-foreground"
                     onClick={closeMore}
                   >
                     <X className="h-5 w-5" aria-hidden="true" />
@@ -194,8 +200,8 @@ export default function NavBar() {
                         className={clsx(
                           "flex min-h-12 items-center gap-3 rounded-md px-3 py-2 text-lg font-medium transition-colors",
                           active
-                            ? "bg-gray-100 text-primary"
-                            : "text-gray-500 hover:bg-gray-100 hover:text-gray-900"
+                            ? "bg-muted text-primary"
+                            : "text-muted-foreground hover:bg-muted hover:text-foreground"
                         )}
                       >
                         <Icon className="h-5 w-5" />
@@ -229,16 +235,16 @@ export default function NavBar() {
             leaveFrom="translate-x-0"
             leaveTo="-translate-x-full"
           >
-            <div className="flex flex-col w-64 relative z-10 h-full bg-gray-50 border-r border-gray-200">
+            <div className="relative z-10 flex h-full w-64 flex-col border-r border-border bg-background">
               <button
                 type="button"
-                className="absolute top-2 right-2 flex h-11 items-center gap-1.5 rounded-md px-3 text-base font-medium text-gray-500 transition-colors hover:bg-gray-100 hover:text-gray-900"
+                className="absolute right-2 top-2 flex h-11 items-center gap-1.5 rounded-md px-3 text-base font-medium text-muted-foreground transition-colors hover:bg-muted hover:text-foreground"
                 onClick={closeMenu}
               >
                 <X className="h-5 w-5" aria-hidden="true" />
                 Close
               </button>
-              <div className="py-4 px-6 font-bold text-lg text-primary">
+              <div className="py-4 px-6 font-serif text-lg font-bold text-primary">
                 Down The Hall
               </div>
               <div className="overflow-y-auto flex-1">
@@ -255,8 +261,8 @@ export default function NavBar() {
                           className={clsx(
                             "flex items-center gap-3 rounded-md px-3 py-2 text-lg font-medium transition-colors",
                             active
-                              ? "bg-gray-100 text-primary"
-                              : "text-gray-500 hover:bg-gray-100 hover:text-gray-900"
+                              ? "bg-muted text-primary"
+                              : "text-muted-foreground hover:bg-muted hover:text-foreground"
                           )}
                         >
                           <Icon className="h-5 w-5" />

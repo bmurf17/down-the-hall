@@ -1,15 +1,19 @@
 "use client";
 
 import { Book } from "@/types/book";
-import { Tab, TabGroup, TabList } from "@headlessui/react";
+import Link from "next/link";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
-import { useCallback, useState, useMemo } from "react";
+import { useCallback, useEffect, useMemo } from "react";
+import { ChevronLeft, ChevronRight } from "lucide-react";
 import IconButton from "../basicUI/IconButton";
+import { Button } from "../ui/button";
 import { CardIcon } from "../icons/CardIcon";
+import { CrazyViewIcon } from "../icons/CrazyViewIcon";
 import { ListIcon } from "../icons/ListIcon";
 import { ShelfIcon } from "../icons/ShelfIcon";
 import FilterTrack from "./_FilterTracking";
 import TrackBookViewLogic from "./_TrackBookViewLogic";
+import { cn } from "@/lib/utils";
 
 const options = [
   { name: "Updated Date" },
@@ -25,6 +29,16 @@ const pageOptions = [
   { name: "50" },
   { name: "100" },
 ];
+
+const statusOptions = [
+  { value: "", label: "All" },
+  { value: "0", label: "Currently Reading" },
+  { value: "1", label: "Read" },
+  { value: "2", label: "Want To Read" },
+  { value: "3", label: "Did Not Finish" },
+];
+
+const viewOptions = ["Card", "List", "Shelf", "CrazyView"];
 
 interface Props {
   books: Book[];
@@ -42,32 +56,33 @@ export default function Track({ books, totalCount }: Props) {
 
   const currentPage = parseInt(searchParams.get("page") || "1");
   const urlPageSize = searchParams.get("pageSize") || "25";
+  const currentStatus = searchParams.get("status") ?? "";
 
-  const switchView = (toolName: string) =>
-    setSelectedView(viewOptions.find((tool) => tool === toolName));
-
-  const [selected, setSelected] = useState(
-    options.find(
-      (option) =>
-        SanitizeOrderByParam(option.name) ===
-        SanitizeOrderByParam(searchParams.get("order") || "")
-    ) || options[0]
-  );
-  const [selectedPageSize, setSelectedPageSize] = useState(
-    pageOptions.find((option) => option.name === urlPageSize) || pageOptions[1]
+  const selected = useMemo(
+    () =>
+      options.find(
+        (option) =>
+          SanitizeOrderByParam(option.name) ===
+          SanitizeOrderByParam(searchParams.get("order") || "")
+      ) || options[0],
+    [searchParams]
   );
 
-  const viewOptions = ["Card", "List", "Shelf", "CrazyView"];
-  const [selectedView, setSelectedView] = useState<string | undefined>(
-    viewOptions[0]
+  const selectedPageSize = useMemo(
+    () =>
+      pageOptions.find((option) => option.name === urlPageSize) ||
+      pageOptions[1],
+    [urlPageSize]
   );
 
-  const createQueryString = useCallback(
-    (name: string, value: string) => {
-      const params = new URLSearchParams(searchParams.toString());
-      params.set(name, value);
-      return params.toString();
-    },
+  // Persist the view in the URL so reloads, links, and back/forward keep it.
+  const selectedView = useMemo(
+    () =>
+      viewOptions.find(
+        (view) =>
+          SanitizeOrderByParam(view) ===
+          SanitizeOrderByParam(searchParams.get("view") || "")
+      ) || viewOptions[0],
     [searchParams]
   );
 
@@ -86,13 +101,22 @@ export default function Track({ books, totalCount }: Props) {
     [searchParams]
   );
 
+  // The shelf is the signature mobile view; desktop keeps the compact rows.
+  useEffect(() => {
+    if (searchParams.get("view")) return;
+    if (!window.matchMedia("(max-width: 1023px)").matches) return;
+
+    router.replace(
+      pathname + "?" + updateMultipleParams({ view: "shelf" }),
+      { scroll: false }
+    );
+  }, [pathname, router, searchParams, updateMultipleParams]);
+
   const pageSize = parseInt(selectedPageSize.name);
   const totalBooks = totalCount || books.length;
-  const totalPages = Math.ceil(totalBooks / pageSize);
+  const totalPages = Math.max(1, Math.ceil(totalBooks / pageSize));
   const startIndex = (currentPage - 1) * pageSize;
   const endIndex = startIndex + books.length;
-
-  const paginatedBooks = books;
 
   const getPageNumbers = () => {
     const pages = [];
@@ -126,9 +150,9 @@ export default function Track({ books, totalCount }: Props) {
         updateMultipleParams({
           order: SanitizeOrderByParam(e.name),
           page: "1",
-        })
+        }),
+      { scroll: false }
     );
-    setSelected(e);
   };
 
   const setPaginationSelection = (e: { name: string }) => {
@@ -138,195 +162,183 @@ export default function Track({ books, totalCount }: Props) {
         updateMultipleParams({
           pageSize: e.name,
           page: "1",
-        })
+        }),
+      { scroll: false }
     );
-    setSelectedPageSize(e);
+  };
+
+  const switchView = (view: string) => {
+    router.push(
+      pathname +
+        "?" +
+        updateMultipleParams({ view: SanitizeOrderByParam(view) }),
+      { scroll: false }
+    );
   };
 
   const goToPage = (page: number) => {
     if (page >= 1 && page <= totalPages) {
-      router.push(pathname + "?" + createQueryString("page", page.toString()));
+      router.push(
+        pathname + "?" + updateMultipleParams({ page: page.toString() }),
+        { scroll: false }
+      );
     }
   };
 
   const PaginationControls = () => (
-    <div className="flex flex-col sm:flex-row gap-4 items-center justify-between mt-6 p-4 bg-card rounded-lg">
-      <div className="flex items-center gap-4 text-sm text-gray-600">
+    <div className="mt-6 flex flex-col gap-3 rounded-lg bg-card p-4 sm:flex-row sm:items-center sm:justify-between">
+      <div className="text-sm text-muted-foreground">
         <span>
-          Showing {startIndex + 1}-{Math.min(endIndex, totalBooks)} of{" "}
-          {totalBooks} books
+          Showing {totalBooks === 0 ? 0 : startIndex + 1}-
+          {Math.min(endIndex, totalBooks)} of {totalBooks} books
         </span>
       </div>
 
-      <div className="flex items-center gap-2">
-        <button
+      <div className="flex items-center justify-between gap-2 sm:justify-center">
+        <Button
+          variant="outline"
+          className="min-h-11 min-w-11 px-3"
+          aria-label="Previous page"
           onClick={() => goToPage(currentPage - 1)}
           disabled={currentPage === 1}
-          className="px-3 py-2 text-sm rounded-md border border-gray-300 hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
         >
-          Previous
-        </button>
+          <ChevronLeft className="size-4" />
+          <span className="hidden sm:inline">Previous</span>
+        </Button>
 
-        <div className="flex gap-1">
+        <span className="min-w-16 text-center text-sm font-medium tabular-nums sm:hidden">
+          {currentPage} / {totalPages}
+        </span>
+
+        <div className="hidden gap-1 sm:flex">
           {getPageNumbers().map((pageNum) => (
             <button
               key={pageNum}
+              type="button"
               onClick={() => goToPage(pageNum)}
-              className={`px-3 py-2 text-sm rounded-md border ${
+              aria-current={pageNum === currentPage ? "page" : undefined}
+              className={cn(
+                "min-h-11 min-w-11 rounded-md border px-3 text-sm transition-colors",
                 pageNum === currentPage
-                  ? "bg-primary text-white border-primary"
-                  : "border-gray-300 hover:bg-gray-50"
-              }`}
+                  ? "border-primary bg-primary text-white"
+                  : "border-border hover:bg-accent"
+              )}
             >
               {pageNum}
             </button>
           ))}
         </div>
 
-        <button
+        <Button
+          variant="outline"
+          className="min-h-11 min-w-11 px-3"
+          aria-label="Next page"
           onClick={() => goToPage(currentPage + 1)}
           disabled={currentPage === totalPages}
-          className="px-3 py-2 text-sm rounded-md border border-gray-300 hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
         >
-          Next
-        </button>
+          <span className="hidden sm:inline">Next</span>
+          <ChevronRight className="size-4" />
+        </Button>
       </div>
 
-      <div className="flex items-center gap-2">
-        <label className="text-sm text-gray-600">Page size:</label>
-        <FilterTrack
-          options={pageOptions}
-          selected={selectedPageSize}
-          setSelected={setPaginationSelection}
-        />
+      <div className="flex items-center justify-between gap-2 sm:justify-end">
+        <label className="text-sm text-muted-foreground" htmlFor="track-page-size">
+          Page size:
+        </label>
+        <div id="track-page-size" className="w-24">
+          <FilterTrack
+            options={pageOptions}
+            selected={selectedPageSize}
+            setSelected={setPaginationSelection}
+          />
+        </div>
       </div>
     </div>
   );
 
   return (
-    <div>
-      <div>
-        <TabGroup>
-          <TabList className="flex gap-4 w-full sm:mx-auto overflow-x-auto overflow-y-hidden no-scrollbar ">
-            <Tab
-              className="data-[selected]:bg-primary text-white rounded-xl p-4 data-[hover]:bg-primary data-[selected]:data-[hover]:bg-primary data-[focus]:outline-1 data-[focus]:outline-white  bg-card"
-              onClick={() => {
-                router.push(
-                  pathname +
-                    "?" +
-                    updateMultipleParams({ status: "", page: "1" })
-                );
-              }}
-            >
-              All
-            </Tab>
-            <Tab
-              className="data-[selected]:bg-primary text-white rounded-xl p-4 data-[hover]:bg-primary data-[selected]:data-[hover]:bg-primary data-[focus]:outline-1 data-[focus]:outline-white  bg-slate-400"
-              onClick={() => {
-                router.push(
-                  pathname +
-                    "?" +
-                    updateMultipleParams({ status: "0", page: "1" })
-                );
-              }}
-            >
-              Currently Reading
-            </Tab>
-            <Tab
-              className="data-[selected]:bg-primary text-white rounded-xl p-4 data-[hover]:bg-primary data-[selected]:data-[hover]:bg-primary data-[focus]:outline-1 data-[focus]:outline-white  bg-slate-400"
-              onClick={() => {
-                router.push(
-                  pathname +
-                    "?" +
-                    updateMultipleParams({ status: "1", page: "1" })
-                );
-              }}
-            >
-              Read
-            </Tab>
-            <Tab
-              className="data-[selected]:bg-primary text-white rounded-xl p-4 data-[hover]:bg-primary data-[selected]:data-[hover]:bg-primary data-[focus]:outline-1 data-[focus]:outline-white  bg-slate-400"
-              onClick={() => {
-                router.push(
-                  pathname +
-                    "?" +
-                    updateMultipleParams({ status: "2", page: "1" })
-                );
-              }}
-            >
-              Want To Read
-            </Tab>
-            <Tab
-              className="data-[selected]:bg-primary text-white rounded-xl p-4 data-[hover]:bg-primary data-[selected]:data-[hover]:bg-primary data-[focus]:outline-1 data-[focus]:outline-white  bg-slate-400"
-              onClick={() => {
-                router.push(
-                  pathname +
-                    "?" +
-                    updateMultipleParams({ status: "3", page: "1" })
-                );
-              }}
-            >
-              Did Not Finish
-            </Tab>
-          </TabList>
+    <div className="w-full">
+      <nav
+        aria-label="Filter by reading status"
+        className="flex w-full gap-1 overflow-x-auto overflow-y-hidden rounded-xl bg-card p-1 no-scrollbar"
+      >
+        {statusOptions.map((option) => {
+          const active = currentStatus === option.value;
+          const query = updateMultipleParams({
+            status: option.value,
+            page: "1",
+          });
 
-          <div className="flex flex-col md:flex-row gap-2 justify-between mt-4">
-            <div className="top-16 w-72">
-              <FilterTrack
-                options={options}
-                selected={selected}
-                setSelected={setFilterSelection}
-              />
-            </div>
-            <div className="flex gap-4">
-              <IconButton
-                icon={<CardIcon />}
-                handleClick={() => {
-                  switchView(viewOptions[0]);
-                }}
-                styles={""}
-                tooltipText={viewOptions[0]}
-                active={selectedView === viewOptions[0]}
-              />
-              <IconButton
-                icon={<ListIcon />}
-                handleClick={() => {
-                  switchView(viewOptions[1]);
-                }}
-                styles={""}
-                tooltipText={viewOptions[1]}
-                active={selectedView === viewOptions[1]}
-              />
-              <IconButton
-                icon={<ShelfIcon />}
-                handleClick={() => {
-                  switchView(viewOptions[2]);
-                }}
-                styles={""}
-                tooltipText={viewOptions[2]}
-                active={selectedView === viewOptions[2]}
-              />
+          return (
+            <Link
+              key={option.label}
+              href={`${pathname}?${query}`}
+              scroll={false}
+              aria-current={active ? "page" : undefined}
+              className={cn(
+                "inline-flex min-h-11 shrink-0 items-center rounded-lg px-3 py-2 text-sm font-medium transition-colors",
+                "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring",
+                active
+                  ? "bg-primary text-white shadow-sm"
+                  : "text-muted-foreground hover:bg-accent hover:text-foreground"
+              )}
+            >
+              {option.label}
+            </Link>
+          );
+        })}
+      </nav>
 
-              <IconButton
-                icon={<CardIcon />}
-                handleClick={() => {
-                  switchView(viewOptions[3]);
-                }}
-                styles={""}
-                tooltipText={viewOptions[3]}
-                active={selectedView === viewOptions[3]}
-              />
-            </div>
-          </div>
-          <PaginationControls />
-          <div className="mb-4">
-            <TrackBookViewLogic
-              selectedView={selectedView}
-              books={paginatedBooks}
-              viewOptions={viewOptions}
+      <div className="mt-4 flex flex-col justify-between gap-3 md:flex-row md:items-center">
+        <div className="w-full md:w-72">
+          <FilterTrack
+            options={options}
+            selected={selected}
+            setSelected={setFilterSelection}
+          />
+        </div>
+        <div className="flex justify-end gap-2">
+          <IconButton
+            icon={<CardIcon />}
+            handleClick={() => switchView(viewOptions[0])}
+            styles={""}
+            tooltipText={viewOptions[0]}
+            active={selectedView === viewOptions[0]}
+          />
+          <div className="hidden md:block">
+            <IconButton
+              icon={<ListIcon />}
+              handleClick={() => switchView(viewOptions[1])}
+              styles={""}
+              tooltipText={viewOptions[1]}
+              active={selectedView === viewOptions[1]}
             />
           </div>
-        </TabGroup>
+          <IconButton
+            icon={<ShelfIcon />}
+            handleClick={() => switchView(viewOptions[2])}
+            styles={""}
+            tooltipText={viewOptions[2]}
+            active={selectedView === viewOptions[2]}
+          />
+          <IconButton
+            icon={<CrazyViewIcon />}
+            handleClick={() => switchView(viewOptions[3])}
+            styles={""}
+            tooltipText={viewOptions[3]}
+            active={selectedView === viewOptions[3]}
+          />
+        </div>
+      </div>
+
+      <PaginationControls />
+
+      <div className="mb-4">
+        <TrackBookViewLogic
+          selectedView={selectedView}
+          books={books}
+          viewOptions={viewOptions}
+        />
       </div>
     </div>
   );

@@ -1,6 +1,7 @@
 import PageShell from "@/components/shared/Page";
 import { fetchTrendingData } from "@/actions/hardcoverActions";
 import CentralDisplay from "@/components/home/CentralDisplay";
+import { PullToRefresh } from "@/components/shared/PullToRefresh";
 import { convertTrendingBookData } from "@/helpers/convertTrendingBookToBook";
 import { UserActivityLogList } from "@/types/apiResponse/UseLogResponse";
 import { Book } from "@/types/book";
@@ -114,13 +115,15 @@ export default async function Home() {
 
   return (
     <PageShell>
-      <CentralDisplay
-        books={trendingBooks}
-        userActivityLog={activityLog}
-        currentlyReading={currentlyReading}
-        goals={goalsData.goals}
-        completedBooksLength={goalsData.books.length}
-      />
+      <PullToRefresh>
+        <CentralDisplay
+          books={trendingBooks}
+          userActivityLog={activityLog}
+          currentlyReading={currentlyReading}
+          goals={goalsData.goals}
+          completedBooksLength={goalsData.books.length}
+        />
+      </PullToRefresh>
     </PageShell>
   );
 }

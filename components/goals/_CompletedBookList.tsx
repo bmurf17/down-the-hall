@@ -8,6 +8,8 @@ import {
   CarouselPrevious,
 } from "@/components/ui/carousel";
 import { SelectBook } from "@/lib/schema";
+import { EmptyState } from "@/components/shared/EmptyState";
+import { BookOpen } from "lucide-react";
 
 interface CompletedBooksListProps {
   books: SelectBook[];
@@ -45,7 +47,11 @@ export function CompletedBooksList({ books }: CompletedBooksListProps) {
           <CarouselNext />
         </Carousel>
       ) : (
-        <p className="text-sm text-gray-500">No books completed yet.</p>
+        <EmptyState
+          icon={BookOpen}
+          title="No books completed yet"
+          description="Finish a book and it will show up here."
+        />
       )}
     </div>
   );

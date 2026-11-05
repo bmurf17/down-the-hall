@@ -10,6 +10,8 @@ import { Book } from "@/types/book";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { Textarea } from "../ui/textarea";
+import { EmptyState } from "../shared/EmptyState";
+import { BookOpen } from "lucide-react";
 
 interface Props {
   dbBookInfo: Book | null;
@@ -52,15 +54,18 @@ export default function Notes({ dbBookInfo }: Props) {
   return (
     <>
       <>
-        <div className="max-w-2xl mx-4 p-4">
+        <div className="max-w-2xl p-4 sm:p-0">
           <div className="mb-4 space-y-2">
             <Textarea
+              className="min-h-28"
               placeholder="Enter your note"
               value={newNote}
               onChange={(e) => setNewNote(e.target.value)}
             />
             <Input
               type="number"
+              inputMode="numeric"
+              className="min-h-11"
               placeholder="Page number (optional)"
               value={pageNumber || ""}
               onChange={(e) =>
@@ -68,7 +73,11 @@ export default function Notes({ dbBookInfo }: Props) {
               }
             />
             <div className="flex justify-end">
-              <Button onClick={handleAddNote} disabled={isSaving}>
+              <Button
+                className="min-h-11"
+                onClick={handleAddNote}
+                disabled={isSaving}
+              >
                 Add Note
               </Button>
             </div>
@@ -91,7 +100,11 @@ export default function Notes({ dbBookInfo }: Props) {
               ))}
             </div>
           ) : (
-            <>You have no notes on this book</>
+            <EmptyState
+              icon={BookOpen}
+              title="No notes yet"
+              description="Add a thought or a page reference above."
+            />
           )}
         </div>
       </>

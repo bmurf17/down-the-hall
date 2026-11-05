@@ -11,12 +11,33 @@ interface Props {
 }
 
 import { cn } from "@/lib/utils";
+import Link from "next/link";
+import { BookOpen } from "lucide-react";
+import { EmptyState } from "../shared/EmptyState";
+import { buttonVariants } from "../ui/button";
 
 export default function TrackBookViewLogic({
   books,
   selectedView,
   viewOptions,
 }: Props) {
+  if (books.length === 0) {
+    return (
+      <div className="mt-4 rounded-xl bg-card p-3">
+        <EmptyState
+          icon={BookOpen}
+          title="No books here yet"
+          description="Try a different status, or add a book from Find."
+          action={
+            <Link href="/find" className={buttonVariants({ className: "min-h-11" })}>
+              Find a book
+            </Link>
+          }
+        />
+      </div>
+    );
+  }
+
   return (
     <div
       className={cn(
@@ -33,13 +54,21 @@ export default function TrackBookViewLogic({
       ) : (
         <>
           {selectedView === viewOptions[1] ? (
-            <div className="flex flex-col gap-2">
-              <BookListView books={books} />
-            </div>
+            <>
+              {/* The table is a desktop tool; phones get the regular rows. */}
+              <div className="flex flex-col gap-2 md:hidden">
+                {books.map((book) => (
+                  <BookCardView key={book?.book?.id} book={book} />
+                ))}
+              </div>
+              <div className="hidden flex-col gap-2 md:flex">
+                <BookListView books={books} />
+              </div>
+            </>
           ) : (
             <>
               {selectedView === viewOptions[2] ? (
-                <div className="mt-4 grid grid-cols-4 md:grid-cols-6 lg:grid-cols-8 gap-2">
+                <div className="mt-4 grid grid-cols-2 gap-x-3 gap-y-8 sm:grid-cols-3 md:grid-cols-5 lg:grid-cols-7">
                   {books.map((book) => {
                     return <BookShelfView key={book?.book?.id} book={book} />;
                   })}

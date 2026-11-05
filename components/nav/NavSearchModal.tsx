@@ -76,7 +76,7 @@ export function NavSearchModal() {
     <>
       <button
         onClick={openModal}
-        className="flex items-center gap-2 text-white hover:bg-gray-100/20 p-2 rounded-md transition-colors"
+        className="flex min-h-11 min-w-11 items-center justify-center gap-2 rounded-md p-2 text-white transition-colors hover:bg-white/10"
       >
         <SearchIcon className="h-5 w-5" />
         <span className="hidden md:inline">Search</span>
@@ -117,7 +117,7 @@ export function NavSearchModal() {
                     </Dialog.Title>
                     <button
                       onClick={closeModal}
-                      className="text-gray-500 hover:text-gray-700"
+                      className="flex size-11 items-center justify-center rounded-lg text-gray-500 hover:bg-gray-100 hover:text-gray-700"
                     >
                       <X className="h-6 w-6" />
                     </button>

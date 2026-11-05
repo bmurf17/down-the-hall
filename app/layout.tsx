@@ -1,16 +1,30 @@
 import { Toaster } from "@/components/ui/toaster";
 import { ClerkProvider } from "@clerk/nextjs";
 import type { Metadata, Viewport } from "next";
-import { Inter } from "next/font/google";
+import { Fraunces, Inter } from "next/font/google";
 import "./globals.css";
 import Template from "./template";
 import NavBar from "@/components/nav/NavBar";
 
 export const viewport: Viewport = {
+  width: "device-width",
+  initialScale: 1,
   viewportFit: "cover",
+  themeColor: "#0A1721",
 };
 
-const inter = Inter({ subsets: ["latin"] });
+const inter = Inter({
+  subsets: ["latin"],
+  variable: "--font-inter",
+  display: "swap",
+});
+
+const fraunces = Fraunces({
+  subsets: ["latin"],
+  variable: "--font-fraunces",
+  display: "swap",
+  weight: ["400", "600", "700"],
+});
 
 export const metadata: Metadata = {
   title: "Down The Hall",
@@ -24,10 +38,20 @@ export default function RootLayout({
 }>) {
   return (
     <ClerkProvider>
-      <html lang="en" className="h-full bg-background ">
-        <body className={inter.className + " h-max "}>
+      <html
+        lang="en"
+        suppressHydrationWarning
+        className="h-full bg-background"
+      >
+        <body
+          className={`${inter.variable} ${fraunces.variable} ${inter.className} h-max font-sans`}
+        >
+          <script
+            dangerouslySetInnerHTML={{
+              __html: `(function(){try{var t=localStorage.getItem("down-the-hall:theme")||"system";var d=t==="dark"||(t==="system"&&window.matchMedia("(prefers-color-scheme: dark)").matches);document.documentElement.classList.toggle("dark",d);document.documentElement.dataset.theme=t;document.documentElement.style.colorScheme=d?"dark":"light";}catch(e){}})();`,
+            }}
+          />
           <div className="flex flex-col bg-background h-full pb-[calc(4rem+env(safe-area-inset-bottom))] lg:pb-0">
-            {" "}
             <NavBar />
             <Template>{children}</Template>
             <Toaster />

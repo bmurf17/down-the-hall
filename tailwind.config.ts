@@ -1,5 +1,7 @@
 import type { Config } from "tailwindcss";
 
+const hsl = (variable: string) => `hsl(var(${variable}) / <alpha-value>)`;
+
 const config: Config = {
   darkMode: ["class"],
   content: [
@@ -14,10 +16,30 @@ const config: Config = {
         "gradient-conic":
           "conic-gradient(from 180deg at 50% 50%, var(--tw-gradient-stops))",
       },
+      fontFamily: {
+        sans: ["var(--font-inter)", "system-ui", "sans-serif"],
+        serif: [
+          "var(--font-fraunces)",
+          "Georgia",
+          "Times New Roman",
+          "serif",
+        ],
+      },
       animation: {
         "fade-in-grow": "fade-in 400ms, grow 400ms",
+        "stamp-in": "stamp-in 450ms cubic-bezier(0.22, 1, 0.36, 1) both",
       },
       keyframes: {
+        "stamp-in": {
+          from: {
+            opacity: "0",
+            transform: "scale(1.8) rotate(-18deg)",
+          },
+          to: {
+            opacity: "1",
+            transform: "scale(1) rotate(-8deg)",
+          },
+        },
         grow: {
           from: {
             transform: "scale(0.75)",
@@ -36,12 +58,51 @@ const config: Config = {
         },
       },
       colors: {
-        background: "#F4F4F9",
-        navbar: "#0A1721",
-        primary: "#146B3A",
-        secondary: "#CC3700",
-        text: "#00000",
-        card: "#d1d5db",
+        background: hsl("--background"),
+        foreground: hsl("--foreground"),
+        text: hsl("--foreground"),
+        navbar: {
+          DEFAULT: hsl("--navbar"),
+          foreground: hsl("--navbar-foreground"),
+        },
+        card: {
+          DEFAULT: hsl("--card"),
+          foreground: hsl("--card-foreground"),
+        },
+        popover: {
+          DEFAULT: hsl("--popover"),
+          foreground: hsl("--popover-foreground"),
+        },
+        primary: {
+          DEFAULT: hsl("--primary"),
+          foreground: hsl("--primary-foreground"),
+        },
+        secondary: {
+          DEFAULT: hsl("--secondary"),
+          foreground: hsl("--secondary-foreground"),
+        },
+        muted: {
+          DEFAULT: hsl("--muted"),
+          foreground: hsl("--muted-foreground"),
+        },
+        accent: {
+          DEFAULT: hsl("--accent"),
+          foreground: hsl("--accent-foreground"),
+        },
+        destructive: {
+          DEFAULT: hsl("--destructive"),
+          foreground: hsl("--destructive-foreground"),
+        },
+        border: hsl("--border"),
+        input: hsl("--input"),
+        ring: hsl("--ring"),
+        chart: {
+          1: hsl("--chart-1"),
+          2: hsl("--chart-2"),
+          3: hsl("--chart-3"),
+          4: hsl("--chart-4"),
+          5: hsl("--chart-5"),
+        },
       },
       borderRadius: {
         lg: "var(--radius)",

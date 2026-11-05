@@ -1,8 +1,9 @@
 import PageShell from "@/components/shared/Page";
 import Track from "@/components/track/Track";
+import { PullToRefresh } from "@/components/shared/PullToRefresh";
 import { currentUser } from "@clerk/nextjs/server";
 import { Suspense } from "react";
-import Loading from "../loading";
+import TrackLoading from "./loading";
 import { getBooksPage, BooksPage } from "@/lib/queries/books";
 
 interface Props {
@@ -12,6 +13,7 @@ interface Props {
     page?: string;
     pageSize?: string;
     desc?: string;
+    view?: string;
   };
 }
 
@@ -45,8 +47,10 @@ export default async function TrackPage({ searchParams }: Props) {
 
   return (
     <PageShell>
-      <Suspense fallback={<Loading />}>
-        <AsyncTrack booksPromise={booksPromise} />
+      <Suspense fallback={<TrackLoading />}>
+        <PullToRefresh>
+          <AsyncTrack booksPromise={booksPromise} />
+        </PullToRefresh>
       </Suspense>
     </PageShell>
   );

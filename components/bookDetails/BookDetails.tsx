@@ -6,6 +6,7 @@ import { Tab, TabGroup, TabList, TabPanel } from "@headlessui/react";
 import Notes from "./_Notes";
 import { BookSeriesArray } from "@/types/apiResponse/seriesResponse";
 import Series from "./_Series";
+import { useCoverAccent } from "@/hooks/use-cover-accent";
 import "./BookDetails.css";
 
 interface Props {
@@ -37,9 +38,20 @@ export default function BookDetails({
     ...(dbBookInfo ? [{ value: "notes", label: "Notes" }] : []),
   ];
 
+  const coverAccent = useCoverAccent(hardCoverBookInfo?.book?.image);
+
   return (
-    <div>
-      <div className="outside">
+    <div className="relative">
+      <div
+        aria-hidden
+        className="pointer-events-none absolute inset-x-0 top-0 h-[28rem] opacity-15"
+        style={{
+          backgroundImage: `radial-gradient(ellipse at top, ${
+            coverAccent ?? "hsl(var(--primary))"
+          }, transparent 68%)`,
+        }}
+      />
+      <div className="outside relative">
         <div className="book-wrapper">
           <div className="card">
             <div className="cover shadow">

@@ -29,7 +29,7 @@ export default function CentralDisplay({
 }: Props) {
   const TABS = ["Trending", "Your Feed"] as const;
   return (
-    <div className="w-full px-3 py-3 sm:px-0">
+    <div className="w-full py-3 sm:py-0">
       <div className="grid grid-cols-1 gap-4 lg:grid-cols-3">
         <div className="contents lg:flex lg:min-w-0 lg:flex-col lg:gap-4">
           <div className="order-1 min-w-0 lg:order-none">
