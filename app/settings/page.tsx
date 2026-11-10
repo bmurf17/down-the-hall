@@ -1,5 +1,9 @@
 import Link from "next/link";
+import { SignOutButton } from "@clerk/nextjs";
+import PageShell from "@/components/shared/Page";
+import { ThemeToggle } from "@/components/theme/ThemeToggle";
 import { currentUser } from "@clerk/nextjs/server";
+import { LogOut } from "lucide-react";
 import {
   getHardcoverConnectionStatus,
   isHardcoverOwner,
@@ -73,6 +77,32 @@ function StatusBanner({ result, reason }: { result?: string; reason?: string }) 
   );
 }
 
+function PreferencesSection() {
+  return (
+    <section className="mb-6 max-w-3xl rounded-xl border border-border bg-card p-5 text-card-foreground shadow-sm sm:p-6">
+      <h2 className="text-lg font-semibold">Preferences</h2>
+      <p className="mt-1 text-sm text-muted-foreground">
+        Choose how Down The Hall looks on this device.
+      </p>
+      <div className="mt-4 flex flex-wrap items-center gap-3">
+        <ThemeToggle
+          showLabel
+          className="border border-border bg-background text-foreground hover:bg-accent"
+        />
+        <SignOutButton>
+          <button
+            type="button"
+            className="flex min-h-11 items-center gap-2 rounded-md border border-border bg-background px-4 text-sm font-medium text-foreground transition-colors hover:bg-accent"
+          >
+            <LogOut className="size-4" aria-hidden />
+            Sign out
+          </button>
+        </SignOutButton>
+      </div>
+    </section>
+  );
+}
+
 function SetupInstructions() {
   return (
     <div className="mt-6 rounded-lg border border-gray-200 bg-gray-50 p-5 text-sm text-gray-700">
@@ -122,21 +152,22 @@ export default async function SettingsPage({ searchParams }: SettingsPageProps) 
 
   if (!user || !user.id) {
     return (
-      <div className="mx-16">
+      <PageShell>
         <h1 className="mb-6 text-2xl font-bold">Settings</h1>
         <p className="text-lg">Sign in to manage settings.</p>
-      </div>
+      </PageShell>
     );
   }
 
   if (!isHardcoverOwner(user.id)) {
     return (
-      <div className="mx-16">
+      <PageShell>
         <h1 className="mb-6 text-2xl font-bold">Settings</h1>
+        <PreferencesSection />
         <p className="text-lg">
           The Hardcover connection is managed by the site owner.
         </p>
-      </div>
+      </PageShell>
     );
   }
 
@@ -148,11 +179,12 @@ export default async function SettingsPage({ searchParams }: SettingsPageProps) 
     : null;
 
   return (
-    <div className="mx-16 pb-16">
+    <PageShell className="pb-16">
       <h1 className="mb-6 text-2xl font-bold">Settings</h1>
       <StatusBanner result={result} reason={reason} />
+      <PreferencesSection />
 
-      <section className="max-w-3xl rounded-xl border border-gray-200 bg-white p-6 shadow-sm">
+      <section className="max-w-3xl rounded-xl border border-border bg-card p-5 text-card-foreground shadow-sm sm:p-6">
         <div className="flex flex-wrap items-start justify-between gap-4">
           <div>
             <h2 className="text-lg font-semibold">Hardcover</h2>
@@ -258,6 +290,6 @@ export default async function SettingsPage({ searchParams }: SettingsPageProps) 
           </li>
         </ul>
       </section>
-    </div>
+    </PageShell>
   );
 }

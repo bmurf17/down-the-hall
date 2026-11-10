@@ -22,6 +22,10 @@ type CachedContributor = {
 
 type CachedContributors = CachedContributor[];
 
+type CachedTag = {
+  tag: string;
+};
+
 export type TrendingBookDetails = {
   id: number;
   users_count: number;
@@ -31,7 +35,8 @@ export type TrendingBookDetails = {
   cached_contributors: CachedContributors;
   title: string;
   pages: number;
-  genres: string[];
+  genres?: string[];
+  cached_tags?: Record<string, CachedTag[]>;
   book_series: {
     series_id: number;
     details: string;

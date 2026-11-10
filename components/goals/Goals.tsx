@@ -19,13 +19,18 @@ export default function Goals({ completedBooks, goals }: Props) {
 
   const [optimisticGoals, setOptimisticGoals] = useOptimistic(
     goals,
-    (state, newGoal: any) => {
-      return [
-        ...state.filter((g) => g.timeFrame !== newGoal.timeFrame),
-        {
-          ...newGoal,
-        },
-      ];
+    (state, newGoal: Omit<InsertGoal, "id">) => {
+      const goalYear = newGoal.goalYear ?? new Date().getFullYear();
+      const existing = state.find((goal) => goal.goalYear === goalYear);
+      const optimisticGoal: SelectGoal = {
+        id: existing?.id ?? -1,
+        userId: newGoal.userId ?? null,
+        timeFrame: newGoal.timeFrame ?? null,
+        bookCount: newGoal.bookCount ?? null,
+        goalYear,
+      };
+
+      return [...state.filter((g) => g.goalYear !== goalYear), optimisticGoal];
     }
   );
 
@@ -34,6 +39,7 @@ export default function Goals({ completedBooks, goals }: Props) {
       bookCount: bookCount,
       timeFrame: GoalTimeFrame.Year,
       userId: undefined,
+      goalYear: new Date().getFullYear(),
     };
 
     startTransition(() => {
@@ -48,7 +54,7 @@ export default function Goals({ completedBooks, goals }: Props) {
   };
 
   return (
-    <div className="container mx-auto p-4">
+    <div className="w-full py-2">
       <h1 className="text-2xl font-bold mb-6">Reading Goals Dashboard</h1>
       <div className="grid gap-6 md:grid-cols-2">
         <Card>
@@ -68,7 +74,11 @@ export default function Goals({ completedBooks, goals }: Props) {
           </CardHeader>
           <CardContent>
             <ProgressTracker
-              goal={optimisticGoals[optimisticGoals.length - 1]?.bookCount || 0}
+              goal={
+                optimisticGoals.find(
+                  (goal) => goal.goalYear === new Date().getFullYear()
+                )?.bookCount || 0
+              }
               completed={completedBooks.length}
             />
           </CardContent>

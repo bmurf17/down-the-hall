@@ -1,14 +1,20 @@
-import { relations } from "drizzle-orm";
+import { relations, sql } from "drizzle-orm";
+
 import {
   date,
   decimal,
+  index,
   integer,
   pgTable,
   serial,
   text,
   timestamp,
+  uniqueIndex,
 } from "drizzle-orm/pg-core";
 
+// The case-insensitive unique index on `lower(name)` is created in
+// drizzle/0020_add_indexes_and_constraints.sql; drizzle-kit 0.21 cannot express
+// expression indexes in this schema yet.
 export const author = pgTable("author", {
   id: serial("id").primaryKey().notNull(),
   name: text("name").notNull(),
@@ -19,26 +25,43 @@ export const authorRelations = relations(author, ({ many }) => ({
   posts: many(book),
 }));
 
-export const book = pgTable("book", {
-  id: serial("id").primaryKey().notNull(),
-  userId: text("user_id").references(() => users.id),
-  title: text("title").notNull(),
-  authorId: integer("author_id").references(() => author.id),
-  image: text("image"),
-  status: integer("status"),
-  releaseYear: integer("release_year"),
-  defaultPhysicalEditionId: integer("default_physical_edition_id"),
-  description: text("description"),
-  seriesPosition: decimal("series_position"),
-  seriesLength: integer("series_length"),
-  seriesName: text("series_name"),
-  pageCount: integer("page_count"),
-  genres: text("genres").array(),
-  hardcoverId: integer("hardcover_id"),
-  dateRead: date("date_read"),
-  updatedDate: date("date_updated"),
-  rating: decimal("rating"),
-});
+export const book = pgTable(
+  "book",
+  {
+    id: serial("id").primaryKey().notNull(),
+    userId: text("user_id").references(() => users.id),
+    title: text("title").notNull(),
+    authorId: integer("author_id").references(() => author.id),
+    image: text("image"),
+    status: integer("status"),
+    releaseYear: integer("release_year"),
+    defaultPhysicalEditionId: integer("default_physical_edition_id"),
+    description: text("description"),
+    seriesPosition: decimal("series_position"),
+    seriesLength: integer("series_length"),
+    seriesName: text("series_name"),
+    pageCount: integer("page_count"),
+    genres: text("genres").array(),
+    hardcoverId: integer("hardcover_id"),
+    dateRead: date("date_read"),
+    updatedDate: date("date_updated"),
+    rating: decimal("rating"),
+  },
+  (table) => ({
+    userHardcoverIdx: uniqueIndex("book_user_hardcover_idx")
+      .on(table.userId, table.hardcoverId)
+      .where(sql`${table.hardcoverId} > 0`),
+    userStatusDateReadIdx: index("book_user_status_date_read_idx").on(
+      table.userId,
+      table.status,
+      table.dateRead
+    ),
+    userHardcoverLookupIdx: index("book_user_hardcover_lookup_idx").on(
+      table.userId,
+      table.hardcoverId
+    ),
+  })
+);
 
 export const bookRelations = relations(book, ({ one, many }) => ({
   user: one(users, {
@@ -53,13 +76,22 @@ export const bookRelations = relations(book, ({ one, many }) => ({
   notes: many(bookNote),
 }));
 
-export const userActivityLog = pgTable("user_activity_log", {
-  id: serial("id").primaryKey().notNull(),
-  userId: text("user_id").references(() => users.id),
-  bookId: integer("book_id").references(() => book.id),
-  updatedDate: timestamp("updated_date"),
-  action: text("action"),
-});
+export const userActivityLog = pgTable(
+  "user_activity_log",
+  {
+    id: serial("id").primaryKey().notNull(),
+    userId: text("user_id").references(() => users.id),
+    bookId: integer("book_id").references(() => book.id),
+    updatedDate: timestamp("updated_date"),
+    action: text("action"),
+  },
+  (table) => ({
+    userUpdatedDateIdx: index("user_activity_log_user_updated_date_idx").on(
+      table.userId,
+      table.updatedDate
+    ),
+  })
+);
 
 export const userActivityLogRelations = relations(
   userActivityLog,
@@ -75,15 +107,24 @@ export const userActivityLogRelations = relations(
   })
 );
 
-export const bookNote = pgTable("book_note", {
-  id: serial("id").primaryKey().notNull(),
-  userId: text("user_id").references(() => users.id),
-  bookId: integer("book_id").references(() => book.id),
-  updatedDate: timestamp("updated_date"),
-  note: text("note"),
-  pageNumber: integer("page_number"),
-  series: text("series"),
-});
+export const bookNote = pgTable(
+  "book_note",
+  {
+    id: serial("id").primaryKey().notNull(),
+    userId: text("user_id").references(() => users.id),
+    bookId: integer("book_id").references(() => book.id),
+    updatedDate: timestamp("updated_date"),
+    note: text("note"),
+    pageNumber: integer("page_number"),
+    series: text("series"),
+  },
+  (table) => ({
+    bookUserIdx: index("book_note_book_user_idx").on(
+      table.bookId,
+      table.userId
+    ),
+  })
+);
 
 export const bookNoteRelations = relations(bookNote, ({ one }) => ({
   user: one(users, {
@@ -96,13 +137,22 @@ export const bookNoteRelations = relations(bookNote, ({ one }) => ({
   }),
 }));
 
-export const userGoals = pgTable("user_goal", {
-  id: serial("id").primaryKey().notNull(),
-  userId: text("user_id").references(() => users.id),
-  timeFrame: integer("time_frame"),
-  bookCount: integer("book_count"),
-  goalYear: integer("goal_year"),
-});
+export const userGoals = pgTable(
+  "user_goal",
+  {
+    id: serial("id").primaryKey().notNull(),
+    userId: text("user_id").references(() => users.id),
+    timeFrame: integer("time_frame"),
+    bookCount: integer("book_count"),
+    goalYear: integer("goal_year"),
+  },
+  (table) => ({
+    userYearIdx: uniqueIndex("user_goal_user_year_idx").on(
+      table.userId,
+      table.goalYear
+    ),
+  })
+);
 
 export const userGoalsRelations = relations(userGoals, ({ one }) => ({
   user: one(users, {
@@ -158,7 +208,5 @@ export type SelectGoal = typeof userGoals.$inferSelect;
 export type InsertGoal = typeof userGoals.$inferInsert;
 export type SelectUser = typeof users.$inferSelect;
 export type InsertUser = typeof users.$inferInsert;
-export type SelectHardcoverOAuthToken =
-  typeof hardcoverOAuthToken.$inferSelect;
-export type InsertHardcoverOAuthToken =
-  typeof hardcoverOAuthToken.$inferInsert;
+export type SelectHardcoverOAuthToken = typeof hardcoverOAuthToken.$inferSelect;
+export type InsertHardcoverOAuthToken = typeof hardcoverOAuthToken.$inferInsert;

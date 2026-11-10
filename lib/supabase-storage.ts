@@ -42,3 +42,74 @@ export function buildImageFileName(
 
   return `${id}_${slug}.jpeg`;
 }
+
+/**
+ * Caches a remote image in Supabase storage and returns the public URL.
+ * Pure conversion helpers should call this explicitly rather than uploading
+ * while they build their result.
+ */
+export async function handleImage(
+  id: number | string,
+  bookTitle: string,
+  imageUrl: string
+): Promise<string> {
+  // Nothing usable upstream: use the shared placeholder.
+  if (!imageUrl || imageUrl === PLACEHOLDER_IMAGE) {
+    return getPublicImageUrl(PLACEHOLDER_IMAGE);
+  }
+
+  // Already stored in our bucket (e.g. a migrated cover) - no work to do.
+  if (imageUrl.includes(`/${BUCKET_NAME}/`)) {
+    return imageUrl;
+  }
+
+  const filePath = buildImageFileName(id, bookTitle);
+
+  const { data: existing, error: listError } = await supabase.storage
+    .from(BUCKET_NAME)
+    .list("", { search: filePath });
+
+  if (listError) {
+    console.error("Error checking Supabase storage:", listError);
+  }
+
+  // `search` is a substring match, so confirm the exact object name.
+  if (existing?.some((file) => file.name === filePath)) {
+    return getPublicImageUrl(filePath);
+  }
+
+  try {
+    const blob = await urlToBlob(imageUrl);
+
+    const { error } = await supabase.storage
+      .from(BUCKET_NAME)
+      .upload(filePath, blob, {
+        contentType: "image/jpeg",
+        upsert: true,
+      });
+
+    if (error) {
+      console.error("Error uploading image to Supabase:", error);
+      // Keep showing the upstream cover rather than masking the failure.
+      return imageUrl;
+    }
+
+    return getPublicImageUrl(filePath);
+  } catch (error) {
+    console.error("Error uploading image to Supabase:", error);
+    return imageUrl;
+  }
+}
+
+async function urlToBlob(url: string): Promise<Blob> {
+  try {
+    const response = await fetch(url);
+    if (!response.ok) {
+      throw new Error(`HTTP error! status: ${response.status}`);
+    }
+    return await response.blob();
+  } catch (error) {
+    console.error("Error fetching the image:", error);
+    throw error;
+  }
+}

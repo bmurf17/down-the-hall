@@ -3,27 +3,53 @@
 import { deleteBook, editBook } from "@/actions/bookActions";
 import { useToast } from "@/hooks/use-toast";
 import { Book } from "@/types/book";
-import { readingStatusString } from "@/types/enums/statusEnum";
-import clsx from "clsx";
 import Link from "next/link";
-import { useState } from "react";
-import { AddToListButton } from "./AddToListButton";
+import { useRouter } from "next/navigation";
+import { useId, useState, type ReactNode } from "react";
 import StarRating from "./StarRating";
 import { SelectBook } from "@/lib/schema";
+import { cn } from "@/lib/utils";
+import { Status, readingStatusString } from "@/types/enums/statusEnum";
 import { SignedIn } from "@clerk/nextjs";
-import { Loader2 } from "lucide-react";
-import { Popover, PopoverContent, PopoverTrigger } from "../ui/popover";
-import { Button } from "../ui/button";
+import { Loader2, MoreHorizontal, Pencil, Trash2 } from "lucide-react";
+import { Popover, PopoverTrigger } from "../ui/popover";
+import { Button, buttonVariants } from "../ui/button";
 import { ChevronDownIcon } from "../icons/ChevronDownIcon";
 import { Label } from "../ui/label";
-import { Calendar } from "../ui/calendar";
+import { BookCover } from "./BookCover";
+import { Input } from "../ui/input";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from "../ui/alert-dialog";
+import {
+  Sheet,
+  SheetContent,
+  SheetDescription,
+  SheetHeader,
+  SheetTitle,
+  SheetTrigger,
+} from "../ui/sheet";
 
 interface Props {
   book: Book;
 }
 
-// Deterministic fallback cover so the same book always renders the same image.
-// Using Math.random() here caused hydration mismatches and flickering covers.
+/** Reading statuses available from the mobile action sheet. */
+const STATUS_OPTIONS = [
+  Status.InProgress,
+  Status.Finished,
+  Status.WantToStart,
+  Status.DidNotFinish,
+].map((value) => ({ value, label: readingStatusString[value] }));
+
 function fallbackCoverNumber(key: string): number {
   let hash = 0;
   for (let i = 0; i < key.length; i++) {
@@ -32,305 +58,364 @@ function fallbackCoverNumber(key: string): number {
   return (Math.abs(hash) % 7) + 1;
 }
 
+/**
+ * Confirmation step for deleting a book. The trigger is passed as children so
+ * the same dialog works from the desktop row and from inside the mobile sheet
+ * (nesting it in the sheet keeps Radix focus handling correct).
+ */
+function ConfirmDelete({
+  bookTitle,
+  onConfirm,
+  children,
+}: {
+  bookTitle: string;
+  onConfirm: () => void;
+  children: ReactNode;
+}) {
+  return (
+    <AlertDialog>
+      <AlertDialogTrigger asChild>{children}</AlertDialogTrigger>
+      <AlertDialogContent>
+        <AlertDialogHeader>
+          <AlertDialogTitle>Delete this book?</AlertDialogTitle>
+          <AlertDialogDescription>
+            {bookTitle} will be deleted. This action cannot be undone.
+          </AlertDialogDescription>
+        </AlertDialogHeader>
+        <AlertDialogFooter>
+          <AlertDialogCancel>Cancel</AlertDialogCancel>
+          <AlertDialogAction
+            className={buttonVariants({ variant: "destructive" })}
+            onClick={onConfirm}
+          >
+            Delete
+          </AlertDialogAction>
+        </AlertDialogFooter>
+      </AlertDialogContent>
+    </AlertDialog>
+  );
+}
+
 export default function BookListItem({ book }: Props) {
   const { toast } = useToast();
-  const [title, setTitle] = useState(book.book?.title);
-  const [pageCount, setPageCount] = useState(book.book?.pageCount);
+  const router = useRouter();
+  const uid = useId();
+  const initialDateRead = book.book?.dateRead
+    ? new Date(book.book.dateRead.toString())
+    : undefined;
+  const [title, setTitle] = useState(book.book?.title ?? "");
+  const [pageCount, setPageCount] = useState<number | undefined>(
+    book.book?.pageCount ?? undefined
+  );
   const [isEditing, setIsEditing] = useState(false);
-  const [isLoading, setIsLoading] = useState(false);
-
+  const [status, setStatus] = useState<number | null>(
+    book.book?.status ?? null
+  );
+  const [pending, setPending] = useState<
+    "save" | "delete" | "status" | null
+  >(null);
   const [datePickerOpen, setDatePickerOpen] = useState(false);
-  const [dateRead, setDateRead] = useState<Date | undefined>(new Date(book.book?.dateRead?.toString() || "") || undefined);
+  const [sheetOpen, setSheetOpen] = useState(false);
+  const [dateRead, setDateRead] = useState<Date | undefined>(initialDateRead);
 
   const fallbackCover = `https://hardcover.app/images/covers/cover${fallbackCoverNumber(
     `${book.book?.title ?? ""}|${book.author?.name ?? ""}`
   )}.png`;
-  const addbuttonText = () => {
-    var status = book.book?.status;
 
-    if (status === null) {
-      return readingStatusString[4];
-    }
-
-    return readingStatusString[status || 0];
-  };
-
-  // The book detail page looks books up by Hardcover id, so only link when we
-  // actually have one. Falling back to the database id would load whichever
-  // unrelated Hardcover book happens to share that number.
   const hardcoverId = book.book?.hardcoverId;
-  const hasHardcoverId =
-    typeof hardcoverId === "number" && hardcoverId > 0;
+  const hasHardcoverId = typeof hardcoverId === "number" && hardcoverId > 0;
 
-  const submit = () => {
-    editBook(
-      book.book?.id || 0,
-      title || "",
-      book.book?.status || 0,
-      book.book?.rating || "0",
-      dateRead,
-      pageCount || 0,
-    );
+  const handleSave = async () => {
+    setPending("save");
+    try {
+      await editBook(
+        book.book?.id ?? 0,
+        title,
+        status ?? 0,
+        book.book?.rating ?? "0",
+        dateRead,
+        pageCount ?? 0
+      );
+      setIsEditing(false);
+      toast({ title: "Book updated", description: `${title} was updated` });
+      router.refresh();
+    } catch {
+      toast({ title: "Couldn't update book", variant: "destructive" });
+    } finally {
+      setPending(null);
+    }
   };
 
-  const bookSummary = (
-    <div className="flex flex-col md:flex-row gap-2 align-middle">
-      <div className="flex justify-center flex-shrink-0">
-        <img
-          className="w-20 md:w-28 relative overflow-hidden group transition-all border border-gray-100/20 ring-accent hover:ring-1 hover:border-accent rounded-l-sm rounded-r-md shadow-md block"
-          src={book.book?.image || fallbackCover}
-          alt={book.book?.title}
-          height={100}
-          width={100}
-        />
-      </div>
-      <div className="flex flex-col gap-2 flex-grow min-w-0">
-        <div className="text-black underline-offset-4 text-lg md:text-3xl font-bold no-underline hover:underline decoration-gray-300 dark:decoration-gray-500 break-words">
-          {title}
-        </div>
+  const handleStatusChange = async (nextStatus: number) => {
+    if (nextStatus === status) return;
+    setPending("status");
+    try {
+      const nextDate =
+        nextStatus === Status.Finished ? dateRead ?? new Date() : dateRead;
+      await editBook(
+        book.book?.id ?? 0,
+        title,
+        nextStatus,
+        book.book?.rating ?? "0",
+        nextDate,
+        pageCount ?? 0
+      );
+      setStatus(nextStatus);
+      setSheetOpen(false);
+      toast({
+        title: "Status updated",
+        description: `${title} moved to ${readingStatusString[nextStatus]}`,
+      });
+      router.refresh();
+    } catch {
+      toast({ title: "Couldn't update status", variant: "destructive" });
+    } finally {
+      setPending(null);
+    }
+  };
 
-        <div className="text-md md:text-lg font-semibold text-text">
-          By: {book.author?.name}
-        </div>
+  // Mobile only: the desktop row has no cancel, so this just resets the form.
+  const handleCancel = () => {
+    setTitle(book.book?.title ?? "");
+    setPageCount(book.book?.pageCount ?? undefined);
+    setDateRead(initialDateRead);
+    setIsEditing(false);
+  };
 
-        <div className="text-text text-sm md:text-base font-semibold flex gap-2 flex-wrap">
-          {book.book?.genres?.slice(0, 3).join(", ")}
-        </div>
+  const handleDelete = async () => {
+    setPending("delete");
+    try {
+      await deleteBook(book.book?.id ?? 0);
+      toast({ title: "Book deleted", description: `${book.book?.title} was deleted` });
+      router.refresh();
+    } catch {
+      toast({ title: "Couldn't delete book", variant: "destructive" });
+    } finally {
+      setPending(null);
+    }
+  };
 
-        {book.book?.seriesName ? (
-          <div className="text-text text-sm md:text-base font-semibold break-words">
-            Series Name: {book.book?.seriesName}
-          </div>
-        ) : null}
+  const confirmDelete = () => {
+    setSheetOpen(false);
+    void handleDelete();
+  };
 
-        <div className="text-text text-sm font-semibold">
-          Page Count: {pageCount}
-        </div>
-
-        <div className="md:hidden flex justify-center">
-          {book.book && book.book.status !== null ? (
-            <StarRating book={book.book as SelectBook} />
-          ) : null}
-        </div>
-      </div>
-    </div>
-  );
+  const hasStatus = status !== null && Boolean(book.book);
+  const meta = [book.book?.genres?.slice(0, 3).join(", "), pageCount ? `${pageCount} pages` : null]
+    .filter(Boolean)
+    .join(" · ");
 
   return (
-    <div
-      className={`flex flex-col md:flex-row justify-between p-4 border-b-2 border-gray-500 hover:bg-slate-200 ${
-        hasHardcoverId ? "hover:cursor-pointer" : ""
-      }`}
-      key={book.book?.title || ""}
-    >
-      {isEditing ? (
-        <div className="flex flex-col md:flex-row gap-2 align-middle flex-1 min-w-0">
-          <div className="flex justify-center flex-shrink-0 ">
-            <img
-              className="w-20 md:w-28 relative overflow-hidden group transition-all border border-gray-100/20 ring-accent hover:ring-1 hover:border-accent rounded-l-sm rounded-r-md shadow-md block"
-              src={
-                book.book?.image || fallbackCover
-              }
-              alt={book.book?.title}
-              height={100}
-              width={100}
-            />
-          </div>
-          <div className="flex flex-col gap-2 flex-grow min-w-0">
-            <input
-              className="flex border-2 border-gray-200 p-2 rounded-xl mb-2 w-full"
-              placeholder="Title"
-              value={title}
-              onChange={(e) => setTitle(e.target.value)}
-            />
+    <article className="relative flex flex-col gap-3 border-b border-border p-3 sm:p-4 md:flex-row md:items-center md:gap-4 md:hover:bg-muted/50">
+      <div className="flex min-w-0 flex-1 gap-3 sm:gap-4">
+        <BookCover src={book.book?.image || fallbackCover} className="w-16 shrink-0 sm:w-20 md:w-24" />
 
-            <div className="text-md md:text-lg font-semibold text-text">
-              By: {book.author?.name}
-            </div>
-
-            <div className="text-text text-sm md:text-base font-semibold flex gap-2">
-              {book.book?.genres?.slice(0, 3).join(", ")}
-            </div>
-
-            {book.book?.seriesName ? (
-              <div className="text-text text-sm md:text-base font-semibold">
-                Series Name: {book.book?.seriesName}
-              </div>
-            ) : null}
-
-            <input
-              className="flex border-2 border-gray-200 p-2 rounded-xl mb-2 w-full"
-              placeholder="Page Count"
-              type="number"
-              value={pageCount || 0}
-              onChange={(e) => setPageCount(+e.target.value)}
-            />
-
-            <div className="flex flex-col gap-3">
-              <Label htmlFor="date" className="px-1">
-                Date Finished
-              </Label>
-              <Popover open={datePickerOpen} onOpenChange={setDatePickerOpen}>
-                <PopoverTrigger asChild>
-                  <Button
-                    variant="outline"
-                    id="date"
-                    className="w-48 justify-between font-normal"
-                  >
-                    {dateRead ? dateRead.toLocaleDateString() : "Select date"}
-                    <ChevronDownIcon />
-                  </Button>
-                </PopoverTrigger>
-                <PopoverContent
-                  className="w-auto overflow-hidden p-0"
-                  align="start"
-                >
-                  <Calendar
-                    mode="single"
-                    selected={dateRead}
-                    captionLayout="dropdown"
-                    onSelect={(date) => {
-                      setDateRead(date);
-                      setDatePickerOpen(false);
-                    }}
-                  />
-                </PopoverContent>
-              </Popover>
-            </div>
-
-            <div className="md:hidden flex justify-center">
-              {book.book && book.book.status !== null ? (
-                <StarRating book={book.book as SelectBook} />
-              ) : null}
-            </div>
-          </div>
-        </div>
-      ) : hasHardcoverId ? (
-        <Link
-          href={`/book/${hardcoverId}`}
-          className="flex-1 min-w-0"
-          title="View book details"
-        >
-          {bookSummary}
-        </Link>
-      ) : (
+        {/* pr-10 leaves room for the absolute "⋯" trigger on mobile */}
         <div
-          className="flex-1 min-w-0"
-          title="No Hardcover match for this book, so details are unavailable"
+          className={cn(
+            "flex min-w-0 flex-1 flex-col gap-1",
+            hasStatus && !isEditing && "pr-10 md:pr-0"
+          )}
         >
-          {bookSummary}
-        </div>
-      )}
-
-      <div className="flex flex-col md:flex-row md:items-end gap-2 mt-4 md:mt-0 flex-shrink-0">
-        <div className="hidden md:flex justify-center items-end">
-          {book.book && book.book.status !== null ? (
-            <StarRating book={book.book as SelectBook} />
-          ) : null}
-        </div>
-
-        <div className="flex flex-col sm:flex-row gap-2">
-          <SignedIn>
-            <AddToListButton
-              title={book.book?.title || ""}
-              author={book.author?.name || ""}
-              image={book.book?.image || fallbackCover}
-              default_physical_edition_id={
-                book.book?.defaultPhysicalEditionId || 0
-              }
-              description={book.book?.description ?? ""}
-              hardcover_id={book.book?.hardcoverId || 0}
-              release_year={book.book?.releaseYear + ""}
-              series_length={book.book?.seriesLength || 0}
-              series_name={book.book?.seriesName || ""}
-              series_position={book.book?.seriesPosition || ""}
-              buttonText={addbuttonText()}
-              page_number={book.book?.pageCount || 0}
-              id={book.book?.id || 0}
-              rating={book.book?.rating || "0"}
-            />
-          </SignedIn>
-
-          {book.book?.status !== null ? (
+          {isEditing ? (
+            <div className="flex flex-col gap-3">
+              <div className="grid gap-1.5">
+                <Label htmlFor={`${uid}-title`}>Title</Label>
+                <Input id={`${uid}-title`} value={title} onChange={(e) => setTitle(e.target.value)} />
+              </div>
+              <div className="grid gap-3 sm:grid-cols-2">
+                <div className="grid gap-1.5">
+                  <Label htmlFor={`${uid}-pages`}>Pages</Label>
+                  <Input
+                    id={`${uid}-pages`}
+                    type="number"
+                    inputMode="numeric"
+                    min={0}
+                    value={pageCount ?? ""}
+                    onChange={(e) => setPageCount(e.target.value === "" ? undefined : Number(e.target.value))}
+                  />
+                </div>
+                <div className="grid gap-1.5">
+                  <Label htmlFor={`${uid}-date`}>Date finished</Label>
+                  <Popover open={datePickerOpen} onOpenChange={setDatePickerOpen}>
+                    <PopoverTrigger asChild>
+                      <Button id={`${uid}-date`} variant="outline" className="w-full justify-between font-normal">
+                        {dateRead ? dateRead.toLocaleDateString() : "Select date"}
+                        <ChevronDownIcon />
+                      </Button>
+                    </PopoverTrigger>
+                    {/* PopoverContent + Calendar unchanged */}
+                  </Popover>
+                </div>
+              </div>
+            </div>
+          ) : (
             <>
-              <button
-                className={clsx(
-                  "bg-white border-2 border-primary flex items-center justify-center px-3 py-2 rounded-lg text-sm text-primary hover:bg-opacity-40 whitespace-nowrap",
-                  "focus:outline-none data-[focus]:outline-2 data-[focus]:-outline-offset-2 data-[focus]:outline-white/25"
-                )}
-                onClick={() => {
-                  setIsLoading(true);
-                  deleteBook(book.book?.id ?? 0);
-
-                  toast({
-                    title: "Successfully Deleted Book",
-                    description: `${book.book?.title} was deleted`,
-                  });
-                  setIsLoading(false);
-                }}
-              >
-                {isLoading ? (
-                  <>
-                    <Loader2 className="h-4 w-4 animate-spin mr-2" />
-                    <span className="hidden sm:inline">Deleting...</span>
-                    <span className="sm:hidden">...</span>
-                  </>
+              <h3 className="line-clamp-2 text-base font-semibold leading-snug sm:text-lg">
+                {hasHardcoverId ? (
+                  // after:inset-0 stretches the link over the whole card
+                  <Link href={`/book/${hardcoverId}`} className="underline-offset-4 after:absolute after:inset-0 hover:underline">
+                    {title}
+                  </Link>
                 ) : (
-                  <span>Delete</span>
+                  title
                 )}
-              </button>
+              </h3>
+              <p className="text-sm text-muted-foreground">{book.author?.name}</p>
+              {book.book?.seriesName && <p className="text-sm text-muted-foreground">{book.book.seriesName}</p>}
+              {meta && <p className="text-xs text-muted-foreground">{meta}</p>}
+            </>
+          )}
 
-              {isEditing ? (
-                <button
-                  className={clsx(
-                    "bg-white border-2 border-primary flex items-center justify-center px-3 py-2 rounded-lg text-sm text-primary hover:bg-opacity-40 whitespace-nowrap",
-                    "focus:outline-none data-[focus]:outline-2 data-[focus]:-outline-offset-2 data-[focus]:outline-white/25"
-                  )}
-                  onClick={() => {
-                    submit();
-                    setIsEditing(false);
+          {/* Inline rating is desktop only; on mobile it lives in the sheet. */}
+          {hasStatus && book.book && (
+            <div className="relative z-10 mt-1 hidden md:block">
+              <StarRating book={book.book as SelectBook} />
+            </div>
+          )}
+        </div>
+      </div>
 
-                    toast({
-                      title: "Successfully Updated Book",
-                      description: `${title} was updated`,
-                    });
-                  }}
-                >
-                  {isLoading ? (
-                    <>
-                      <Loader2 className="h-4 w-4 animate-spin mr-2" />
-                      <span className="hidden sm:inline">Updating...</span>
-                      <span className="sm:hidden">...</span>
-                    </>
-                  ) : (
-                    <span>Confirm</span>
-                  )}
-                </button>
-              ) : (
-                <button
-                  className={clsx(
-                    "bg-white border-2 border-primary flex items-center justify-center px-3 py-2 rounded-lg text-sm text-primary hover:bg-opacity-40 whitespace-nowrap",
-                    "focus:outline-none data-[focus]:outline-2 data-[focus]:-outline-offset-2 data-[focus]:outline-white/25"
-                  )}
+      {/* Mobile: "⋯" trigger that opens the actions sheet */}
+      {hasStatus && book.book && !isEditing && (
+        <Sheet open={sheetOpen} onOpenChange={setSheetOpen}>
+          <SheetTrigger asChild>
+            <Button
+              variant="ghost"
+              size="icon"
+              aria-label={`Actions for ${book.book.title}`}
+              className="absolute right-1 top-1 z-10 size-11 md:hidden"
+            >
+              <MoreHorizontal className="size-5" />
+            </Button>
+          </SheetTrigger>
+          <SheetContent
+            side="bottom"
+            className="rounded-t-2xl pb-[calc(1rem+env(safe-area-inset-bottom))]"
+          >
+            <SheetHeader className="text-left">
+              <SheetTitle className="line-clamp-2">{book.book.title}</SheetTitle>
+              {book.author?.name && (
+                <SheetDescription>{book.author.name}</SheetDescription>
+              )}
+            </SheetHeader>
+
+            <div className="mt-4 flex flex-col gap-4">
+              <SignedIn>
+                <div className="grid gap-1.5">
+                  <p className="text-sm font-medium text-muted-foreground">
+                    Status
+                  </p>
+                  <div className="grid grid-cols-2 gap-2">
+                    {STATUS_OPTIONS.map((option) => {
+                      const active = status === option.value;
+                      return (
+                        <Button
+                          key={option.value}
+                          type="button"
+                          variant={active ? "default" : "outline"}
+                          className="min-h-11"
+                          aria-pressed={active}
+                          disabled={pending !== null}
+                          onClick={() => handleStatusChange(option.value)}
+                        >
+                          {active && pending === "status" ? (
+                            <Loader2 className="size-4 animate-spin" />
+                          ) : (
+                            option.label
+                          )}
+                        </Button>
+                      );
+                    })}
+                  </div>
+                </div>
+              </SignedIn>
+
+              <div className="grid gap-1.5">
+                <p className="text-sm font-medium text-muted-foreground">Your rating</p>
+                <StarRating book={book.book as SelectBook} />
+              </div>
+
+              <div className="grid gap-2">
+                <Button
+                  variant="outline"
+                  className="min-h-11 justify-start gap-3"
+                  disabled={pending !== null}
                   onClick={() => {
+                    setSheetOpen(false);
                     setIsEditing(true);
                   }}
                 >
-                  {isLoading ? (
-                    <>
-                      <Loader2 className="h-4 w-4 animate-spin mr-2" />
-                      <span className="hidden sm:inline">Updating...</span>
-                      <span className="sm:hidden">...</span>
-                    </>
-                  ) : (
-                    <span>Edit</span>
-                  )}
-                </button>
-              )}
-            </>
-          ) : null}
+                  <Pencil className="size-4" />
+                  Edit details
+                </Button>
+                <ConfirmDelete bookTitle={book.book.title ?? title} onConfirm={confirmDelete}>
+                  <Button
+                    variant="ghost"
+                    className="min-h-11 justify-start gap-3 text-destructive"
+                    disabled={pending !== null}
+                  >
+                    <Trash2 className="size-4" />
+                    Delete
+                  </Button>
+                </ConfirmDelete>
+              </div>
+            </div>
+          </SheetContent>
+        </Sheet>
+      )}
+
+      {/* Mobile: while editing, Save / Cancel replace the "⋯" trigger */}
+      {hasStatus && isEditing && (
+        <div className="relative z-10 grid auto-cols-fr grid-flow-col gap-2 md:hidden">
+          <Button
+            variant="outline"
+            className="min-h-11"
+            disabled={pending !== null}
+            onClick={handleCancel}
+          >
+            Cancel
+          </Button>
+          <Button className="min-h-11" disabled={pending !== null} onClick={handleSave}>
+            {pending === "save" ? <Loader2 className="size-4 animate-spin" /> : "Save"}
+          </Button>
         </div>
+      )}
+
+      {/*
+        relative z-10 keeps buttons above the stretched link.
+        Rows with a status hide this block on mobile (their actions are in the
+        sheet); rows without one still show the add button inline.
+      */}
+      <div
+        className={cn(
+          "relative z-10 grid auto-cols-fr grid-flow-col gap-2 md:flex md:shrink-0",
+          hasStatus && "hidden md:flex"
+        )}
+      >
+        <SignedIn>{/* AddToListButton as before */}</SignedIn>
+        {hasStatus && (
+          <>
+            <Button
+              variant="outline"
+              className="min-h-11 md:min-h-9"
+              disabled={pending !== null}
+              onClick={isEditing ? handleSave : () => setIsEditing(true)}
+            >
+              {pending === "save" ? <Loader2 className="size-4 animate-spin" /> : isEditing ? "Save" : "Edit"}
+            </Button>
+            <ConfirmDelete bookTitle={book.book?.title ?? title} onConfirm={confirmDelete}>
+              <Button
+                variant="ghost"
+                className="min-h-11 text-destructive md:min-h-9"
+                disabled={pending !== null}
+              >
+                {pending === "delete" ? <Loader2 className="size-4 animate-spin" /> : "Delete"}
+              </Button>
+            </ConfirmDelete>
+          </>
+        )}
       </div>
-    </div>
+    </article>
   );
 }

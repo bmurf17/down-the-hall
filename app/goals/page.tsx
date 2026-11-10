@@ -1,6 +1,7 @@
+import PageShell from "@/components/shared/Page";
 import Goals from "@/components/goals/Goals";
-import { SelectBook } from "@/lib/schema";
 import { currentUser } from "@clerk/nextjs/server";
+import { getUserGoals } from "@/lib/queries/goals";
 
 export default async function StatsPage() {
   const user = await currentUser();
@@ -13,22 +14,11 @@ export default async function StatsPage() {
     );
   }
 
-  const response = await fetch(
-    `${process.env.NEXT_PUBLIC_API_URL}/api/goals/${user.id}`
-  );
-  if (!response.ok) {
-    return (
-      <div className="min-h-screen flex items-center justify-center">
-        <p className="text-lg text-red-500">Failed to load stats</p>
-      </div>
-    );
-  }
-
-  const { books, goals } = await response.json();
+  const { books, goals } = await getUserGoals(user.id);
 
   return (
-    <div className="mx-16 ">
+    <PageShell>
       <Goals completedBooks={books} goals={goals} />
-    </div>
+    </PageShell>
   );
 }

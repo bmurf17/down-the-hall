@@ -1,12 +1,6 @@
 import React, { useState } from "react";
 import { Book } from "@/types/book";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
+import { BookCover } from "../shared/BookCover";
 
 const ALL_COLUMNS = [
   { key: "image", label: "Image" },
@@ -32,12 +26,10 @@ export default function BookListView({ books }: { books: Book[] }) {
     switch (columnKey) {
       case "image":
         return (
-          <img
-            className="relative overflow-hidden transition-all border border-gray-100/20 ring-accent hover:ring-1 hover:border-accent rounded-l-sm rounded-r-md shadow-md block"
-            src={book.book?.image || ""}
+          <BookCover
+            src={book.book?.image}
             alt={book.book?.title}
-            height={100}
-            width={100}
+            className="w-16 transition-all hover:ring-2 hover:ring-ring"
           />
         );
       case "title":
@@ -65,50 +57,53 @@ export default function BookListView({ books }: { books: Book[] }) {
     }
   };
 
+  const toggleColumn = (columnKey: string) => {
+    if (DEFAULT_COLUMNS.includes(columnKey)) {
+      return;
+    }
+
+    setSelectedColumns((current) =>
+      current.includes(columnKey)
+        ? current.filter((key) => key !== columnKey)
+        : [...current, columnKey]
+    );
+  };
+
   return (
     <div className="w-full">
-      <div className="mb-4 flex items-center space-x-2">
-        <label className="text-sm font-medium">Select Columns:</label>
-        <Select
-          onValueChange={(value) => {
-            const newColumns = Array.from(
-              new Set([
-                ...DEFAULT_COLUMNS,
-                ...value.split(",").filter((col) => col.trim() !== ""),
-              ])
-            );
-            setSelectedColumns(newColumns);
-          }}
-          value={selectedColumns.join(",")}
-        >
-          <SelectTrigger className="w-[300px]">
-            <SelectValue placeholder="Select columns to display" />
-          </SelectTrigger>
-          <SelectContent>
-            {ALL_COLUMNS.map((column) => (
-              <SelectItem
-                key={column.key}
-                value={column.key}
-                // Disable default columns from being deselected
-                disabled={DEFAULT_COLUMNS.includes(column.key)}
-              >
-                {column.label}
-                {DEFAULT_COLUMNS.includes(column.key) && " (Required)"}
-              </SelectItem>
-            ))}
-          </SelectContent>
-        </Select>
-      </div>
+      <fieldset className="mb-4 flex flex-wrap items-center gap-x-4 gap-y-2">
+        <legend className="text-sm font-medium">Select Columns:</legend>
+        {ALL_COLUMNS.map((column) => {
+          const isRequired = DEFAULT_COLUMNS.includes(column.key);
+
+          return (
+            <label
+              key={column.key}
+              className="flex min-h-11 cursor-pointer items-center gap-2 text-sm"
+            >
+              <input
+                type="checkbox"
+                className="size-5 accent-primary"
+                checked={selectedColumns.includes(column.key)}
+                disabled={isRequired}
+                onChange={() => toggleColumn(column.key)}
+              />
+              {column.label}
+              {isRequired && " (Required)"}
+            </label>
+          );
+        })}
+      </fieldset>
 
       {/* Book List Table */}
       <div className="overflow-x-auto">
-        <table className="w-full border-collapse border-4 border-black">
+        <table className="w-full border-collapse border border-gray-300">
           <thead>
-            <tr className="text-left text-2xl">
+            <tr className="border-b border-gray-300 text-left text-sm">
               {selectedColumns.map((columnKey) => {
                 const column = ALL_COLUMNS.find((col) => col.key === columnKey);
                 return column ? (
-                  <th key={columnKey} className="px-4 py-2 font-semibold">
+                  <th key={columnKey} className="px-4 py-3 font-semibold">
                     {column.label}
                   </th>
                 ) : null;
@@ -119,7 +114,7 @@ export default function BookListView({ books }: { books: Book[] }) {
             {books.map((book, index) => (
               <tr
                 key={index}
-                className="border-black border-y-2 hover:bg-gray-50 text-md md:text-lg font-semibold text-text"
+                className="border-y border-gray-300 text-sm font-medium hover:bg-gray-50 md:text-base"
               >
                 {selectedColumns.map((columnKey) => (
                   <td key={columnKey} className="px-4 py-2">

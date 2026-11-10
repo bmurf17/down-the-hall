@@ -1,3 +1,4 @@
+import PageShell from "@/components/shared/Page";
 import { getBook } from "@/actions/hardcoverActions";
 import BookDetails from "@/components/bookDetails/BookDetails";
 import { processBookSeriesDetails } from "@/helpers/convertSeriesBook";
@@ -6,40 +7,21 @@ import { BookSeriesArray } from "@/types/apiResponse/seriesResponse";
 import { Book } from "@/types/book";
 import { currentUser } from "@clerk/nextjs/server";
 import { notFound } from "next/navigation";
-
-async function getBookData(bookId: string): Promise<Book | null> {
-  const baseUrl = process.env.NEXT_PUBLIC_API_URL || "http://localhost:3000";
-  const userRightNow = await currentUser();
-  const res = await fetch(
-    `${baseUrl}/api/books/${userRightNow?.id}/${bookId}`,
-    {
-      next: { tags: ["userBook" + bookId] },
-    }
-  );
-
-  if (res.status === 404) {
-    return null;
-  }
-
-  if (!res.ok) {
-    throw new Error("Failed to fetch data");
-  }
-
-  return res.json();
-}
+import { getBookForUserByHardcoverId } from "@/lib/queries/books";
 
 export default async function Page({ params }: { params: { bookId: string } }) {
-  const data: any = await getBook(params.bookId);
+  const data = await getBook(params.bookId);
 
-  if (!data?.booksData?.books_by_pk) {
+  if (!data?.booksData.books_by_pk) {
     notFound();
   }
 
-  const hardCoverBookInfo = await processTrendingBookDetails(
-    data?.booksData.books_by_pk,
-    data.seriesData
-  );
-  const dbBookData = await getBookData(params.bookId);
+  const userRightNow = await currentUser();
+
+  const [hardCoverBookInfo, dbBookData] = await Promise.all([
+    processTrendingBookDetails(data.booksData.books_by_pk, data.seriesInfo),
+    getBookForUserByHardcoverId(userRightNow?.id, parseInt(params.bookId, 10)),
+  ]);
 
   const seriesData: BookSeriesArray = data.seriesData;
 
@@ -52,13 +34,13 @@ export default async function Page({ params }: { params: { bookId: string } }) {
     : [];
 
   return (
-    <div className="mx-16">
+    <PageShell>
       <BookDetails
         hardCoverBookInfo={hardCoverBookInfo}
-        dbBookInfo={dbBookData}
+        dbBookInfo={dbBookData as Book | null}
         hcSeriesData={seriesData}
         seriesBooks={seriesBooks}
       />
-    </div>
+    </PageShell>
   );
 }

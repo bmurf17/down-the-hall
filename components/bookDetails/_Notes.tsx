@@ -4,12 +4,14 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { addBookNote } from "@/functions/addBookNote";
+import { useToast } from "@/hooks/use-toast";
 import { InsertBookNote } from "@/lib/schema";
 import { Book } from "@/types/book";
-import clsx from "clsx";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { Textarea } from "../ui/textarea";
+import { EmptyState } from "../shared/EmptyState";
+import { BookOpen } from "lucide-react";
 
 interface Props {
   dbBookInfo: Book | null;
@@ -18,11 +20,13 @@ interface Props {
 export default function Notes({ dbBookInfo }: Props) {
   const [newNote, setNewNote] = useState("");
   const [pageNumber, setPageNumber] = useState<number | null>(null);
+  const [isSaving, setIsSaving] = useState(false);
 
   const router = useRouter();
+  const { toast } = useToast();
 
   const handleAddNote = async () => {
-    if (newNote.trim() === "") return;
+    if (newNote.trim() === "" || isSaving) return;
 
     const noteToAdd: Omit<InsertBookNote, "id" | "updatedDate" | "userId"> = {
       bookId: dbBookInfo?.book?.id,
@@ -31,25 +35,37 @@ export default function Notes({ dbBookInfo }: Props) {
       series: dbBookInfo?.book?.seriesName,
     };
 
-    addBookNote(noteToAdd, dbBookInfo?.book?.hardcoverId || 0);
-
-    setNewNote("");
-    setPageNumber(null);
-
-    router.refresh();
+    setIsSaving(true);
+    try {
+      await addBookNote(noteToAdd, dbBookInfo?.book?.hardcoverId || 0);
+      setNewNote("");
+      setPageNumber(null);
+      router.refresh();
+    } catch {
+      toast({
+        title: "Couldn't save note",
+        description: "Please try again.",
+        variant: "destructive",
+      });
+    } finally {
+      setIsSaving(false);
+    }
   };
   return (
     <>
       <>
-        <div className="max-w-2xl mx-4 p-4">
+        <div className="max-w-2xl p-4 sm:p-0">
           <div className="mb-4 space-y-2">
             <Textarea
+              className="min-h-28"
               placeholder="Enter your note"
               value={newNote}
               onChange={(e) => setNewNote(e.target.value)}
             />
             <Input
               type="number"
+              inputMode="numeric"
+              className="min-h-11"
               placeholder="Page number (optional)"
               value={pageNumber || ""}
               onChange={(e) =>
@@ -58,11 +74,9 @@ export default function Notes({ dbBookInfo }: Props) {
             />
             <div className="flex justify-end">
               <Button
-                className={clsx(
-                  "bg-primary flex items-center justify-center p-4 rounded-lg  text-sm/6 gap-2 text-white",
-                  "focus:outline-none data-[focus]:outline-2 data-[focus]:-outline-offset-2 data-[focus]:outline-white/25"
-                )}
+                className="min-h-11"
                 onClick={handleAddNote}
+                disabled={isSaving}
               >
                 Add Note
               </Button>
@@ -86,7 +100,11 @@ export default function Notes({ dbBookInfo }: Props) {
               ))}
             </div>
           ) : (
-            <>You have no notes on this book</>
+            <EmptyState
+              icon={BookOpen}
+              title="No notes yet"
+              description="Add a thought or a page reference above."
+            />
           )}
         </div>
       </>

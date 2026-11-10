@@ -1,7 +1,7 @@
 import { SelectBook, SelectAuthor } from "@/lib/schema";
 import { BookSeries } from "@/types/apiResponse/seriesResponse";
 import { Book } from "@/types/book";
-import { handleImage } from "./convertTrendingBookToBook";
+import { handleImage } from "@/lib/supabase-storage";
 
 export const processBookSeriesDetails = async (
   bookSeries: BookSeries,
@@ -9,17 +9,24 @@ export const processBookSeriesDetails = async (
 ): Promise<Book> => {
   const dtoCombined = bookSeries.book;
 
-  var image = await handleImage(
+  const image = await handleImage(
     bookId,
     dtoCombined.title,
     dtoCombined.cached_image?.url || ""
   );
 
-  var authorId = dtoCombined.contributions
+  const authorId = dtoCombined.contributions
     ? dtoCombined.contributions?.length > 0
       ? dtoCombined.contributions[0]?.author?.id || 0
       : 0
     : 0;
+
+  const genres = Array.from(
+    new Set([
+      ...(dtoCombined.genres ?? []),
+      ...(dtoCombined.cached_tags?.Genre?.map((tag) => tag.tag) ?? []),
+    ])
+  );
 
   const book: SelectBook = {
     id: bookId,
@@ -31,11 +38,11 @@ export const processBookSeriesDetails = async (
     defaultPhysicalEditionId: 0,
     description: dtoCombined.description,
     seriesPosition: bookSeries.position?.toString() || null,
-    seriesLength: dtoCombined.series?.length || null,
+    seriesLength: dtoCombined.book_series?.length || null,
     seriesName: "",
     hardcoverId: 0,
-    pageCount: dtoCombined.page_count,
-    genres: dtoCombined.genres,
+    pageCount: dtoCombined.pages ?? dtoCombined.page_count,
+    genres: genres,
     dateRead: Date.now().toString(),
     updatedDate: Date.now().toString(),
     userId: "",

@@ -1,22 +1,24 @@
-import React, { useState } from "react";
+import { useState, useTransition } from "react";
+import { ChevronDown, Loader2 } from "lucide-react";
+import { useRouter } from "next/navigation";
 import { addBookToList } from "@/functions/addBook";
 import { editBookToList } from "@/functions/editBook";
 import { useToast } from "@/hooks/use-toast";
-import { Status } from "@/types/enums/statusEnum";
+import { Status, readingStatusString } from "@/types/enums/statusEnum";
+import { cn } from "@/lib/utils";
+import { Button } from "../ui/button";
 import {
-  Listbox,
-  ListboxButton,
-  ListboxOption,
-  ListboxOptions,
-} from "@headlessui/react";
-import clsx from "clsx";
-import { useRouter } from "next/navigation";
-import { ChevronDownIcon } from "../icons/ChevronDownIcon";
-import { Loader2 } from "lucide-react";
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuRadioGroup,
+  DropdownMenuRadioItem,
+  DropdownMenuTrigger,
+} from "../ui/dropdown-menu";
 
 interface Props {
   title: string;
   author: string;
+  authorImg?: string;
   image: string;
   release_year: string;
   default_physical_edition_id: number;
@@ -29,11 +31,18 @@ interface Props {
   buttonText: string;
   id: number;
   rating: string;
+  currentStatus?: number | null; // pass book.book?.status
+  className?: string;
 }
+
+const LIST_OPTIONS = Object.values(Status)
+  .filter((v): v is number => typeof v === "number")
+  .map((id) => ({ id, label: readingStatusString[id] }));
 
 export function AddToListButton({
   title,
   author,
+  authorImg,
   image,
   release_year,
   default_physical_edition_id,
@@ -46,33 +55,31 @@ export function AddToListButton({
   page_number,
   id,
   rating,
+  currentStatus,
+  className,
 }: Props) {
   const router = useRouter();
   const { toast } = useToast();
   const [isLoading, setIsLoading] = useState(false);
+  const [isPending, startTransition] = useTransition();
+  const busy = isLoading || isPending;
 
-  const readingStatusString: string[] = ["Reading", "Read", "TBR", "DNF"];
-
-  const listOptions = Object.keys(Status)
-    .map((key, index) => {
-      if (!isNaN(Number(key))) {
-        return { id: key, displayString: readingStatusString[index] };
-      }
-    })
-    .filter((item) => item !== undefined);
-
-  const handleChange = async (e: { id: number; displayString: string }) => {
+  const handleChange = async (statusId: number) => {
+    if (statusId === currentStatus) return;
     setIsLoading(true);
     try {
       if (id) {
-        await editBookToList(id, title, e.id, rating);
-        router.refresh();
+        await editBookToList(id, title, statusId, rating, page_number);
+        toast({
+          title: "Status updated",
+          description: `${title} moved to ${readingStatusString[statusId]}`,
+        });
       } else {
         await addBookToList(
           title,
           author,
-          "",
-          e.id,
+          authorImg ?? "",
+          statusId,
           image,
           release_year,
           default_physical_edition_id,
@@ -83,15 +90,10 @@ export function AddToListButton({
           hardcover_id,
           page_number
         );
-
-        toast({
-          title: "Successfully Added Book",
-          description: `${title} was added`,
-        });
-
-        router.refresh();
+        toast({ title: "Book added", description: `${title} was added` });
       }
-    } catch (error) {
+      startTransition(() => router.refresh()); // stays "busy" until fresh data lands
+    } catch {
       toast({
         title: "Error",
         description: "Failed to update book status",
@@ -103,54 +105,39 @@ export function AddToListButton({
   };
 
   return (
-    <Listbox
-      value={{ id: 0, displayString: "temp" }}
-      onChange={handleChange}
-      disabled={isLoading}
-    >
-      <ListboxButton
-        className={clsx(
-          "bg-primary flex items-center justify-center p-4 rounded-lg text-sm/6 gap-2 text-white hover:bg-opacity-40",
-          "focus:outline-none data-[focus]:outline-2 data-[focus]:-outline-offset-2 data-[focus]:outline-white/25",
-          isLoading && "opacity-50 cursor-not-allowed"
-        )}
-      >
-        {isLoading ? (
-          <>
-            <Loader2 className="h-4 w-4 animate-spin" />
-            <span>Updating...</span>
-          </>
-        ) : (
-          <>
-            {buttonText}
-            <ChevronDownIcon
-              className="group pointer-events-none size-4 fill-white/60"
-              aria-hidden="true"
-            />
-          </>
-        )}
-      </ListboxButton>
-      <ListboxOptions
-        anchor="bottom"
-        transition
-        className={clsx(
-          "rounded-xl border border-white/5 p-1 [--anchor-gap:var(--spacing-1)] focus:outline-none bg-primary mt-2 w-fit",
-          "transition duration-100 ease-in data-[leave]:data-[closed]:opacity-0"
-        )}
-      >
-        {listOptions.map((listName) => (
-          <ListboxOption
-            key={listName?.displayString}
-            value={listName}
-            className="group flex cursor-default items-center gap-2 rounded-lg py-1.5 px-3 select-none data-[focus]:bg-white/10"
-            disabled={isLoading}
-          >
-            <div className="text-sm/6 text-white">
-              {listName?.displayString}
-            </div>
-          </ListboxOption>
-        ))}
-      </ListboxOptions>
-    </Listbox>
+    <DropdownMenu>
+      <DropdownMenuTrigger asChild>
+        <Button
+          disabled={busy}
+          aria-busy={busy}
+          className={cn("min-h-11 md:min-h-9", className)}
+        >
+          {buttonText}
+          {/* spinner replaces the chevron, so the button never changes width */}
+          {busy ? (
+            <Loader2 className="size-4 animate-spin" aria-hidden />
+          ) : (
+            <ChevronDown className="size-4 opacity-70" aria-hidden />
+          )}
+        </Button>
+      </DropdownMenuTrigger>
+
+      <DropdownMenuContent align="end" className="min-w-44">
+        <DropdownMenuRadioGroup
+          value={currentStatus == null ? "" : String(currentStatus)}
+          onValueChange={(v: any) => handleChange(Number(v))}
+        >
+          {LIST_OPTIONS.map((o) => (
+            <DropdownMenuRadioItem
+              key={o.id}
+              value={String(o.id)}
+              className="min-h-11 md:min-h-8"
+            >
+              {o.label}
+            </DropdownMenuRadioItem>
+          ))}
+        </DropdownMenuRadioGroup>
+      </DropdownMenuContent>
+    </DropdownMenu>
   );
 }

@@ -5,6 +5,7 @@ import { userGridResponse } from "@/types/apiResponse/usersgridResponse";
 import { User as UserIcon } from "lucide-react";
 import { useRouter } from "next/navigation";
 import CardCarousel from "../shared/CardCarousel";
+import { EmptyState } from "../shared/EmptyState";
 
 interface UserGridProps {
   users: userGridResponse[];
@@ -28,9 +29,21 @@ export default function UserGrid({ users }: UserGridProps) {
     router.push(`/useractivitylog/${userId}`);
   };
 
+  if (users.length === 0) {
+    return (
+      <div className="w-full py-4 sm:py-8">
+        <EmptyState
+          icon={UserIcon}
+          title="No readers yet"
+          description="Readers will appear here once someone starts tracking books."
+        />
+      </div>
+    );
+  }
+
   return (
-    <div className="container mx-auto px-4 py-8">
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+    <div className="w-full py-4 sm:py-8">
+      <div className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3">
         {users.map((userData) => (
           <Card
             key={userData.user.id}

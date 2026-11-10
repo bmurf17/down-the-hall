@@ -15,7 +15,10 @@ export default function BookCrazyView({ book }: Props) {
           <div className="book-cover">
             <div className="book-inside"></div>
             <div className="book-image">
-              <img src={bookObject?.image || ""} />
+              <img
+                src={bookObject?.image || ""}
+                alt={bookObject?.title || ""}
+              />
               <div className="effect"></div>
               <div className="light"></div>
             </div>

@@ -22,10 +22,10 @@ export const addBookToList = async (
 ) => {
   const userRightNow = await currentUser();
 
-  addBook(
+  await addBook(
     title,
     author,
-    "",
+    authorImg,
     status,
     image,
     release_year,

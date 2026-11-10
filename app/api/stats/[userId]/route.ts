@@ -18,6 +18,9 @@ export async function GET(
   request: NextRequest,
   { params }: { params: { userId: string } }
 ): Promise<NextResponse> {
+  // Intentionally public read-only profile data: the users grid links to other
+  // readers, so stats are not scoped to the session. No private notes are
+  // included in this response.
   const { userId } = params;
 
   const startParam = request.nextUrl.searchParams.get("start");

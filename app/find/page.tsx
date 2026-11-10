@@ -1,6 +1,8 @@
-import { enhancedSearchBooks } from "@/actions/openLibraryActions";
+import PageShell from "@/components/shared/Page";
+import { enhancedSearchBooks } from "@/lib/books/openlibrary";
 import Find from "@/components/find/Find";
 import BookListItem from "@/components/shared/BookListItem";
+import { BookCoverGrid } from "@/components/shared/BookCoverGrid";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { Book } from "@/types/book";
 import { AlertCircle } from "lucide-react";
@@ -12,7 +14,7 @@ interface Props {
 
 async function BookResults({ searchTitle }: { searchTitle: string }) {
   try {
-    var convertedData: Book[] | null | undefined = [];
+    let convertedData: Book[] | null | undefined = [];
 
     convertedData = await enhancedSearchBooks({
       title: searchTitle,
@@ -33,20 +35,24 @@ async function BookResults({ searchTitle }: { searchTitle: string }) {
     }
 
     if (convertedData != null) {
+      const results = convertedData.filter(
+        (book) =>
+          book.book?.image &&
+          book.book.image !== "" &&
+          !book.book.image.toLowerCase().includes("hardcover")
+      );
+
       return (
         <div className="flex flex-col gap-4">
-          {convertedData?.length > 0 && (
-            <div className="rounded-xl bg-gray-300 p-3 animate-fade-in-grow ring-white/60 ring-offset-2 ring-offset-blue-400 focus:outline-none focus:ring-2">
-              {convertedData
-                ?.filter(
-                  (book) =>
-                    book.book?.image &&
-                    book.book.image !== "" &&
-                    !book.book.image.toLowerCase().includes("hardcover")
-                )
-                .map((book) => (
+          {results.length > 0 && (
+            <div className="motion-safe:animate-fade-in-grow rounded-xl bg-card p-3 ring-white/60 ring-offset-2 ring-offset-blue-400 focus:outline-none focus:ring-2">
+              {/* Cover-forward on phones, full rows from md up. */}
+              <BookCoverGrid books={results} />
+              <div className="hidden flex-col gap-2 md:flex">
+                {results.map((book) => (
                   <BookListItem book={book} key={book.book?.hardcoverId} />
                 ))}
+              </div>
             </div>
           )}
         </div>
@@ -88,12 +94,12 @@ export default function FindPage({ searchParams }: Props) {
   const searchTitle = searchParams?.title || "";
 
   return (
-    <div className="mx-16">
+    <PageShell>
       <Find>
         <Suspense fallback={<LoadingResults />}>
           {searchTitle && <BookResults searchTitle={searchTitle} />}
         </Suspense>
       </Find>
-    </div>
+    </PageShell>
   );
 }

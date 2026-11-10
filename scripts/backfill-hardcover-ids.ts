@@ -19,6 +19,13 @@
 import { neon } from "@neondatabase/serverless";
 import * as dotenv from "dotenv";
 import * as path from "path";
+import {
+  authorScore,
+  isConfident,
+  titleScore,
+  type Candidate,
+  type PendingBook,
+} from "../lib/books/matching";
 
 dotenv.config({ path: path.resolve(__dirname, "../.env") });
 
@@ -32,9 +39,6 @@ const HARDCOVER_TOKEN = process.env.HARDCOVER_TOKEN?.replace(
 const DELAY_MS = 1500;
 const MAX_RETRIES = 3;
 const PER_PAGE = 10;
-const MIN_TITLE_SCORE = 0.6;
-const MIN_AUTHOR_SCORE = 0.7;
-const MIN_OVERALL_SCORE = 0.8;
 
 const args = process.argv.slice(2);
 const userId = getArg("--user");
@@ -47,113 +51,10 @@ if (!HARDCOVER_TOKEN) {
 
 const sleep = (ms: number) => new Promise((r) => setTimeout(r, ms));
 
-interface PendingBook {
-  id: number;
-  title: string;
-  release_year: number | null;
-  user_id: string;
-  author: string | null;
-}
-
-interface Candidate {
-  id: number;
-  title: string;
-  alternativeTitles: string[];
-  authorNames: string[];
-  releaseYear: number | null;
-  titleScore: number;
-  authorScore: number;
-  score: number;
-}
-
 function getArg(name: string): string | undefined {
   const index = args.indexOf(name);
   if (index === -1) return undefined;
   return args[index + 1];
-}
-
-function normalize(value: string): string {
-  return value
-    .normalize("NFD")
-    .replace(/[\u0300-\u036f]/g, "")
-    .toLowerCase()
-    .replace(/[^a-z0-9]+/g, " ")
-    .trim()
-    .replace(/\s+/g, " ");
-}
-
-function titleScore(dbTitle: string, candidate: Candidate): number {
-  const db = normalize(dbTitle);
-  if (!db) return 0;
-
-  const variants = [candidate.title, ...candidate.alternativeTitles]
-    .map(normalize)
-    .filter(Boolean);
-
-  const dbTokens = new Set(db.split(" "));
-  let best = 0;
-
-  for (const variant of variants) {
-    if (variant === db) {
-      best = Math.max(best, 1);
-      continue;
-    }
-
-    const variantTokens = new Set(variant.split(" "));
-    let intersection = 0;
-    for (const token of dbTokens) {
-      if (variantTokens.has(token)) intersection++;
-    }
-    if (intersection === 0) continue;
-
-    const dbCovered = intersection / dbTokens.size;
-    const variantCovered = intersection / variantTokens.size;
-    const jaccard =
-      intersection / (dbTokens.size + variantTokens.size - intersection);
-
-    // One title being a subset of the other (e.g. subtitle differences) is a
-    // strong signal; otherwise fall back to token overlap.
-    const containment = Math.max(dbCovered, variantCovered);
-    const score = containment >= 1 ? 0.95 : 0.6 * containment + 0.4 * jaccard;
-    best = Math.max(best, score);
-  }
-
-  return best;
-}
-
-function authorScore(dbAuthor: string, candidate: Candidate): number {
-  const author = normalize(dbAuthor);
-  if (!author) return 0;
-
-  const authorTokens = new Set(author.split(" "));
-  let best = 0;
-
-  for (const name of candidate.authorNames) {
-    const normalized = normalize(name);
-    if (!normalized) continue;
-
-    if (normalized === author) {
-      best = Math.max(best, 1);
-      continue;
-    }
-
-    if (normalized.includes(author) || author.includes(normalized)) {
-      best = Math.max(best, 0.85);
-      continue;
-    }
-
-    const nameTokens = new Set(normalized.split(" "));
-    let shared = 0;
-    for (const token of authorTokens) {
-      if (nameTokens.has(token)) shared++;
-    }
-    const ratio = shared / authorTokens.size;
-    if (ratio >= 0.6) {
-      best = Math.max(best, 0.7 * ratio);
-    }
-  }
-
-  return best;
 }
 
 async function searchHardcover(
@@ -223,14 +124,6 @@ async function searchHardcover(
   }
 
   throw lastError ?? new Error("Hardcover search failed");
-}
-
-function isConfident(book: PendingBook, candidate: Candidate): boolean {
-  if (candidate.titleScore < MIN_TITLE_SCORE) return false;
-  if (book.author?.trim() && candidate.authorScore < MIN_AUTHOR_SCORE) {
-    return false;
-  }
-  return candidate.score >= MIN_OVERALL_SCORE;
 }
 
 async function getPendingBooks(): Promise<PendingBook[]> {
