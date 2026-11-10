@@ -99,7 +99,6 @@ export default function CurrentlyReadingCard({ userData }: Props) {
 
   return (
     <Card className="relative overflow-hidden border-2 border-[#d8c7ad] bg-[#fbf7ee] p-4 text-card-foreground shadow-[0_10px_25px_-18px_rgba(45,30,15,0.8)] sm:p-6">
-      {/* Checkout-card ruled paper. */}
       <div
         aria-hidden
         className="pointer-events-none absolute inset-0 opacity-40"
@@ -115,7 +114,7 @@ export default function CurrentlyReadingCard({ userData }: Props) {
             <p className="text-[10px] font-semibold uppercase tracking-[0.22em] text-[#8a7358]">
               Down The Hall Library
             </p>
-            <h2 className="mt-1 text-xl font-semibold">Currently Reading</h2>
+            <h2 className="mt-1 text-xl font-semibold  text-[#8a7358]">Currently Reading</h2>
           </div>
           <div
             aria-hidden

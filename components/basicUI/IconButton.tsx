@@ -23,7 +23,7 @@ export default function IconButton({
         aria-label={tooltipText}
         aria-pressed={active}
         className={`flex min-h-11 min-w-11 items-center justify-center rounded-lg p-2 transition-colors hover:bg-yellow-500 ${
-          active ? "bg-yellow-500" : "bg-slate-300"
+          active ? "bg-yellow-500" : "bg-primary"
         } ${styles}`}
       >
         {icon}

@@ -75,7 +75,6 @@ export default function Track({ books, totalCount }: Props) {
     [urlPageSize]
   );
 
-  // Persist the view in the URL so reloads, links, and back/forward keep it.
   const selectedView = useMemo(
     () =>
       viewOptions.find(
@@ -101,7 +100,6 @@ export default function Track({ books, totalCount }: Props) {
     [searchParams]
   );
 
-  // The shelf is the signature mobile view; desktop keeps the compact rows.
   useEffect(() => {
     if (searchParams.get("view")) return;
     if (!window.matchMedia("(max-width: 1023px)").matches) return;
