@@ -8,6 +8,7 @@ import { BookSeriesArray } from "@/types/apiResponse/seriesResponse";
 import Series from "./_Series";
 import { useCoverAccent } from "@/hooks/use-cover-accent";
 import CoverFlip from "./_CoverFlip";
+import BookCoverLanding from "./_BookCoverLanding";
 import { EmptyState } from "../shared/EmptyState";
 import { cn } from "@/lib/utils";
 import {
@@ -77,29 +78,34 @@ export default function BookDetails({
 
   return (
     <div className="mx-auto max-w-5xl">
-      <section className="relative overflow-hidden rounded-2xl border border-border/70 bg-card shadow-[0_24px_60px_-48px_rgba(45,30,15,0.9)]">
-        {/* Soft glow pulled from the cover, plus a thin accent rule. */}
+      <section className="relative rounded-2xl border border-border/70 bg-card shadow-[0_24px_60px_-48px_rgba(45,30,15,0.9)]">
+        {/* Decorative wash stays clipped while the cover can fly in from the shelf. */}
         <div
           aria-hidden
-          className="pointer-events-none absolute -right-24 -top-32 size-80 rounded-full opacity-25 blur-3xl"
-          style={{ backgroundColor: accent }}
-        />
-        <div
-          aria-hidden
-          className="pointer-events-none absolute inset-x-0 top-0 h-1 opacity-70"
-          style={{
-            backgroundImage: `linear-gradient(90deg, ${accent}, transparent 70%)`,
-          }}
-        />
+          className="pointer-events-none absolute inset-0 overflow-hidden rounded-2xl"
+        >
+          <div
+            className="absolute -right-24 -top-32 size-80 rounded-full opacity-25 blur-3xl"
+            style={{ backgroundColor: accent }}
+          />
+          <div
+            className="absolute inset-x-0 top-0 h-1 opacity-70"
+            style={{
+              backgroundImage: `linear-gradient(90deg, ${accent}, transparent 70%)`,
+            }}
+          />
+        </div>
 
         <div className="relative flex flex-col gap-6 p-5 sm:flex-row sm:gap-8 sm:p-8 lg:gap-10 lg:p-10">
           <div className="mx-auto w-36 shrink-0 sm:mx-0 sm:w-40 lg:w-52">
-            <CoverFlip
-              book={book}
-              authorName={hardCoverBookInfo.author?.name ?? undefined}
-              description={book?.description}
-              statusLabel={statusLabel}
-            />
+            <BookCoverLanding>
+              <CoverFlip
+                book={book}
+                authorName={hardCoverBookInfo.author?.name ?? undefined}
+                description={book?.description}
+                statusLabel={statusLabel}
+              />
+            </BookCoverLanding>
           </div>
 
           <div className="flex min-w-0 flex-1 flex-col justify-center">

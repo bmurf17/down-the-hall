@@ -1,5 +1,7 @@
 import Link from "next/link";
 import { Book } from "@/types/book";
+import { cn } from "@/lib/utils";
+import { useBookPull } from "../shared/BookPullProvider";
 
 interface Props {
   books: Book[];
@@ -66,10 +68,47 @@ function getSpineMetrics(book: Book) {
 
 function BookSpine({ book }: { book: Book }) {
   const bookObject = book.book;
+  const pull = useBookPull();
   const hardcoverId = bookObject?.hardcoverId;
   const hasHardcoverId = typeof hardcoverId === "number" && hardcoverId > 0;
   const { title, author, width, height, palette, fontSize } =
     getSpineMetrics(book);
+  const isPulling = Boolean(
+    pull?.activeBookId && pull.activeBookId === bookObject?.id
+  );
+
+  const handleOpen = (event: React.MouseEvent<HTMLAnchorElement>) => {
+    // Let modified clicks, mid-clicks, and keyboard shortcuts keep their
+    // normal browser behaviour.
+    if (
+      !pull ||
+      event.button !== 0 ||
+      event.metaKey ||
+      event.ctrlKey ||
+      event.shiftKey ||
+      event.altKey
+    ) {
+      return;
+    }
+
+    event.preventDefault();
+    const rect = event.currentTarget.getBoundingClientRect();
+
+    pull.openBook({
+      href: `/book/${hardcoverId}`,
+      bookId: bookObject?.id,
+      rect: {
+        left: rect.left,
+        top: rect.top,
+        width: rect.width,
+        height: rect.height,
+      },
+      image: bookObject?.image,
+      title,
+      author,
+      palette,
+    });
+  };
 
   const spine = (
     <>
@@ -138,8 +177,12 @@ function BookSpine({ book }: { book: Book }) {
       {hasHardcoverId ? (
         <Link
           href={`/book/${hardcoverId}`}
+          onClick={handleOpen}
           aria-label={`${title}${author ? ` by ${author}` : ""}`}
-          className="group relative block rounded-[2px] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
+          className={cn(
+            "group relative block rounded-[2px] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2",
+            isPulling && "invisible"
+          )}
           style={{ width: `${width}px` }}
         >
           {spine}
