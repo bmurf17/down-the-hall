@@ -2,12 +2,21 @@
 
 import { Book } from "@/types/book";
 import { readingStatusString } from "@/types/enums/statusEnum";
-import { Tab, TabGroup, TabList, TabPanel } from "@headlessui/react";
+import { Tab, TabGroup, TabList, TabPanel, TabPanels } from "@headlessui/react";
 import Notes from "./_Notes";
 import { BookSeriesArray } from "@/types/apiResponse/seriesResponse";
 import Series from "./_Series";
 import { useCoverAccent } from "@/hooks/use-cover-accent";
-import "./BookDetails.css";
+import CoverFlip from "./_CoverFlip";
+import BookCoverLanding from "./_BookCoverLanding";
+import { EmptyState } from "../shared/EmptyState";
+import { cn } from "@/lib/utils";
+import {
+  CalendarDays,
+  FileText,
+  Layers,
+  type LucideIcon,
+} from "lucide-react";
 
 interface Props {
   hardCoverBookInfo: Book;
@@ -16,22 +25,18 @@ interface Props {
   seriesBooks: Book[];
 }
 
+interface MetaItem {
+  icon: LucideIcon;
+  label: string;
+  value: string | number;
+}
+
 export default function BookDetails({
   hardCoverBookInfo,
   dbBookInfo,
   hcSeriesData,
   seriesBooks,
 }: Props) {
-  const addbuttonText = () => {
-    var status = hardCoverBookInfo.book?.status;
-
-    if (status === null) {
-      return readingStatusString[4];
-    }
-
-    return readingStatusString[status || 0];
-  };
-
   const tabItems = [
     { value: "details", label: "Details" },
     { value: "series", label: "Series" },
@@ -39,108 +44,176 @@ export default function BookDetails({
   ];
 
   const coverAccent = useCoverAccent(hardCoverBookInfo?.book?.image);
+  const accent = coverAccent ?? "hsl(var(--primary))";
+
+  const book = hardCoverBookInfo?.book;
+
+  const metaItems: MetaItem[] = [];
+  if (book?.releaseYear) {
+    metaItems.push({
+      icon: CalendarDays,
+      label: "Published",
+      value: book.releaseYear,
+    });
+  }
+  if (book?.pageCount) {
+    metaItems.push({ icon: FileText, label: "Pages", value: book.pageCount });
+  }
+  if (book?.seriesName) {
+    metaItems.push({
+      icon: Layers,
+      label: "Series",
+      value: `${book.seriesName}${
+        book.seriesPosition ? ` #${book.seriesPosition}` : ""
+      }`,
+    });
+  }
+
+  const readingStatus =
+    typeof dbBookInfo?.book?.status === "number"
+      ? dbBookInfo.book.status
+      : null;
+  const statusLabel =
+    readingStatus !== null ? readingStatusString[readingStatus] : null;
 
   return (
-    <div className="relative">
-      <div
-        aria-hidden
-        className="pointer-events-none absolute inset-x-0 top-0 h-[28rem] opacity-15"
-        style={{
-          backgroundImage: `radial-gradient(ellipse at top, ${
-            coverAccent ?? "hsl(var(--primary))"
-          }, transparent 68%)`,
-        }}
-      />
-      <div className="outside relative">
-        <div className="book-wrapper">
-          <div className="card">
-            <div className="cover shadow">
-              <img
-                src={hardCoverBookInfo?.book?.image || ""}
-                alt={hardCoverBookInfo?.book?.title}
+    <div className="mx-auto max-w-5xl">
+      <section className="relative rounded-2xl border border-border/70 bg-card shadow-[0_24px_60px_-48px_rgba(45,30,15,0.9)]">
+        {/* Decorative wash stays clipped while the cover can fly in from the shelf. */}
+        <div
+          aria-hidden
+          className="pointer-events-none absolute inset-0 overflow-hidden rounded-2xl"
+        >
+          <div
+            className="absolute -right-24 -top-32 size-80 rounded-full opacity-25 blur-3xl"
+            style={{ backgroundColor: accent }}
+          />
+          <div
+            className="absolute inset-x-0 top-0 h-1 opacity-70"
+            style={{
+              backgroundImage: `linear-gradient(90deg, ${accent}, transparent 70%)`,
+            }}
+          />
+        </div>
+
+        <div className="relative flex flex-col gap-6 p-5 sm:flex-row sm:gap-8 sm:p-8 lg:gap-10 lg:p-10">
+          <div className="mx-auto w-36 shrink-0 sm:mx-0 sm:w-40 lg:w-52">
+            <BookCoverLanding>
+              <CoverFlip
+                book={book}
+                authorName={hardCoverBookInfo.author?.name ?? undefined}
+                description={book?.description}
+                statusLabel={statusLabel}
               />
-            </div>
-            <div className="content">
-              <h3 className="text-2xl font-bold">
-                {hardCoverBookInfo?.book?.title}
-              </h3>
+            </BookCoverLanding>
+          </div>
 
-              {hardCoverBookInfo.author?.name ? (
-                <p className="mt-1 text-muted-foreground">
-                  by {hardCoverBookInfo.author.name}
-                </p>
+          <div className="flex min-w-0 flex-1 flex-col justify-center">
+            <div className="flex flex-wrap items-center gap-2">
+              {statusLabel && (
+                <span className="inline-flex items-center gap-1.5 rounded-full bg-primary/10 px-2.5 py-1 text-[11px] font-semibold uppercase tracking-wider text-primary">
+                  <span className="size-1.5 rounded-full bg-primary" />
+                  {statusLabel}
+                </span>
+              )}
+              {book?.genres?.length ? (
+                <span className="text-xs font-medium uppercase tracking-wider text-muted-foreground">
+                  {book.genres.slice(0, 3).join(" · ")}
+                </span>
               ) : null}
+            </div>
 
-              <dl className="mt-4 grid grid-cols-2 gap-x-4 gap-y-2 text-sm">
-                {hardCoverBookInfo.book?.releaseYear ? (
-                  <div>
-                    <dt className="text-muted-foreground">Published</dt>
-                    <dd>{hardCoverBookInfo.book.releaseYear}</dd>
-                  </div>
-                ) : null}
-                {hardCoverBookInfo.book?.pageCount ? (
-                  <div>
-                    <dt className="text-muted-foreground">Pages</dt>
-                    <dd>{hardCoverBookInfo.book.pageCount}</dd>
-                  </div>
-                ) : null}
-                {hardCoverBookInfo.book?.seriesName ? (
-                  <div>
-                    <dt className="text-muted-foreground">Series</dt>
-                    <dd>
-                      {hardCoverBookInfo.book.seriesName}
-                      {hardCoverBookInfo.book.seriesPosition
-                        ? ` #${hardCoverBookInfo.book.seriesPosition}`
-                        : ""}
+            <h1 className="mt-3 font-serif text-3xl font-semibold leading-tight tracking-tight sm:text-4xl lg:text-5xl">
+              {book?.title}
+            </h1>
+
+            {hardCoverBookInfo.author?.name ? (
+              <p className="mt-2 text-base text-muted-foreground sm:text-lg">
+                by{" "}
+                <span className="font-medium text-foreground">
+                  {hardCoverBookInfo.author.name}
+                </span>
+              </p>
+            ) : null}
+
+            {metaItems.length ? (
+              <dl className="mt-6 flex flex-wrap gap-2">
+                {metaItems.map(({ icon: Icon, label, value }) => (
+                  <div
+                    key={label}
+                    className="min-w-28 flex-1 rounded-xl border border-border/60 bg-background/60 px-3.5 py-2.5 sm:flex-none"
+                  >
+                    <dt className="flex items-center gap-1.5 text-[11px] font-medium uppercase tracking-wider text-muted-foreground">
+                      <Icon className="size-3.5" aria-hidden />
+                      {label}
+                    </dt>
+                    <dd className="mt-0.5 text-sm font-semibold text-foreground">
+                      {value}
                     </dd>
                   </div>
-                ) : null}
+                ))}
               </dl>
-
-              {hardCoverBookInfo.book?.genres?.length ? (
-                <p className="mt-3 text-sm text-muted-foreground">
-                  {hardCoverBookInfo.book.genres.join(" · ")}
-                </p>
-              ) : null}
-            </div>
+            ) : null}
           </div>
         </div>
-      </div>
+      </section>
 
-      <div className="mx-auto px-2 lg:px-0 max-w-3xl ">
-        <TabGroup>
-          <TabList className="flex gap-4 w-full sm:mx-auto overflow-x-auto overflow-y-hidden no-scrollbar ">
-            {tabItems.map((tab) => {
-              return (
-                <Tab
-                  key={tab.value}
-                  className="data-[selected]:border-b-4 data-[selected]:border-primary data-[hover]:border-b-4  data-[hover]:border-primary  text-lg  text-primary  p-2  data-[focus]:outline-1 data-[focus]:outline-white  "
-                >
-                  {tab.label}
-                </Tab>
-              );
-            })}
-          </TabList>
-          <TabPanel>
-            <p className="whitespace-pre-line">
-              {hardCoverBookInfo.book?.description || "No description yet."}
+      <TabGroup>
+        <TabList className="no-scrollbar mt-8 flex w-full gap-1 overflow-x-auto overflow-y-hidden rounded-xl border border-border/70 bg-card p-1 shadow-sm">
+          {tabItems.map((tab) => (
+            <Tab
+              key={tab.value}
+              className={({ selected }) =>
+                cn(
+                  "inline-flex min-h-11 flex-1 shrink-0 items-center justify-center rounded-lg px-4 text-sm font-medium transition-colors",
+                  "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring",
+                  selected
+                    ? "bg-primary text-primary-foreground shadow-sm"
+                    : "text-muted-foreground hover:bg-accent hover:text-foreground"
+                )
+              }
+            >
+              {tab.label}
+            </Tab>
+          ))}
+        </TabList>
+
+        <TabPanels className="mt-5">
+          <TabPanel className="rounded-2xl border border-border/70 bg-card p-5 shadow-sm sm:p-8">
+            <h2 className="font-serif text-xl font-semibold tracking-tight">
+              About this book
+            </h2>
+            <p className="mt-3 whitespace-pre-line text-[15px] leading-7 text-foreground/80">
+              {book?.description || "No description yet."}
             </p>
           </TabPanel>
 
           <TabPanel>
-            <Series
-              seriesInfo={hcSeriesData}
-              authorName={hardCoverBookInfo.author?.name || ""}
-              seriesBooks={seriesBooks}
-            />
+            {seriesBooks.length ? (
+              <div className="overflow-hidden rounded-2xl border border-border/70 bg-card shadow-sm">
+                <Series
+                  seriesInfo={hcSeriesData}
+                  authorName={hardCoverBookInfo.author?.name || ""}
+                  seriesBooks={seriesBooks}
+                />
+              </div>
+            ) : (
+              <EmptyState
+                icon={Layers}
+                title="No series information"
+                description="This book doesn't appear to belong to a series yet."
+                className="rounded-2xl border border-dashed border-border bg-card/50"
+              />
+            )}
           </TabPanel>
+
           {dbBookInfo ? (
             <TabPanel>
               <Notes dbBookInfo={dbBookInfo} />
             </TabPanel>
           ) : null}
-        </TabGroup>
-      </div>
+        </TabPanels>
+      </TabGroup>
     </div>
   );
 }

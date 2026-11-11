@@ -5,6 +5,7 @@ import { Fraunces, Inter } from "next/font/google";
 import "./globals.css";
 import Template from "./template";
 import NavBar from "@/components/nav/NavBar";
+import BookPullProvider from "@/components/shared/BookPullProvider";
 
 export const viewport: Viewport = {
   width: "device-width",
@@ -51,11 +52,13 @@ export default function RootLayout({
               __html: `(function(){try{var t=localStorage.getItem("down-the-hall:theme")||"system";var d=t==="dark"||(t==="system"&&window.matchMedia("(prefers-color-scheme: dark)").matches);document.documentElement.classList.toggle("dark",d);document.documentElement.dataset.theme=t;document.documentElement.style.colorScheme=d?"dark":"light";}catch(e){}})();`,
             }}
           />
-          <div className="flex flex-col bg-background h-full pb-[calc(4rem+env(safe-area-inset-bottom))] lg:pb-0">
-            <NavBar />
-            <Template>{children}</Template>
-            <Toaster />
-          </div>
+          <BookPullProvider>
+            <div className="flex flex-col bg-background h-full pb-[calc(4rem+env(safe-area-inset-bottom))] lg:pb-0">
+              <NavBar />
+              <Template>{children}</Template>
+              <Toaster />
+            </div>
+          </BookPullProvider>
         </body>
       </html>
     </ClerkProvider>

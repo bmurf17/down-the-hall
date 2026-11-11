@@ -11,6 +11,7 @@ import { CardIcon } from "../icons/CardIcon";
 import { CrazyViewIcon } from "../icons/CrazyViewIcon";
 import { ListIcon } from "../icons/ListIcon";
 import { ShelfIcon } from "../icons/ShelfIcon";
+import { SpinesIcon } from "../icons/SpinesIcon";
 import FilterTrack from "./_FilterTracking";
 import TrackBookViewLogic from "./_TrackBookViewLogic";
 import { cn } from "@/lib/utils";
@@ -38,7 +39,7 @@ const statusOptions = [
   { value: "3", label: "Did Not Finish" },
 ];
 
-const viewOptions = ["Card", "List", "Shelf", "CrazyView"];
+const viewOptions = ["Card", "List", "Shelf", "Spines", "CrazyView"];
 
 interface Props {
   books: Book[];
@@ -320,11 +321,18 @@ export default function Track({ books, totalCount }: Props) {
             active={selectedView === viewOptions[2]}
           />
           <IconButton
-            icon={<CrazyViewIcon />}
+            icon={<SpinesIcon />}
             handleClick={() => switchView(viewOptions[3])}
             styles={""}
             tooltipText={viewOptions[3]}
             active={selectedView === viewOptions[3]}
+          />
+          <IconButton
+            icon={<CrazyViewIcon />}
+            handleClick={() => switchView(viewOptions[4])}
+            styles={""}
+            tooltipText={viewOptions[4]}
+            active={selectedView === viewOptions[4]}
           />
         </div>
       </div>

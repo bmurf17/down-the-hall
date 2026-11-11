@@ -2,6 +2,7 @@ import { Book } from "@/types/book";
 import BookCardView from "./_BookCardView";
 import BookListView from "./_BookListView";
 import BookShelfView from "./_BookShelfView";
+import BookSpinesView from "./_BookSpinesView";
 import BookCrazyView from "./_BookCrazyView";
 
 interface Props {
@@ -72,6 +73,10 @@ export default function TrackBookViewLogic({
                   {books.map((book) => {
                     return <BookShelfView key={book?.book?.id} book={book} />;
                   })}
+                </div>
+              ) : selectedView === viewOptions[3] ? (
+                <div className="mt-4">
+                  <BookSpinesView books={books} />
                 </div>
               ) : (
                 <div className="flex flex-col gap-12">
