@@ -7,7 +7,7 @@ import Notes from "./_Notes";
 import { BookSeriesArray } from "@/types/apiResponse/seriesResponse";
 import Series from "./_Series";
 import { useCoverAccent } from "@/hooks/use-cover-accent";
-import { BookCover } from "../shared/BookCover";
+import CoverFlip from "./_CoverFlip";
 import { EmptyState } from "../shared/EmptyState";
 import { cn } from "@/lib/utils";
 import {
@@ -94,17 +94,12 @@ export default function BookDetails({
 
         <div className="relative flex flex-col gap-6 p-5 sm:flex-row sm:gap-8 sm:p-8 lg:gap-10 lg:p-10">
           <div className="mx-auto w-36 shrink-0 sm:mx-0 sm:w-40 lg:w-52">
-            <div className="relative">
-              <div
-                aria-hidden
-                className="absolute inset-0 translate-x-2 translate-y-2 rounded-md bg-foreground/10"
-              />
-              <BookCover
-                src={book?.image}
-                alt={book?.title ?? ""}
-                className="relative w-full ring-1 ring-black/10"
-              />
-            </div>
+            <CoverFlip
+              book={book}
+              authorName={hardCoverBookInfo.author?.name ?? undefined}
+              description={book?.description}
+              statusLabel={statusLabel}
+            />
           </div>
 
           <div className="flex min-w-0 flex-1 flex-col justify-center">
